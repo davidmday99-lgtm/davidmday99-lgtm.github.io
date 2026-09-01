@@ -54,13 +54,25 @@ export default function SearchPage() {
           className="border-b-2 border-[#061C2B] bg-[#16C7BE] px-5 sm:px-8"
           aria-label="Seller invitation"
         >
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-center sm:gap-6">
-            <p className="text-sm font-black text-[#061C2B] sm:text-base">
-              Help launch OwnerOnly Cars—list your vehicle and help build a
-              better marketplace for everyday Americans.
-            </p>
+          <div className="mx-auto flex max-w-7xl flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+            <div>
+              <p className="text-lg font-black leading-tight text-[#061C2B] sm:text-xl">
+                Help launch OwnerOnly Cars—
+                <a
+                  className="underline decoration-2 underline-offset-4 hover:text-[#FFF8EA]"
+                  href="/our-story"
+                >
+                  read our story
+                </a>
+                .
+              </p>
+              <p className="mt-2 text-sm font-bold leading-6 text-[#061C2B]/80 sm:text-base">
+                List your vehicle and help build a better marketplace for
+                everyday Americans.
+              </p>
+            </div>
             <Button
-              className="h-10 w-fit shrink-0 rounded-none border-2 border-[#061C2B] bg-[#061C2B] px-4 text-xs font-black uppercase text-[#FFF8EA] hover:bg-[#FFF8EA] hover:text-[#061C2B]"
+              className="h-12 w-fit shrink-0 rounded-none border-2 border-[#061C2B] bg-[#061C2B] px-5 text-xs font-black uppercase text-[#FFF8EA] hover:bg-[#FFF8EA] hover:text-[#061C2B]"
               nativeButton={false}
               render={<a href="/sell" />}
             >
