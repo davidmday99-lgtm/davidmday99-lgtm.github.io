@@ -37,6 +37,20 @@ export default function PrivateSellerAuctionsPage() {
     <>
       <SiteHeader />
       <main className="bg-[#FFF8EA] text-[#061C2B]">
+        <section
+          className="border-b-[3px] border-[#061C2B] bg-[#FFB81C] px-5 py-4 sm:px-8"
+          aria-label="Private Seller Auctions launch status"
+        >
+          <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-2xl font-black uppercase tracking-[-0.03em]">
+              Coming soon
+            </p>
+            <p className="max-w-2xl text-sm font-bold leading-6 sm:text-right">
+              Preview how verified private sellers will auction their vehicles.
+              Live listings and bidding are not available yet.
+            </p>
+          </div>
+        </section>
         <section className="border-b-[3px] border-[#061C2B] bg-[#061C2B] px-5 py-16 text-white sm:px-8 lg:py-24">
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.1fr_.9fr] lg:items-end">
             <div>
