@@ -51,25 +51,20 @@ export default function SearchPage() {
       <SiteHeader />
       <main className="min-h-screen bg-[#f8f4e9]">
         <aside
-          className="border-b-2 border-[#061C2B] bg-[#FFB81C] px-5 sm:px-8"
-          aria-label="Founding seller invitation"
+          className="border-b-2 border-[#061C2B] bg-[#16C7BE] px-5 sm:px-8"
+          aria-label="Seller invitation"
         >
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-              <span className="w-fit bg-[#061C2B] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[#FFF8EA]">
-                Founding sellers wanted
-              </span>
-              <p className="font-black text-[#061C2B]">
-                Help launch OwnerOnly Cars—list your vehicle as a founding
-                seller.
-              </p>
-            </div>
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-center sm:gap-6">
+            <p className="text-sm font-black text-[#061C2B] sm:text-base">
+              Help launch OwnerOnly Cars—list your vehicle and help build a
+              better marketplace for everyday Americans.
+            </p>
             <Button
-              className="h-10 w-fit shrink-0 rounded-none border-2 border-[#061C2B] bg-[#FFF8EA] px-4 text-xs font-black uppercase text-[#061C2B] shadow-[3px_3px_0_#16C7BE] hover:bg-white"
+              className="h-10 w-fit shrink-0 rounded-none border-2 border-[#061C2B] bg-[#061C2B] px-4 text-xs font-black uppercase text-[#FFF8EA] hover:bg-[#FFF8EA] hover:text-[#061C2B]"
               nativeButton={false}
               render={<a href="/sell" />}
             >
-              List your vehicle <ArrowRight />
+              List your car <ArrowRight />
             </Button>
           </div>
         </aside>

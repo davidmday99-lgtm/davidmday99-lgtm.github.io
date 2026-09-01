@@ -19,7 +19,7 @@ export function SiteHeader() {
             />
           </a>
           <nav
-            className="hidden items-center gap-7 text-center text-[11px] font-black uppercase leading-[1.15] tracking-wide text-[#061C2B] lg:flex"
+            className="hidden items-center gap-5 text-center text-[11px] font-black uppercase leading-[1.15] tracking-wide text-[#061C2B] lg:flex"
             aria-label="Main navigation"
           >
             <a
@@ -52,6 +52,14 @@ export function SiteHeader() {
             >
               Trust &<br />
               Safety
+            </a>
+            <a
+              className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
+              href="/our-story"
+            >
+              Our
+              <br />
+              Story
             </a>
           </nav>
           <div className="hidden items-center gap-3 lg:flex">
