@@ -1,0 +1,53 @@
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+});
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://owneronlycars.example',
+  ),
+  title: {
+    default: 'OwnerOnly Cars | Cars from people, not lots.',
+    template: '%s | OwnerOnly Cars',
+  },
+  description:
+    'A marketplace for buying and selling cars directly with verified private owners—without dealer markups.',
+  openGraph: {
+    title: 'OwnerOnly Cars',
+    description: 'Cars from people, not lots.',
+    type: 'website',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'OwnerOnly Cars — Cars from people, not lots.' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'OwnerOnly Cars',
+    description: 'Cars from people, not lots.',
+    images: ['/og.png'],
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}

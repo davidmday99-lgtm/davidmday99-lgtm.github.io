@@ -1,0 +1,11 @@
+import { AlertCircle, BadgeCheck, CheckCircle2, Clock3, FileCheck2, Phone } from 'lucide-react';
+
+import { AccountShell } from '@/components/account-shell';
+import { Button } from '@/components/ui/button';
+
+const steps = [
+  { icon: Phone, title: 'Phone verification', status: 'Complete', body: 'Mobile number confirmed.', color: 'bg-teal-50', action: 'Complete' },
+  { icon: BadgeCheck, title: 'Identity verification', status: 'Not started', body: 'Hosted government-ID and matching-selfie check through Stripe Identity.', color: 'bg-[#96d9ed]', action: 'Start identity check' },
+  { icon: FileCheck2, title: 'Ownership verification', status: 'Needed per listing', body: 'Private title or registration review after vehicle details are entered.', color: 'bg-[#f6b82b]', action: 'Create a listing' },
+];
+export default function Page() { return <AccountShell eyebrow="Trust center" title="Verification status"><div className="grid gap-6 xl:grid-cols-3">{steps.map(({ icon: Icon, title, status, body, color, action }) => <article className={`${color} border-2 border-navy p-6 shadow-[6px_6px_0_rgba(7,28,44,.15)]`} key={title}><div className="flex items-center justify-between"><Icon className="size-7" />{status === 'Complete' ? <CheckCircle2 className="size-5 text-teal-800" /> : <Clock3 className="size-5" />}</div><p className="mt-8 text-xs font-black uppercase tracking-wide">{status}</p><h2 className="mt-2 text-2xl font-black uppercase tracking-tight text-navy">{title}</h2><p className="mt-4 min-h-20 leading-6 text-navy/75">{body}</p><Button className="mt-5 h-11 w-full rounded-none border-navy" disabled={status === 'Complete'} variant="outline">{action}</Button></article>)}</div><div className="mt-8 border-2 border-navy bg-white p-6"><div className="flex gap-4"><AlertCircle className="mt-1 size-6 shrink-0 text-teal-700" /><div><h2 className="font-black uppercase text-navy">Privacy promise</h2><p className="mt-2 leading-7 text-slate-600">OwnerOnly stores the Stripe provider session ID, result, timestamps, failure category, and minimum approved fields. Raw government-ID and selfie images stay with the hosted provider and are not downloaded into the marketplace.</p></div></div></div></AccountShell>; }
