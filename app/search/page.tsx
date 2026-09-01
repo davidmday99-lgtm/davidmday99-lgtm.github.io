@@ -1,4 +1,5 @@
 import {
+  ArrowRight,
   FileCheck2,
   MessageCircle,
   ShieldCheck,
@@ -49,6 +50,29 @@ export default function SearchPage() {
     <>
       <SiteHeader />
       <main className="min-h-screen bg-[#f8f4e9]">
+        <aside
+          className="border-b-2 border-[#061C2B] bg-[#FFB81C] px-5 sm:px-8"
+          aria-label="Founding seller invitation"
+        >
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+              <span className="w-fit bg-[#061C2B] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-[#FFF8EA]">
+                Founding sellers wanted
+              </span>
+              <p className="font-black text-[#061C2B]">
+                Help launch OwnerOnly Cars—list your vehicle as a founding
+                seller.
+              </p>
+            </div>
+            <Button
+              className="h-10 w-fit shrink-0 rounded-none border-2 border-[#061C2B] bg-[#FFF8EA] px-4 text-xs font-black uppercase text-[#061C2B] shadow-[3px_3px_0_#16C7BE] hover:bg-white"
+              nativeButton={false}
+              render={<a href="/sell" />}
+            >
+              List your vehicle <ArrowRight />
+            </Button>
+          </div>
+        </aside>
         <section className="relative overflow-hidden border-b-[3px] border-navy bg-navy text-white">
           <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:repeating-linear-gradient(0deg,transparent_0_9px,rgba(255,255,255,.2)_9px_10px)]" />
           <div className="relative mx-auto max-w-7xl px-5 pb-10 pt-10 sm:px-8 lg:pb-12 lg:pt-12">
