@@ -9,7 +9,7 @@ All tables use UUID primary keys, server-generated `created_at`/`updated_at`, fo
 | identity_verifications | Provider session ID unique; state; timestamps; failure category; minimum approved fields; no raw images |
 | ownership_verifications | Listing/VIN; private storage object reference; review state; expiry/deletion timestamp; reviewer |
 | vehicles | Normalized VIN unique; original vPIC payload; decoded fields; seller-corrected descriptive fields |
-| listings | Seller and vehicle; draft/review/published/paused/sold/expired/rejected state; approximate geography; price and facts |
+| listings | Seller and vehicle; draft/review/published/paused/sold/expired/rejected state; approximate geography; price and facts; optional seller-provided CARFAX URL, supplied/checked timestamps and link state |
 | listing_photos | Listing; private staging/public derivative refs; order; content hash; dimensions; moderation state |
 | favorites | Unique user + listing |
 | conversations | One listing per conversation; state; rate-limit fields |
@@ -39,6 +39,7 @@ All tables use UUID primary keys, server-generated `created_at`/`updated_at`, fo
 - Auction-source canonical URL is unique after normalization. Event duplicate keys combine source, normalized title and confirmed time range.
 - Auction events require an approved source; expired events leave public queries automatically but remain in historical/audit storage.
 - Public auction queries exclude restricted, unknown-access, expired and unapproved events by default.
+- Seller-provided CARFAX URLs require HTTPS and a CARFAX-owned host, are revalidated before display, and never change a listing's verification state.
 
 ## RLS outline
 

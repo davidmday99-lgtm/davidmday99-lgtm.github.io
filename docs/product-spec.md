@@ -17,7 +17,7 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 
 1. Browse and filter published private-owner listings.
 2. Create account, confirm phone, and complete Stripe Identity hosted ID + selfie verification.
-3. Create a six-step listing: VIN; facts and price; features and description; photos; ownership document; review.
+3. Create a six-step listing: VIN; facts and price; features, description, and optional seller-provided CARFAX link; photos; ownership document; review.
 4. Decode VIN through NHTSA vPIC and preserve both raw response and seller-corrected non-authoritative fields.
 5. Submit title or registration privately; moderator compares legal name and VIN.
 6. Publish only after verification, attestation, automated screening, and required review.
@@ -45,6 +45,7 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 - Auction registration, bidding, deposits, premiums, payments, and pickup remain entirely with the official operator.
 - No state-specific dealer threshold is hardcoded. Rules are configurable by jurisdiction and require legal review.
 - Automated signals route cases to human review; IP address or score alone never causes an automatic ban.
+- A seller-provided CARFAX link is optional third-party information, not an OwnerOnly verification badge. Public pages identify its source and tell buyers to confirm the report VIN.
 
 ## Verification meaning
 
@@ -53,6 +54,7 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 | Government ID + selfie | User likely matches submitted ID | Vehicle ownership |
 | Title/registration review | Seller name and VIN match current document | Mechanical condition |
 | NMVTIS provider report | Available title, odometer, brand, salvage/total-loss, and certain theft data | Complete repair history |
+| Seller-provided CARFAX link | The seller supplied a link hosted on a CARFAX domain | That the report is current, complete, authentic, or for the listed vehicle |
 
 ## Success criteria
 

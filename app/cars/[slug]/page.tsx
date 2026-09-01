@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
-import { AlertTriangle, Calendar, Car, Flag, Gauge, Heart, MapPin, MessageSquare, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, Calendar, Car, ExternalLink, FileSearch, Flag, Gauge, Heart, MapPin, MessageSquare, ShieldCheck } from 'lucide-react';
 
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { CARFAX_REPORTS_URL } from '@/lib/carfax';
 import { demoListings, formatMileage, formatPrice } from '@/lib/demo-data';
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
@@ -39,6 +40,7 @@ export default function VehiclePage({ params }: { params: { slug: string } }) {
             <div>
               <h2 className="text-3xl font-black uppercase tracking-[-0.045em] text-navy">Vehicle details</h2><div className="mt-5 grid border-2 border-navy bg-white sm:grid-cols-2">{specs.map(([label, value, Icon], index) => <div className={`flex gap-4 p-5 ${index % 2 ? 'sm:border-l' : ''} ${index > 1 ? 'border-t' : ''} border-slate-300`} key={label}><Icon className="size-5 text-teal-700" /><div><p className="text-xs font-black uppercase tracking-wide text-slate-500">{label}</p><p className="mt-1 font-bold text-navy">{value}</p></div></div>)}</div>
               <h2 className="mt-10 text-3xl font-black uppercase tracking-[-0.045em] text-navy">Seller’s description</h2><p className="mt-4 max-w-3xl leading-8 text-slate-700">Well-kept, everyday vehicle with regular maintenance and a clean interior. Selling because our household needs changed. This is fictional demonstration content and not a real offer to sell.</p>
+              <section className="mt-10 border-2 border-navy bg-white p-6 shadow-[6px_6px_0_rgba(7,28,44,.15)]" aria-labelledby="vehicle-history-heading"><div className="flex items-start gap-4"><div className="bg-teal-100 p-3 text-teal-800"><FileSearch className="size-6" /></div><div><p className="text-xs font-black uppercase tracking-[0.18em] text-teal-800">Seller-provided · third party</p><h2 className="mt-1 text-2xl font-black uppercase text-navy" id="vehicle-history-heading">CARFAX vehicle history</h2></div></div><div className="mt-5 border-l-4 border-slate-300 bg-slate-50 p-4"><p className="font-bold text-navy">No CARFAX report is attached to this demonstration listing.</p><p className="mt-2 text-sm leading-6 text-slate-600">When a seller adds an official CARFAX link, always confirm the report VIN matches the vehicle. A report may not contain every accident, repair, or title event.</p></div><a className="mt-5 inline-flex items-center gap-2 border-2 border-navy bg-navy px-4 py-3 text-sm font-black uppercase text-white hover:bg-teal-800" href={CARFAX_REPORTS_URL} rel="noreferrer" target="_blank">Get a report from CARFAX <ExternalLink className="size-4" /></a><p className="mt-3 text-xs leading-5 text-slate-500">Direct non-affiliate link. OwnerOnly receives no payment. CARFAX is not an OwnerOnly verification badge, and OwnerOnly is not affiliated with or endorsed by CARFAX.</p></section>
             </div>
             <div className="border-2 border-navy bg-[#f6b82b] p-6 shadow-[6px_6px_0_rgba(7,28,44,.18)]"><AlertTriangle className="size-8" /><h2 className="mt-4 text-2xl font-black uppercase text-navy">Meet safely.</h2><ul className="mt-5 space-y-3 text-sm leading-6 text-navy/85"><li>• Meet in a public place during daylight.</li><li>• Independently inspect the vehicle and title.</li><li>• Never send gift cards or wire money to hold a car.</li><li>• Verify the VIN on the vehicle matches the title.</li></ul><a className="mt-6 inline-block font-black uppercase underline" href="/trust-and-safety">All safety tips</a></div>
           </section>

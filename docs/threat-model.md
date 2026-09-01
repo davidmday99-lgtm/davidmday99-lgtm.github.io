@@ -15,6 +15,7 @@ Government-identity results, ownership documents, legal names, contact informati
 | Malicious upload | Signature/type/size/dimension/count validation, metadata stripping, private staging, malware/image re-encode, random object names |
 | Webhook replay/spoofing | Raw-body signature verification, timestamp tolerance, idempotency table, monotonic state transitions |
 | Messaging scam/spam | Verification gate, rate limits, block enforcement, suspicious-link and off-platform warnings, reports, moderation |
+| Fake or swapped CARFAX link | HTTPS-only CARFAX-domain allowlist, redirect revalidation, stored normalized URL, visible seller-provided label, VIN-match reminder, report control and periodic link checks |
 | XSS/content injection | Length/schema validation, safe rendering, URL allow/deny policies, CSP, output encoding, sanitization where rich text is unavoidable |
 | Privacy leakage | Approximate location, private contact channels/documents, minimized logs, retention jobs, export/deletion workflows |
 | Insider misuse | Least privilege, short-lived access, immutable audit actions, case-based document access, dual control for sensitive exports |

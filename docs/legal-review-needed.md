@@ -10,6 +10,7 @@ Professional counsel must review before launch:
 - FTC Act, state UDAP rules, advertising claims, fee disclosure, auto-renewal (if any), communications, accessibility, and consumer reporting.
 - Data retention, deletion, legal hold, breach notification, children/age eligibility, sanctions, subpoena, and law-enforcement response.
 - NMVTIS provider agreement, required report disclosures, branding, refresh rules, and permitted use.
+- CARFAX linking, report-sharing, trademark, branding, affiliate/partner, disclosure, caching, and permitted-use terms. Do not add affiliate tracking until CARFAX has approved the relationship in writing.
 - Section 230/content moderation considerations, fraud reporting, record preservation, and moderator safety.
 - Government-name, seal and affiliation disclaimers; auction-operator terms; linking, feed, API, RSS, robots and automated-retrieval permissions; contractor authorization evidence; stale-data liability; auctioneer/dealer/broker licensing; bid-facilitation boundaries; restricted/salvage inventory; and state-specific auction disclosures.
 
