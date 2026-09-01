@@ -100,7 +100,7 @@ export default function BlogPage() {
               </div>
               <BookOpen className="hidden size-12 text-[#0B8F89] sm:block" />
             </div>
-            <div className="mt-9 grid gap-7 md:grid-cols-2">
+            <div className="mt-9 grid gap-7 md:grid-cols-2 xl:grid-cols-3">
               {morePosts.map((post) => (
                 <article
                   className="overflow-hidden border-[3px] border-[#061C2B] bg-white shadow-[7px_7px_0_rgba(6,28,43,.16)]"

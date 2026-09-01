@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { ArrowLeft, Clock3, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Clock3, ExternalLink, ShieldAlert } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 import { SiteFooter } from '@/components/site-footer';
@@ -99,6 +99,23 @@ export default function BlogArticlePage({
                           <li className="flex gap-3" key={bullet}>
                             <span className="mt-3 size-2 shrink-0 bg-[#16C7BE]" />
                             <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {section.links ? (
+                      <ul className="mt-5 space-y-3 text-lg leading-8">
+                        {section.links.map((link) => (
+                          <li key={link.href}>
+                            <a
+                              className="inline-flex items-center gap-2 font-bold text-[#0B6F6A] underline decoration-2 underline-offset-4 hover:text-[#061C2B]"
+                              href={link.href}
+                              rel="noreferrer"
+                              target="_blank"
+                            >
+                              {link.label}
+                              <ExternalLink className="size-4 shrink-0" />
+                            </a>
                           </li>
                         ))}
                       </ul>

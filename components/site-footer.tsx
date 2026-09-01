@@ -24,6 +24,7 @@ export function SiteFooter() {
             ['Public auto auctions', '/public-auto-auctions'],
             ['Sell your car', '/sell'],
             ['How it works', '/how-it-works'],
+            ['Financing guide', '/blog/credit-union-auto-loans-and-financing'],
             ['Owner Only Journal', '/blog'],
           ]}
         />

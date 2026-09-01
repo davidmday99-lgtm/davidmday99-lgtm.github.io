@@ -2,6 +2,10 @@ export type BlogSection = {
   heading: string;
   paragraphs?: string[];
   bullets?: string[];
+  links?: {
+    label: string;
+    href: string;
+  }[];
 };
 
 export type BlogPost = {
@@ -144,6 +148,104 @@ export const blogPosts: BlogPost[] = [
         heading: 'After the drive',
         paragraphs: [
           'Take time to review the vehicle, documents, inspection findings, and payment plan. A legitimate private seller should understand why a careful buyer needs time to verify a major purchase.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'credit-union-auto-loans-and-financing',
+    title: 'Are credit unions usually the best place to finance a car?',
+    excerpt:
+      'Credit unions can offer competitive auto-loan terms, but the best offer depends on your credit, the vehicle, the loan length, fees, and the lender.',
+    category: 'Financing guide',
+    publishedLabel: 'September 1, 2026',
+    publishedIso: '2026-09-01',
+    readTime: '7 min read',
+    image: '/demo-hatchback.png',
+    imageAlt: 'Fictional private-owner hatchback demonstration listing',
+    intro:
+      'A credit union is a smart place to start shopping for an auto loan—but it is not automatically the cheapest choice. Get a firm offer, compare it with other lenders, and judge the full cost instead of looking only at the monthly payment.',
+    sections: [
+      {
+        heading: 'Why start with a credit union?',
+        paragraphs: [
+          'Credit unions are member-owned financial institutions, and many offer auto loans for new and used vehicles. Their rates and fees can be competitive, which makes them a useful first stop when gathering quotes.',
+          'Still, membership does not guarantee the lowest rate. Your credit history, income, loan amount, vehicle age, mileage, down payment, and requested loan term can all affect the offer. Banks and other lenders may beat it, so compare actual written terms.',
+        ],
+      },
+      {
+        heading: 'Get preapproved before choosing the car.',
+        paragraphs: [
+          'A preapproval tells you the amount, annual percentage rate, and loan term a lender may offer before you commit to a vehicle. It creates a useful baseline and helps keep the vehicle price separate from the financing conversation.',
+          'Ask whether the preapproval works for a private-party purchase. Some lenders have different requirements for a vehicle bought from its owner instead of a dealership.',
+        ],
+      },
+      {
+        heading: 'Compare the same numbers.',
+        paragraphs: [
+          'The Consumer Financial Protection Bureau recommends comparing more than the monthly payment. Put each offer side by side and review:',
+        ],
+        bullets: [
+          'The amount financed after the down payment and any trade-in.',
+          'The annual percentage rate (APR), which includes the interest rate and certain loan fees.',
+          'The loan term in months.',
+          'The monthly payment and number of payments.',
+          'The total of payments and total interest over the life of the loan.',
+          'Origination fees, late fees, prepayment terms, and optional products.',
+        ],
+      },
+      {
+        heading: 'A lower payment can cost more.',
+        paragraphs: [
+          'Stretching a loan over 72 or 84 months may reduce the monthly payment, but it usually increases the total interest paid. A long term can also leave you owing more than the vehicle is worth for a longer period.',
+          'Choose a payment that fits your budget, but check the total cost before deciding that the lowest monthly number is the best deal.',
+        ],
+      },
+      {
+        heading: 'Ask these private-sale questions.',
+        bullets: [
+          'Does the lender finance private-party vehicle purchases?',
+          'Are there limits on vehicle age, mileage, title status, or purchase price?',
+          'What title, registration, insurance, inspection, and seller documents are required?',
+          'How will an existing lien be paid off and released?',
+          'Will the lender pay the seller directly, and when can the buyer safely take possession?',
+        ],
+        paragraphs: [
+          'Do not send money based only on a screenshot, email, or payment promise. Confirm the lender’s process using a trusted phone number or official website, and independently verify the title, VIN, seller identity, and lien status.',
+        ],
+      },
+      {
+        heading: 'A practical shopping plan.',
+        bullets: [
+          'Check your credit reports and correct errors before applying.',
+          'Start with a credit union you can join, then compare at least two other lenders.',
+          'Request quotes for the same amount, down payment, and term.',
+          'Read every disclosure before signing and question fees or add-ons you do not understand.',
+          'Budget for insurance, taxes, registration, maintenance, and repairs—not only the loan payment.',
+        ],
+        paragraphs: [
+          'Owner Only Cars does not arrange financing, recommend a particular lender, or receive compensation from the sources below. This guide is educational and should not replace advice based on your financial situation.',
+        ],
+      },
+      {
+        heading: 'Official resources.',
+        links: [
+          {
+            label: 'CFPB: How to compare auto-loan offers',
+            href: 'https://www.consumerfinance.gov/ask-cfpb/how-do-i-compare-auto-loan-offers-what-should-i-look-at-besides-the-monthly-payment-en-753/',
+          },
+          {
+            label: 'CFPB: What to know before shopping for an auto loan',
+            href: 'https://www.consumerfinance.gov/ask-cfpb/what-should-i-know-before-i-shop-for-auto-loan-at-a-bank-credit-union-dealership-or-other-lender-en-755/',
+          },
+          {
+            label: 'MyCreditUnion.gov: Auto loans',
+            href: 'https://mycreditunion.gov/manage-your-money/consumer-loans-credit-cards/auto-loans',
+          },
+          {
+            label: 'FTC: Financing or leasing a car',
+            href: 'https://consumer.ftc.gov/articles/financing-or-leasing-car',
+          },
         ],
       },
     ],
