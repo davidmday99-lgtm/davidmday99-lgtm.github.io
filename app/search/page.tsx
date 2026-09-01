@@ -74,7 +74,7 @@ export default function SearchPage() {
                 <img
                   alt="A dark navy classic Mustang shown in side profile"
                   className="absolute inset-0 size-full object-contain object-center drop-shadow-[0_20px_18px_rgba(0,0,0,.42)]"
-                  src="/owneronly-mustang-hero.png"
+                  src="/owneronly-mustang-hero-navy.png"
                 />
               </div>
             </div>
