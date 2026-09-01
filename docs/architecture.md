@@ -5,6 +5,7 @@
 - App Router TypeScript web application, deployable at the edge where supported.
 - Tailwind CSS and accessible reusable components.
 - Supabase PostgreSQL, Auth, row-level security, private Storage, and Realtime.
+- Google OAuth through Supabase Auth using PKCE and minimum `openid`, email, and profile scopes; no Gmail-data access.
 - Stripe Identity hosted document + matching-selfie verification.
 - NHTSA vPIC adapter with successful-response caching.
 - Approved NMVTIS provider behind a provider interface; mock adapter until contracted.
@@ -18,6 +19,7 @@
 4. Stripe webhooks require signature verification and idempotency keys.
 5. Private documents use a non-public bucket and short-lived signed URLs only inside authorized moderator workflows.
 6. External VIN/history data is labeled with source and retrieval time; provider responses are never treated as seller authority.
+7. Google OAuth secrets stay in provider configuration, redirects use an exact allow list, and Google sign-in never bypasses phone, identity, ownership, suspension, or authorization checks.
 
 ## Data minimization
 
@@ -29,7 +31,7 @@
 
 ## Current prototype
 
-The current build provides the complete public and account interface, realistic fictional demo listings, original imagery, verification explanations, NHTSA and NMVTIS adapter boundaries, SEO surfaces, and project documentation. Auth, persistence, uploads, webhooks, moderation, and vendor calls remain intentionally unconnected until accounts and decisions are supplied.
+The current build provides the complete public and account interface, Google sign-in preview, realistic fictional demo listings, original imagery, verification explanations, NHTSA and NMVTIS adapter boundaries, SEO surfaces, and project documentation. Auth, persistence, uploads, webhooks, moderation, and vendor calls remain intentionally unconnected until accounts and decisions are supplied.
 
 ## Auction-directory subsystem
 

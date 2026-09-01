@@ -8,6 +8,7 @@
 - [x] Optional seller-provided CARFAX link field, CARFAX-domain validation, non-affiliate buyer link, source labeling, VIN-match reminder, and automated tests.
 - [x] How It Works, Trust & Safety, Seller Fees, About, FAQ, Terms placeholder, and Privacy placeholder.
 - [x] Login, signup, verification status, dashboard, favorites, messages, settings, six-step listing wizard, and preview.
+- [x] Google OAuth login/signup interface with minimum-data privacy explanation and production setup checklist.
 - [x] Original generated demo vehicle imagery; all seed records labeled demonstration data.
 - [x] NHTSA adapter and non-fabricating mock NMVTIS adapter boundaries.
 - [x] Metadata, social card, robots, sitemap, environment example, and typed environment reader.
@@ -21,6 +22,7 @@
 ## Production implementation gates
 
 - [ ] Supabase schema, migrations, RLS, storage policies, seed data, and rollback plan pass automated tests.
+- [ ] Configure Google OAuth in Google Cloud and Supabase, implement PKCE callback/session handling, test identity linking and failure states, and keep the UI disabled until verified end to end.
 - [ ] Stripe Identity session creation is authenticated/server-only; signed webhooks are idempotent; no raw ID/selfie images are stored or logged.
 - [ ] Upload pipeline validates signatures/types/sizes/dimensions/count, strips metadata, re-encodes, and deletes ownership documents on schedule.
 - [ ] Publish/message mutations deny unverified, suspended, blocked, or unauthorized users in server and RLS tests.

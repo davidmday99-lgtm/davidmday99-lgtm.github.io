@@ -11,6 +11,7 @@ Government-identity results, ownership documents, legal names, contact informati
 | Fake identity or stolen documents | Hosted Stripe Identity, matching selfie, webhook verification, manual review states, no raw image storage |
 | Non-owner/dealer listing | Ownership-name/VIN comparison, attestation, configurable rolling limits, repeated VIN/photo/contact/device/account signals, human review and appeal |
 | Account takeover | Strong auth, phone confirmation, session rotation, rate limits, breach/password controls, suspicious login response |
+| OAuth callback or account-linking abuse | PKCE, state validation, exact redirect allow list, same-origin post-login paths, secure cookie sessions, authenticated identity linking, no custom email-only account merges |
 | IDOR/RLS bypass | Server authorization on every mutation, deny-by-default RLS, UUIDs not treated as authorization, access-control tests |
 | Malicious upload | Signature/type/size/dimension/count validation, metadata stripping, private staging, malware/image re-encode, random object names |
 | Webhook replay/spoofing | Raw-body signature verification, timestamp tolerance, idempotency table, monotonic state transitions |
