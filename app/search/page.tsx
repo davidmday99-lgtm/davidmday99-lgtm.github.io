@@ -70,16 +70,12 @@ export default function SearchPage() {
                 </p>
               </div>
 
-              <div className="relative min-h-[220px] overflow-hidden border-2 border-white/25 bg-[#0b2a3d] shadow-[8px_8px_0_#16b9ad] sm:min-h-[285px] lg:min-h-[330px]">
+              <div className="relative min-h-[220px] sm:min-h-[285px] lg:min-h-[330px]">
                 <img
-                  alt="A privately owned blue crossover parked in a residential driveway"
-                  className="absolute inset-0 size-full object-cover object-center"
-                  src="/owner-car-driveway.png"
+                  alt="A dark navy classic Mustang shown in side profile"
+                  className="absolute inset-0 size-full object-contain object-center drop-shadow-[0_20px_18px_rgba(0,0,0,.42)]"
+                  src="/owneronly-mustang-hero.png"
                 />
-                <div className="absolute inset-0 bg-navy/25" />
-                <p className="absolute bottom-0 right-0 bg-navy px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white">
-                  Original demo photography
-                </p>
               </div>
             </div>
 
