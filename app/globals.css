@@ -109,7 +109,7 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background: #dff4f8;
+    background: #071c2c;
     box-shadow:
       inset 12px 0 0 #f6b82b,
       inset -12px 0 0 #16b9ad;
@@ -120,28 +120,24 @@
     inset: 0;
     z-index: -1;
     content: '';
-    opacity: 0.2;
-    background-image: repeating-linear-gradient(0deg, transparent 0 9px, rgb(7 28 44 / 0.1) 9px 10px);
+    opacity: 0.08;
+    background-image: repeating-linear-gradient(0deg, transparent 0 9px, rgb(255 255 255 / 0.16) 9px 10px);
     pointer-events: none;
   }
 
   .retro-display {
-    color: #071c2c;
+    color: #ffffff;
     font-family: var(--font-poster);
     font-weight: 900;
     letter-spacing: 0.025em !important;
-    -webkit-text-stroke: 2px #f8f4e9;
+    -webkit-text-stroke: 0;
     paint-order: stroke fill;
-    text-shadow:
-      3px 3px 0 #16b9ad,
-      6px 6px 0 #071c2c;
+    text-shadow: 4px 4px 0 #16b9ad;
   }
 
   .retro-display-teal {
-    color: #071c2c;
-    text-shadow:
-      3px 3px 0 #f6b82b,
-      6px 6px 0 #071c2c;
+    color: #f6b82b;
+    text-shadow: 4px 4px 0 #16b9ad;
   }
 
   .block-label {
@@ -172,9 +168,6 @@
 
 @media (max-width: 640px) {
   .retro-display {
-    -webkit-text-stroke-width: 1.25px;
-    text-shadow:
-      2px 2px 0 #16b9ad,
-      4px 4px 0 #071c2c;
+    text-shadow: 3px 3px 0 #16b9ad;
   }
 }

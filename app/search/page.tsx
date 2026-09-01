@@ -22,8 +22,8 @@ export default function SearchPage() {
           <div className="mx-auto max-w-7xl">
             <p className="block-label">Private-owner inventory</p>
             <div className="mt-7 flex flex-col gap-9 xl:flex-row xl:items-end xl:justify-between">
-              <div><h1 className="retro-display max-w-3xl text-6xl uppercase leading-[.78] sm:text-8xl lg:text-[7rem]">Find your<br /><span className="retro-display-teal">next car.</span></h1><p className="mt-8 border-l-4 border-navy pl-4 font-bold text-navy">Fictional demonstration listings · verified-owner design preview</p></div>
-              <form className="chunky-panel flex w-full max-w-xl gap-2 bg-white p-2">
+              <div><h1 className="retro-display max-w-3xl text-6xl uppercase leading-[.9] sm:text-8xl lg:text-[7rem]">Find your<br /><span className="retro-display-teal">next car.</span></h1><p className="mt-8 border-l-4 border-[#f6b82b] pl-4 font-bold text-white">Fictional demonstration listings · verified-owner design preview</p></div>
+              <form className="flex w-full max-w-xl gap-2 border-[3px] border-white bg-white p-2 shadow-[9px_9px_0_#16b9ad]">
                 <Input className="h-11 rounded-none border-slate-300" placeholder="Make, model or keyword" />
                 <Input className="h-11 w-28 rounded-none border-slate-300" placeholder="ZIP" />
                 <Button className="h-11 rounded-none bg-navy px-5">Search</Button>
