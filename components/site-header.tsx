@@ -19,7 +19,7 @@ export function SiteHeader() {
             />
           </a>
           <nav
-            className="hidden items-center gap-4 text-center text-[10px] font-black uppercase leading-[1.15] tracking-wide text-[#061C2B] lg:flex xl:text-[11px]"
+            className="hidden items-center gap-3 text-center text-[10px] font-black uppercase leading-[1.15] tracking-wide text-[#061C2B] lg:flex xl:text-[11px]"
             aria-label="Main navigation"
           >
             <a
@@ -68,6 +68,12 @@ export function SiteHeader() {
               Our
               <br />
               Story
+            </a>
+            <a
+              className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
+              href="/blog"
+            >
+              Blog
             </a>
           </nav>
           <div className="hidden items-center gap-3 lg:flex">

@@ -16,6 +16,10 @@ import { Badge } from '@/components/ui/badge';
 import { formatMileage } from '@/lib/demo-data';
 import { demoPrivateAuctions } from '@/lib/private-auction-data';
 
+export function generateStaticParams() {
+  return demoPrivateAuctions.map((auction) => ({ slug: auction.slug }));
+}
+
 export function generateMetadata({
   params,
 }: {

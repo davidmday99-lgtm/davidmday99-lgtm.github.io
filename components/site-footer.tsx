@@ -24,12 +24,14 @@ export function SiteFooter() {
             ['Public auto auctions', '/public-auto-auctions'],
             ['Sell your car', '/sell'],
             ['How it works', '/how-it-works'],
+            ['OwnerOnly Journal', '/blog'],
           ]}
         />
         <FooterGroup
           title="Company"
           links={[
             ['About', '/about'],
+            ['Our story', '/our-story'],
             ['Trust & safety', '/trust-and-safety'],
             ['Help & FAQ', '/help'],
           ]}
