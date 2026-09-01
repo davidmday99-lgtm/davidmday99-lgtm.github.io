@@ -53,8 +53,8 @@
   --accent: oklch(0.91 0.055 190);
   --accent-foreground: oklch(0.25 0.05 240);
   --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.90 0.014 225);
-  --input: oklch(0.90 0.014 225);
+  --border: oklch(0.9 0.014 225);
+  --input: oklch(0.9 0.014 225);
   --ring: oklch(0.66 0.14 187);
   --radius: 0.8rem;
 }
@@ -121,7 +121,11 @@
     z-index: -1;
     content: '';
     opacity: 0.08;
-    background-image: repeating-linear-gradient(0deg, transparent 0 9px, rgb(255 255 255 / 0.16) 9px 10px);
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent 0 9px,
+      rgb(255 255 255 / 0.16) 9px 10px
+    );
     pointer-events: none;
   }
 
@@ -138,6 +142,12 @@
   .retro-display-teal {
     color: #f6b82b;
     text-shadow: 4px 4px 0 #16b9ad;
+  }
+
+  .owner-hero-title {
+    font-family: var(--font-poster);
+    font-weight: 900;
+    letter-spacing: -0.01em !important;
   }
 
   .block-label {
