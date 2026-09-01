@@ -8,7 +8,7 @@ export function SiteHeader() {
       <div className="border-y-2 border-[#16C7BE] bg-[#FFF8EA]">
         <div className="mx-auto flex h-[86px] max-w-7xl items-center justify-between px-5 sm:px-8">
           <a
-            className="flex h-[76px] w-52 shrink-0 items-center overflow-hidden sm:w-60 lg:w-[270px]"
+            className="flex h-[76px] w-[234px] shrink-0 items-center overflow-hidden sm:w-[274px] lg:w-[304px]"
             href="/"
             aria-label="OwnerOnly Cars home"
           >
