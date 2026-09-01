@@ -14,23 +14,30 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://owneronlycars.example',
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://owneronlycars.com',
   ),
   title: {
-    default: 'OwnerOnly Cars | Cars from people, not lots.',
-    template: '%s | OwnerOnly Cars',
+    default: 'Owner Only Cars | Cars from people, not lots.',
+    template: '%s | Owner Only Cars',
   },
   description:
     'A marketplace for buying and selling cars directly with verified private owners—without dealer markups.',
   openGraph: {
-    title: 'OwnerOnly Cars',
+    title: 'Owner Only Cars',
     description: 'Cars from people, not lots.',
     type: 'website',
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'OwnerOnly Cars — Cars from people, not lots.' }],
+    images: [
+      {
+        url: '/og.png',
+        width: 1200,
+        height: 630,
+        alt: 'Owner Only Cars — Cars from people, not lots.',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OwnerOnly Cars',
+    title: 'Owner Only Cars',
     description: 'Cars from people, not lots.',
     images: ['/og.png'],
   },
