@@ -6,7 +6,7 @@ import { DemoListing, formatMileage, formatPrice } from '@/lib/demo-data';
 
 export function ListingCard({ listing }: { listing: DemoListing }) {
   return (
-    <article className="group overflow-hidden border-2 border-navy bg-white shadow-[7px_7px_0_rgba(7,28,44,.16)] transition hover:-translate-y-0.5">
+    <article className="chunky-card group overflow-hidden bg-white transition hover:-translate-y-1 hover:shadow-[10px_10px_0_#16b9ad]">
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
         <a href={`/cars/${listing.slug}`} aria-label={`View ${listing.year} ${listing.name}`}>
           <img alt={`${listing.year} ${listing.name} demonstration listing`} className="size-full object-cover transition duration-500 group-hover:scale-[1.02]" src={listing.image} />
@@ -21,12 +21,12 @@ export function ListingCard({ listing }: { listing: DemoListing }) {
             <p className="text-sm text-slate-500">{listing.year} · {formatMileage(listing.mileage)} miles</p>
             <h2 className="mt-1 font-bold tracking-tight text-navy"><a href={`/cars/${listing.slug}`}>{listing.name}</a></h2>
           </div>
-          <p className="text-lg font-bold text-navy">{formatPrice(listing.price)}</p>
+          <p className="border-2 border-navy bg-[#f6b82b] px-2 py-1 text-lg font-black text-navy shadow-[3px_3px_0_#071c2c]">{formatPrice(listing.price)}</p>
         </div>
         <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
-          <span className="rounded-full bg-slate-100 px-2.5 py-1">{listing.drivetrain}</span>
-          <span className="rounded-full bg-slate-100 px-2.5 py-1">{listing.transmission}</span>
-          <span className="rounded-full bg-slate-100 px-2.5 py-1">{listing.titleStatus} title</span>
+          <span className="border border-navy/30 bg-slate-100 px-2.5 py-1 font-bold">{listing.drivetrain}</span>
+          <span className="border border-navy/30 bg-slate-100 px-2.5 py-1 font-bold">{listing.transmission}</span>
+          <span className="border border-navy/30 bg-slate-100 px-2.5 py-1 font-bold">{listing.titleStatus} title</span>
         </div>
         <p className="mt-4 flex items-center gap-2 text-sm text-slate-500"><MapPin className="size-4" /> {listing.location} · {listing.distance} mi</p>
       </div>

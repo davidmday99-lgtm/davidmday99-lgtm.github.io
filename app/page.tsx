@@ -49,11 +49,11 @@ export default function Home() {
       <SiteHeader />
       <main>
         <section className="grid min-h-[650px] border-b-2 border-navy bg-[#f8f4e9] lg:grid-cols-[1.02fr_.98fr]">
-          <div className="flex items-center border-navy px-5 py-16 sm:px-10 lg:border-r-2 lg:px-[max(3rem,calc((100vw-80rem)/2))] lg:py-24 lg:pr-14">
+          <div className="retro-sunrise flex items-center border-navy px-5 py-16 sm:px-10 lg:border-r-[3px] lg:px-[max(3rem,calc((100vw-80rem)/2))] lg:py-24 lg:pr-14">
             <div className="max-w-2xl">
-              <p className="text-xs font-black uppercase tracking-[0.23em] text-teal-700">The private-owner marketplace</p>
-              <h1 className="mt-5 text-balance text-5xl font-black uppercase leading-[.88] tracking-[-0.07em] text-navy sm:text-7xl xl:text-[5.5rem]">
-                Skip the lot. <span className="block text-teal-600">Meet the owner.</span>
+              <p className="block-label">The private-owner marketplace</p>
+              <h1 className="retro-display mt-8 text-balance text-6xl uppercase leading-[.78] sm:text-8xl xl:text-[6.6rem]">
+                Skip the lot. <span className="retro-display-teal block">Meet the owner.</span>
               </h1>
               <p className="mt-7 max-w-xl text-lg leading-8 text-slate-700">Buy directly from verified private owners and avoid dealer markups. Clear checks, honest limits, and cars from people—not lots.</p>
 
@@ -61,7 +61,7 @@ export default function Home() {
                 <a className="bg-navy px-4 py-3 text-center text-white" href="/search">Private-owner vehicles</a>
                 <a className="bg-[#f6b82b] px-4 py-3 text-center text-navy hover:bg-[#ffc642]" href="/public-auto-auctions">Public auto auctions</a>
               </div>
-              <form action="/search" className="border-2 border-navy bg-white p-3 shadow-[8px_8px_0_#071c2c]" aria-label="Search private-owner vehicles">
+              <form action="/search" className="chunky-panel bg-white p-3" aria-label="Search private-owner vehicles">
                 <div className="grid gap-2 sm:grid-cols-[1fr_160px_auto]">
                   <label className="flex h-14 items-center gap-3 border border-slate-300 px-4 text-slate-500 focus-within:border-teal-600">
                     <Search aria-hidden="true" className="size-5 shrink-0" />
