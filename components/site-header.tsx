@@ -10,10 +10,10 @@ export function SiteHeader() {
           <a
             className="flex h-[76px] w-[234px] shrink-0 items-center overflow-hidden sm:w-[274px] lg:w-[304px]"
             href="/"
-            aria-label="OwnerOnly Cars home"
+            aria-label="Owner Only Cars home"
           >
             <img
-              alt="OwnerOnly Cars — Cars from people, not lots."
+              alt="Owner Only Cars — Cars from people, not lots."
               className="w-[230px] max-w-none sm:w-[270px] lg:w-[300px]"
               src="/owneronly-logo.png"
             />

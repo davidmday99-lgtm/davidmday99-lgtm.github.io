@@ -9,7 +9,7 @@ export function SiteFooter() {
             <span className="grid size-9 place-items-center rounded-lg bg-teal-400 text-navy">
               <CarFront className="size-5" />
             </span>
-            OwnerOnly Cars
+            Owner Only Cars
           </div>
           <p className="mt-4 max-w-xs text-sm leading-6">
             A private-owner marketplace built to make the signals around
@@ -47,7 +47,7 @@ export function SiteFooter() {
         />
       </div>
       <div className="mx-auto mt-12 flex max-w-7xl flex-col gap-3 border-t border-white/10 pt-6 text-xs sm:flex-row sm:justify-between">
-        <p>© 2026 OwnerOnly Cars. Demonstration marketplace.</p>
+        <p>© 2026 Owner Only Cars. Demonstration marketplace.</p>
         <p>
           Verification reduces risk; it does not guarantee a safe transaction.
         </p>
