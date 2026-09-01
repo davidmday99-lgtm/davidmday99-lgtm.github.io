@@ -43,6 +43,7 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 - Exact address, legal name, email, phone, document URL, raw risk data, and provider identifiers are never public.
 - Initial MVP excludes payments, escrow, financing, shipping, inspection, tax, registration, and title-transfer services.
 - Auction registration, bidding, deposits, premiums, payments, and pickup remain entirely with the official operator.
+- Independently operated auction brokers may appear only in a separate, clearly labeled section after their relationship to the underlying auction operator is verified. They never receive government-source or private-owner badges.
 - No state-specific dealer threshold is hardcoded. Rules are configurable by jurisdiction and require legal review.
 - Automated signals route cases to human review; IP address or score alone never causes an automatic ban.
 - A seller-provided CARFAX link is optional third-party information, not an OwnerOnly verification badge. Public pages identify its source and tell buyers to confirm the report VIN.

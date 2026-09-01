@@ -8,6 +8,7 @@ export type AuctionSource = {
   officialUrl: string;
   termsUrl: string;
   category: string;
+  sourceType: 'government' | 'independent-broker';
   statesServed: string[];
   publicAccess: PublicAccessStatus;
   publicAccessNote: string;
@@ -36,6 +37,7 @@ export const federalAuctionSources: AuctionSource[] = [
     officialUrl: 'https://www.usa.gov/car-auctions',
     termsUrl: 'https://www.usa.gov/car-auctions',
     category: 'Official federal directory',
+    sourceType: 'government',
     statesServed: nationwide,
     publicAccess: 'confirmed',
     publicAccessNote: 'Official directory linking to federal auction operators. Registration and eligibility vary by operator.',
@@ -52,6 +54,7 @@ export const federalAuctionSources: AuctionSource[] = [
     officialUrl: 'https://marketplace.gsafleet.gov/',
     termsUrl: 'https://marketplace.gsafleet.gov/',
     category: 'Federal fleet surplus',
+    sourceType: 'government',
     statesServed: nationwide,
     publicAccess: 'confirmed',
     publicAccessNote: 'GSA identifies its pre-owned vehicle auctions as open to public auction bidders. Registration is required.',
@@ -68,6 +71,7 @@ export const federalAuctionSources: AuctionSource[] = [
     officialUrl: 'https://gsaauctions.gov/',
     termsUrl: 'https://gsaauctions.gov/html/navigate/termsandconditions.html',
     category: 'Federal excess property',
+    sourceType: 'government',
     statesServed: nationwide,
     publicAccess: 'confirmed',
     publicAccessNote: 'The public may buy government personal property; confirm each lot’s restrictions and terms.',
@@ -84,6 +88,7 @@ export const federalAuctionSources: AuctionSource[] = [
     officialUrl: 'https://www.usmarshals.gov/what-we-do/asset-forfeiture',
     termsUrl: 'https://www.usmarshals.gov/what-we-do/asset-forfeiture',
     category: 'Seized and forfeited property',
+    sourceType: 'government',
     statesServed: nationwide,
     publicAccess: 'confirmed',
     publicAccessNote: 'USMS identifies online and live personal-property auctions as open to the public. Contractor terms vary.',
@@ -100,6 +105,7 @@ export const federalAuctionSources: AuctionSource[] = [
     officialUrl: 'https://home.treasury.gov/services/treasury-auctions',
     termsUrl: 'https://www.treasury.gov/auctions/treasury/gp/termsandconditions.pdf',
     category: 'Forfeited and tax-seized property',
+    sourceType: 'government',
     statesServed: nationwide,
     publicAccess: 'confirmed',
     publicAccessNote: 'General property auctions may be public, while specific salvage lots can require licensing. Check the lot terms.',
@@ -116,11 +122,32 @@ export const federalAuctionSources: AuctionSource[] = [
     officialUrl: 'https://www.irsauctions.gov/',
     termsUrl: 'https://www.irsauctions.gov/',
     category: 'Tax-seized property',
+    sourceType: 'government',
     statesServed: nationwide,
     publicAccess: 'unknown',
     publicAccessNote: 'Vehicles may appear among other merchandise. Eligibility, schedule, and terms must be confirmed for each event.',
     licenseRequirement: 'unknown',
     format: 'hybrid',
+    verificationStatus: 'verified',
+    lastChecked: '2026-09-01',
+    nextReview: '2026-10-01',
+  },
+];
+
+export const independentAuctionSources: AuctionSource[] = [
+  {
+    id: 'autobidmaster',
+    name: 'AutoBidMaster',
+    agency: 'Independent third-party Copart broker listed by Copart',
+    officialUrl: 'https://www.autobidmaster.com/en/',
+    termsUrl: 'https://helpcenter.autobidmaster.com/hc/en-us/articles/360031300711-Rules-and-Policies',
+    category: 'Independent online auction broker',
+    sourceType: 'independent-broker',
+    statesServed: nationwide,
+    publicAccess: 'confirmed',
+    publicAccessNote: 'AutoBidMaster says a dealer license is not required to bid. Registration, a security deposit, membership limits, AutoBidMaster and Copart fees, binding-bid rules, and vehicle-specific title restrictions may apply.',
+    licenseRequirement: 'none',
+    format: 'online',
     verificationStatus: 'verified',
     lastChecked: '2026-09-01',
     nextReview: '2026-10-01',

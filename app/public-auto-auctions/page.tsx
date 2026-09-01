@@ -4,16 +4,16 @@ import { ArrowRight, Gavel, Landmark, SearchCheck, ShieldAlert } from 'lucide-re
 import { AuctionDirectory } from '@/components/auction-directory';
 import { AuctionShell } from '@/components/auction-shell';
 import { AuctionSourceCard } from '@/components/auction-source-card';
-import { federalAuctionSources } from '@/lib/auction-data';
+import { federalAuctionSources, independentAuctionSources } from '@/lib/auction-data';
 
 export const metadata: Metadata = {
   title: 'Public Auto Auctions Directory',
-  description: 'Find official federal, state, and local public vehicle auction sources across all 50 states and Washington, D.C.',
+  description: 'Find official public vehicle auction sources and clearly labeled independent auction-access options across the United States.',
   alternates: { canonical: '/public-auto-auctions' },
 };
 
 export default function Page() {
-  const structuredData = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'OwnerOnly Cars Public Auto Auctions Directory', description: 'Independent directory of official public vehicle auction sources in the United States.', isPartOf: { '@type': 'WebSite', name: 'OwnerOnly Cars' } };
+  const structuredData = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'OwnerOnly Cars Public Auto Auctions Directory', description: 'Independent directory of official public vehicle auction sources and separately labeled third-party auction access in the United States.', isPartOf: { '@type': 'WebSite', name: 'OwnerOnly Cars' } };
   return (
     <AuctionShell>
       <main className="bg-[#f8f4e9]">
@@ -27,6 +27,13 @@ export default function Page() {
 
         <section className="px-5 py-16 sm:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl"><AuctionDirectory /></div>
+        </section>
+
+        <section className="border-y-[3px] border-navy bg-[#f6b82b] px-5 py-16 sm:px-8 lg:py-20">
+          <div className="mx-auto grid max-w-7xl gap-9 lg:grid-cols-[.72fr_1fr] lg:items-start">
+            <div><p className="block-label bg-white">Third-party option</p><h2 className="mt-6 text-4xl font-black uppercase leading-[.92] text-navy sm:text-6xl">Independent auction access.</h2><p className="mt-5 max-w-xl text-lg leading-8 text-navy/80">These businesses are not government agencies and their vehicles are not private-owner listings. OwnerOnly verifies the stated operator relationship and links you out; the broker’s current terms control every registration, bid, fee, payment, title document, and pickup.</p><div className="mt-6 border-l-4 border-navy bg-white/65 p-4 text-sm font-bold leading-6 text-navy">Before bidding, calculate the full price—not just the winning bid—and confirm that the title document can be registered in your state.</div></div>
+            <div className="grid gap-7">{independentAuctionSources.map((source) => <AuctionSourceCard key={source.id} source={source} />)}</div>
+          </div>
         </section>
 
         <section className="border-y-2 border-navy bg-navy px-5 py-16 text-white sm:px-8 lg:py-20">
