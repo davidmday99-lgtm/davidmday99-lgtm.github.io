@@ -16,10 +16,10 @@ export function generateMetadata({
   params: { slug: string };
 }): Metadata {
   const post = findBlogPost(params.slug);
-  if (!post) return { title: 'Article Not Found | OwnerOnly Cars' };
+  if (!post) return { title: 'Article Not Found | Owner Only Cars' };
 
   return {
-    title: post.title + ' | OwnerOnly Journal',
+    title: post.title + ' | Owner Only Journal',
     description: post.excerpt,
     alternates: { canonical: '/blog/' + post.slug },
     openGraph: {
@@ -51,7 +51,7 @@ export default function BlogArticlePage({
                 className="inline-flex items-center gap-2 text-sm font-black uppercase text-[#16C7BE] hover:text-[#FFB81C]"
                 href="/blog"
               >
-                <ArrowLeft className="size-4" /> OwnerOnly Journal
+                <ArrowLeft className="size-4" /> Owner Only Journal
               </a>
               <p className="mt-10 text-xs font-black uppercase tracking-[0.2em] text-[#FFB81C]">
                 {post.category}

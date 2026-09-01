@@ -21,7 +21,7 @@ export type BlogPost = {
 export const blogPosts: BlogPost[] = [
   {
     slug: 'why-we-are-building-owneronly-cars',
-    title: 'Why we’re building OwnerOnly Cars',
+    title: 'Why we’re building Owner Only Cars',
     excerpt:
       'A marketplace for everyday Americans who want to buy and sell directly—without dealer inventory or confusing verification claims.',
     category: 'Our mission',
@@ -29,14 +29,14 @@ export const blogPosts: BlogPost[] = [
     publishedIso: '2026-09-01',
     readTime: '4 min read',
     image: '/owneronly-mustang-hero-navy.png',
-    imageAlt: 'Classic dark blue car on the OwnerOnly Cars navy background',
+    imageAlt: 'Classic dark blue car on the Owner Only Cars navy background',
     intro:
       'Buying a car is already a major decision. It should not be harder to tell whether you are dealing with the actual owner, what has been checked, and what still needs your own inspection.',
     sections: [
       {
         heading: 'Cars from people, not lots.',
         paragraphs: [
-          'OwnerOnly Cars is being built for private owners and private buyers. Dealer, broker, reseller, and consignment inventory do not belong in the owner marketplace.',
+          'Owner Only Cars is being built for private owners and private buyers. Dealer, broker, reseller, and consignment inventory do not belong in the owner marketplace.',
           'The goal is simple: help neighbors find one another, understand the available trust signals, and keep more control over the conversation and the deal.',
         ],
       },
@@ -44,7 +44,7 @@ export const blogPosts: BlogPost[] = [
         heading: 'Verification should be specific.',
         paragraphs: [
           'A verified identity does not prove vehicle ownership. Ownership documents do not prove mechanical condition. A vehicle-history report may not contain every repair or event.',
-          'Instead of combining those checks into one vague promise, OwnerOnly Cars explains what each badge establishes—and what it does not.',
+          'Instead of combining those checks into one vague promise, Owner Only Cars explains what each badge establishes—and what it does not.',
         ],
       },
       {

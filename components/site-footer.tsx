@@ -24,7 +24,7 @@ export function SiteFooter() {
             ['Public auto auctions', '/public-auto-auctions'],
             ['Sell your car', '/sell'],
             ['How it works', '/how-it-works'],
-            ['OwnerOnly Journal', '/blog'],
+            ['Owner Only Journal', '/blog'],
           ]}
         />
         <FooterGroup

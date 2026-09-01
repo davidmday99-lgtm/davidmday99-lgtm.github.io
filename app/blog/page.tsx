@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { blogPosts } from '@/lib/blog-data';
 
 export const metadata: Metadata = {
-  title: 'OwnerOnly Journal | Private Car Buying & Selling',
+  title: 'Owner Only Journal | Private Car Buying & Selling',
   description:
-    'Practical guidance for private car buyers and sellers, plus the story behind OwnerOnly Cars.',
+    'Practical guidance for private car buyers and sellers, plus the story behind Owner Only Cars.',
   alternates: { canonical: '/blog' },
 };
 
@@ -24,7 +24,7 @@ export default function BlogPage() {
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_.6fr] lg:items-end">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.23em] text-[#16C7BE]">
-                The OwnerOnly Journal
+                The Owner Only Journal
               </p>
               <h1 className="mt-4 max-w-4xl text-5xl font-black uppercase leading-[0.9] tracking-[-0.055em] sm:text-7xl">
                 Real guidance.
