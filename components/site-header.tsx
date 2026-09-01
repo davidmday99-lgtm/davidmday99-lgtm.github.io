@@ -19,7 +19,7 @@ export function SiteHeader() {
             />
           </a>
           <nav
-            className="hidden items-center gap-5 text-center text-[11px] font-black uppercase leading-[1.15] tracking-wide text-[#061C2B] lg:flex"
+            className="hidden items-center gap-4 text-center text-[10px] font-black uppercase leading-[1.15] tracking-wide text-[#061C2B] lg:flex xl:text-[11px]"
             aria-label="Main navigation"
           >
             <a
@@ -29,6 +29,14 @@ export function SiteHeader() {
               Buy From
               <br />
               Owners
+            </a>
+            <a
+              className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
+              href="/private-seller-auctions"
+            >
+              Private Seller
+              <br />
+              Auctions
             </a>
             <a
               className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"

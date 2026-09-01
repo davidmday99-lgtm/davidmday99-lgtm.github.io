@@ -23,6 +23,7 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 6. Publish only after verification, attestation, automated screening, and required review.
 7. Verified users message on-platform, save favorites, report, and block.
 8. Visitors explore a separate Public Auto Auctions directory by state, region, format, source type, eligibility, licensing, vehicle, title, inspection, and confirmed closing information.
+9. Verified private owners may create a timed vehicle auction with a starting bid and optional hidden reserve; verified buyers may place proxy-style maximum bids after the live bidding backend and final terms are approved.
 
 ## Public Auto Auctions directory
 
@@ -31,7 +32,7 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 - A contractor appears only after an official agency identifies it as authorized.
 - New sources require human approval. Dealer-only and license-restricted events are excluded from default public results; restricted events must say “License Required.”
 - Unconfirmed schedules, fees, eligibility, license rules, inventory, title, inspection, payment, or pickup information displays “Not confirmed—check with the auction.”
-- OwnerOnly is an informational directory only and never accepts auction listings, bids, deposits, payments, credentials, or passwords.
+- The Public Auto Auctions directory is informational only. OwnerOnly never accepts bids, deposits, payments, credentials, or passwords for those third-party events.
 - All 50 states and Washington, D.C. have useful state guide pages and official-government directory links. Empty event schedules remain explicit rather than fabricated.
 
 ## Product principles
@@ -42,7 +43,9 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 - Public pages show approximate location only.
 - Exact address, legal name, email, phone, document URL, raw risk data, and provider identifiers are never public.
 - Initial MVP excludes payments, escrow, financing, shipping, inspection, tax, registration, and title-transfer services.
-- Auction registration, bidding, deposits, premiums, payments, and pickup remain entirely with the official operator.
+- Public-auction registration, bidding, deposits, premiums, payments, and pickup remain entirely with the official operator.
+- Private Seller Auctions are a distinct OwnerOnly product. Seller identity and ownership review are required; reserve amounts remain private; fixed increments, proxy maximums, anti-shill controls, exact closing rules, and immutable bid auditing must be enforced server-side.
+- Private Seller Auctions do not add payments, escrow, financing, shipping, inspection, tax, registration, or title transfer to the MVP.
 - Independently operated auction brokers may appear only in a separate, clearly labeled section after their relationship to the underlying auction operator is verified. They never receive government-source or private-owner badges.
 - No state-specific dealer threshold is hardcoded. Rules are configurable by jurisdiction and require legal review.
 - Automated signals route cases to human review; IP address or score alone never causes an automatic ban.
@@ -50,12 +53,12 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 
 ## Verification meaning
 
-| Check | Establishes | Does not establish |
-| --- | --- | --- |
-| Government ID + selfie | User likely matches submitted ID | Vehicle ownership |
-| Title/registration review | Seller name and VIN match current document | Mechanical condition |
-| NMVTIS provider report | Available title, odometer, brand, salvage/total-loss, and certain theft data | Complete repair history |
-| Seller-provided CARFAX link | The seller supplied a link hosted on a CARFAX domain | That the report is current, complete, authentic, or for the listed vehicle |
+| Check                       | Establishes                                                                  | Does not establish                                                         |
+| --------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Government ID + selfie      | User likely matches submitted ID                                             | Vehicle ownership                                                          |
+| Title/registration review   | Seller name and VIN match current document                                   | Mechanical condition                                                       |
+| NMVTIS provider report      | Available title, odometer, brand, salvage/total-loss, and certain theft data | Complete repair history                                                    |
+| Seller-provided CARFAX link | The seller supplied a link hosted on a CARFAX domain                         | That the report is current, complete, authentic, or for the listed vehicle |
 
 ## Success criteria
 
@@ -69,4 +72,4 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 
 - United States launch only; launch jurisdictions are not selected.
 - Supabase and Stripe accounts, NMVTIS provider agreement, moderation staffing, fees, retention schedules, and final policies are not yet supplied.
-- Current repository is a Vinext/React Sites prototype compatible with App Router conventions; a production Supabase backend remains to be implemented.
+- Current repository is a Vinext/React Sites prototype compatible with App Router conventions; private-auction inventory and bidding are fictional UI demonstrations until a production Supabase backend, authorization, atomic bidding, and realtime delivery are implemented.

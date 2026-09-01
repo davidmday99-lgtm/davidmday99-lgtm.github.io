@@ -14,5 +14,8 @@ Professional counsel must review before launch:
 - Section 230/content moderation considerations, fraud reporting, record preservation, and moderator safety.
 - Government-name, seal and affiliation disclaimers; auction-operator terms; linking, feed, API, RSS, robots and automated-retrieval permissions; contractor authorization evidence; stale-data liability; auctioneer/dealer/broker licensing; bid-facilitation boundaries; restricted/salvage inventory; and state-specific auction disclosures.
 - Independent auction-broker listings, referral/affiliate disclosures, broker and dealer licensing, title-document and registration warnings, fee presentation, operator-relationship claims, and linking/trademark permissions.
+- Private online-auction operator, auctioneer, dealer/broker, money-transmission, bonding, registration, recordkeeping, tax, jurisdiction, and consumer-protection requirements.
+- Whether bids are binding; proxy-bid disclosures; reserves; minimum increments; extensions; seller withdrawal; cancellations; bidder default; disputes; outage handling; auction close/reopen authority; and required notices by jurisdiction.
+- Anti-shill-bidding rules, connected-account detection, moderator conflicts, evidence retention, law-enforcement requests, and appeal rights.
 
 Configurable marketplace rules are policy controls, not legal conclusions. No default threshold should be described as the legal number of vehicles a private person may sell.

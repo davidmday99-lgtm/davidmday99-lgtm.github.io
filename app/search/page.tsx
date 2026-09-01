@@ -124,6 +124,12 @@ export default function SearchPage() {
                 </a>
                 <a
                   className="pb-[11px] text-xs font-bold uppercase tracking-wide text-slate-500 hover:text-navy"
+                  href="/private-seller-auctions"
+                >
+                  Private auctions
+                </a>
+                <a
+                  className="pb-[11px] text-xs font-bold uppercase tracking-wide text-slate-500 hover:text-navy"
                   href="/public-auto-auctions"
                 >
                   Public auctions

@@ -31,7 +31,16 @@
 
 ## Current prototype
 
-The current build provides the complete public and account interface, Google sign-in preview, realistic fictional demo listings, original imagery, verification explanations, NHTSA and NMVTIS adapter boundaries, SEO surfaces, and project documentation. Auth, persistence, uploads, webhooks, moderation, and vendor calls remain intentionally unconnected until accounts and decisions are supplied.
+The current build provides the complete public and account interface, Google sign-in preview, realistic fictional demo listings and private-auction previews, original imagery, verification explanations, NHTSA and NMVTIS adapter boundaries, SEO surfaces, and project documentation. Auth, persistence, uploads, webhooks, realtime auctions, moderation, and vendor calls remain intentionally unconnected until accounts and decisions are supplied.
+
+## Private-seller auction subsystem
+
+- Private auctions reference the existing verified seller, vehicle, ownership review, and approved listing; they never share records with the third-party Public Auto Auctions directory.
+- Reserve amounts and bidder maximums are server-only values and never appear in public projections, logs, analytics, realtime payloads, or client-side source.
+- Bid placement runs in one serializable database transaction: lock the auction, validate status/time/identity/blocks/increment/idempotency, update proxy standings, append the bid and audit event, then publish a redacted realtime update.
+- Server time is authoritative. A qualified bid in the configured final window extends the auction consistently; the extension is recorded and visible.
+- Sellers, household/connected accounts, moderators with access to the case, suspended users, and unverified users cannot bid. Risk signals route to review and never automatically ban on IP address alone.
+- Live launch requires recovery testing, concurrency/load tests, auction monitoring, legal approval of binding-bid/cancellation terms, and a supported close/reopen procedure.
 
 ## Auction-directory subsystem
 
