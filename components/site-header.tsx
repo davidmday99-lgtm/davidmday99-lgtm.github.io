@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b-[3px] border-navy bg-[linear-gradient(110deg,#f6b82b_0%,#96d9ed_48%,#16b9ad_100%)] shadow-[0_5px_0_rgba(7,28,44,.16)]">
+    <header className="sticky top-0 z-40 border-b-[3px] border-navy bg-[#96d9ed] shadow-[0_5px_0_rgba(7,28,44,.16)]">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-5 sm:px-8">
         <a className="flex h-20 w-60 items-center overflow-hidden lg:w-64" href="/" aria-label="OwnerOnly Cars home">
           <img alt="OwnerOnly Cars — Cars from people, not lots." className="w-full" src="/owneronly-logo.png" />
