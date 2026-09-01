@@ -22,6 +22,17 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 5. Submit title or registration privately; moderator compares legal name and VIN.
 6. Publish only after verification, attestation, automated screening, and required review.
 7. Verified users message on-platform, save favorites, report, and block.
+8. Visitors explore a separate Public Auto Auctions directory by state, region, format, source type, eligibility, licensing, vehicle, title, inspection, and confirmed closing information.
+
+## Public Auto Auctions directory
+
+- Auction sources and events never enter private-owner listing results or receive private-owner verification badges.
+- Official federal, state, county, city, police, sheriff, university, and public-agency sources have priority.
+- A contractor appears only after an official agency identifies it as authorized.
+- New sources require human approval. Dealer-only and license-restricted events are excluded from default public results; restricted events must say “License Required.”
+- Unconfirmed schedules, fees, eligibility, license rules, inventory, title, inspection, payment, or pickup information displays “Not confirmed—check with the auction.”
+- OwnerOnly is an informational directory only and never accepts auction listings, bids, deposits, payments, credentials, or passwords.
+- All 50 states and Washington, D.C. have useful state guide pages and official-government directory links. Empty event schedules remain explicit rather than fabricated.
 
 ## Product principles
 
@@ -31,6 +42,7 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 - Public pages show approximate location only.
 - Exact address, legal name, email, phone, document URL, raw risk data, and provider identifiers are never public.
 - Initial MVP excludes payments, escrow, financing, shipping, inspection, tax, registration, and title-transfer services.
+- Auction registration, bidding, deposits, premiums, payments, and pickup remain entirely with the official operator.
 - No state-specific dealer threshold is hardcoded. Rules are configurable by jurisdiction and require legal review.
 - Automated signals route cases to human review; IP address or score alone never causes an automatic ban.
 

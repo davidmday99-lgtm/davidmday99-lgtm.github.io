@@ -30,3 +30,13 @@
 ## Current prototype
 
 The current build provides the complete public and account interface, realistic fictional demo listings, original imagery, verification explanations, NHTSA and NMVTIS adapter boundaries, SEO surfaces, and project documentation. Auth, persistence, uploads, webhooks, moderation, and vendor calls remain intentionally unconnected until accounts and decisions are supplied.
+
+## Auction-directory subsystem
+
+- Separate route namespace and record types prevent auction records from entering owner-listing queries.
+- Official sources, events, locations, vehicles, verification logs, change alerts, and state guides use independent tables and publication states.
+- Discovery/import writes only to a private moderation queue. Human approval is mandatory before publication.
+- Source collection prefers official APIs, RSS, and structured feeds. Otherwise administrators maintain verified links; robots and source terms control whether retrieval is allowed.
+- Link checks use outbound-request protections: HTTPS-only, DNS/IP validation, redirect limits, response-size limits, timeouts, content-type checks, and no access to private networks or cloud metadata.
+- A scheduled expiration job hides events after the confirmed timezone-aware closing instant while retaining historical and audit records.
+- The browser never receives moderator notes or unrestricted CSV imports. CSV validation is schema-strict, size-limited, formula-safe, and duplicate-aware.

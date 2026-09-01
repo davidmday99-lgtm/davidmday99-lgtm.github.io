@@ -1,0 +1,17 @@
+import type { Metadata } from 'next';
+import { ClipboardCheck, Eye, Gavel, KeyRound, SearchCheck, Truck } from 'lucide-react';
+
+import { AuctionShell } from '@/components/auction-shell';
+
+export const metadata: Metadata = { title: 'How Public Auto Auctions Work', description: 'Understand registration, inspection, bidding, payment, title and pickup for public government vehicle auctions.', alternates: { canonical: '/public-auto-auctions/how-auctions-work' } };
+
+const steps = [
+  { icon: SearchCheck, title: 'Find an official source', body: 'Start with a government agency or a contractor directly identified by that agency. A company claiming to sell government cars is not enough.' },
+  { icon: ClipboardCheck, title: 'Read the complete terms', body: 'Confirm public eligibility, registration deadline, required ID, license rules, deposit, buyer premium, taxes, payment, title, and removal terms.' },
+  { icon: Eye, title: 'Inspect when permitted', body: 'Preview the vehicle in person or arrange a qualified inspection. Do not assume a photo or short condition note identifies every problem.' },
+  { icon: Gavel, title: 'Bid with the operator', body: 'Auctions may be online, live in person, sealed or mail-in bid, silent/spot bid, or hybrid. OwnerOnly never places or accepts bids.' },
+  { icon: KeyRound, title: 'Pay under official instructions', body: 'If you win, follow only the operator’s verified payment process and deadlines. Confirm the final invoice before transferring funds.' },
+  { icon: Truck, title: 'Complete title and pickup', body: 'Bring required identification, arrange transport, meet the removal deadline, and keep every title, release, bill-of-sale, and tax document.' },
+];
+
+export default function Page() { return <AuctionShell><main className="bg-[#dff4f8]"><section className="border-b-2 border-navy bg-navy px-5 py-16 text-white sm:px-8"><div className="mx-auto max-w-7xl"><p className="text-xs font-black uppercase tracking-[0.23em] text-[#f6b82b]">From source to pickup</p><h1 className="mt-4 max-w-4xl text-5xl font-black uppercase leading-[.9] tracking-[-0.06em] sm:text-7xl">How public vehicle auctions work.</h1><p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">The exact process belongs to the agency or authorized operator. These steps help you find the questions that must be answered before a bid.</p></div></section><section className="px-5 py-16 sm:px-8"><div className="mx-auto max-w-7xl"><div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{steps.map(({ icon: Icon, title, body }, index) => <article className={`${index % 3 === 0 ? 'bg-[#f6b82b]' : index % 3 === 1 ? 'bg-white' : 'bg-[#22b8ae]'} min-h-72 border-2 border-navy p-6 shadow-[6px_6px_0_rgba(7,28,44,.14)]`} key={title}><div className="flex items-start justify-between"><span className="text-xs font-black tracking-widest">{String(index + 1).padStart(2, '0')}</span><Icon className="size-7" /></div><h2 className="mt-16 text-2xl font-black uppercase leading-none text-navy">{title}</h2><p className="mt-4 text-sm leading-6 text-navy/75">{body}</p></article>)}</div><div className="mt-10 border-l-4 border-teal-600 bg-white p-6"><h2 className="font-black uppercase text-navy">Not confirmed means stop and check.</h2><p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">When OwnerOnly cannot verify a schedule, fee, requirement, vehicle, or title detail, the directory says “Not confirmed—check with the auction.” Never infer a rule from another event or another state.</p></div></div></section></main></AuctionShell>; }

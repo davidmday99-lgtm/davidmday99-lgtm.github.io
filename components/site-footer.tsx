@@ -8,7 +8,7 @@ export function SiteFooter() {
           <div className="flex items-center gap-3 font-bold text-white"><span className="grid size-9 place-items-center rounded-lg bg-teal-400 text-navy"><CarFront className="size-5" /></span>OwnerOnly Cars</div>
           <p className="mt-4 max-w-xs text-sm leading-6">A private-owner marketplace built to make the signals around identity, ownership, and vehicle history easier to understand.</p>
         </div>
-        <FooterGroup title="Marketplace" links={[['Browse cars', '/search'], ['Sell your car', '/sell'], ['Seller fees', '/seller-fees'], ['How it works', '/how-it-works']]} />
+        <FooterGroup title="Marketplace" links={[['Buy from owners', '/search'], ['Public auto auctions', '/public-auto-auctions'], ['Sell your car', '/sell'], ['How it works', '/how-it-works']]} />
         <FooterGroup title="Company" links={[['About', '/about'], ['Trust & safety', '/trust-and-safety'], ['Help & FAQ', '/help']]} />
         <FooterGroup title="Legal" links={[['Terms', '/terms'], ['Privacy', '/privacy'], ['Accessibility', '/help#accessibility']]} />
       </div>

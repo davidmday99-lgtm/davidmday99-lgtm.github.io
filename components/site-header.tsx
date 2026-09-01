@@ -9,15 +9,15 @@ export function SiteHeader() {
         <a className="flex h-16 w-52 items-center overflow-hidden" href="/" aria-label="OwnerOnly Cars home">
           <img alt="OwnerOnly Cars — Cars from people, not lots." className="w-full" src="/owneronly-logo.png" />
         </a>
-        <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-600 lg:flex" aria-label="Main navigation">
-          <a className="hover:text-navy" href="/search">Browse cars</a>
-          <a className="hover:text-navy" href="/how-it-works">How it works</a>
-          <a className="hover:text-navy" href="/trust-and-safety">Trust & safety</a>
-          <a className="hover:text-navy" href="/seller-fees">Seller fees</a>
+        <nav className="hidden items-center gap-6 text-sm font-semibold text-slate-600 lg:flex" aria-label="Main navigation">
+          <a className="hover:text-navy" href="/search">Buy From Owners</a>
+          <a className="hover:text-navy" href="/public-auto-auctions">Public Auto Auctions</a>
+          <a className="hover:text-navy" href="/sell">Sell Your Car</a>
+          <a className="hover:text-navy" href="/trust-and-safety">Trust & Safety</a>
         </nav>
         <div className="hidden items-center gap-2 md:flex">
           <Button className="h-10 px-4 text-navy" nativeButton={false} render={<a href="/login" />} variant="ghost">Log in</Button>
-          <Button className="h-10 bg-teal-500 px-5 font-bold text-navy hover:bg-teal-400" nativeButton={false} render={<a href="/sell" />}>Sell your car</Button>
+          <Button className="h-10 bg-teal-500 px-5 font-bold text-navy hover:bg-teal-400" nativeButton={false} render={<a href="/signup" />}>Join free</Button>
         </div>
         <Button aria-label="Open menu" className="md:hidden" size="icon" variant="ghost"><Menu /></Button>
       </div>

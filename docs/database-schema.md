@@ -21,6 +21,13 @@ All tables use UUID primary keys, server-generated `created_at`/`updated_at`, fo
 | moderation_actions | Append-only action, actor, reason, before/after references |
 | marketplace_rules | Jurisdiction, rule key, typed value, effective range, approval metadata |
 | audit_events | Append-only immutable event; actor; action; target; request correlation; tamper-evident hash chain |
+| auction_sources | Official agency or authorized contractor, URLs, category, states, public access, license, format, verification, review schedule, private notes and approval audit |
+| auction_events | Source, timezone-aware start/close, location, registration, eligibility, deposit, premium, payment, inspection, vehicle categories, title information and publication state |
+| auction_locations | Source/event physical location, state, ZIP, timezone and approximate map coordinates |
+| auction_vehicles | Optional source-supplied inventory linked only to an auction event; never to private-owner verification |
+| source_verification_logs | Append-only link/source checks with actor, outcome and timestamp |
+| source_change_alerts | Detected URL, terms, access, license, schedule or other changes awaiting review |
+| state_auction_guides | State-specific reviewed content, publication state, review timestamp and approver |
 
 ## Required indexes and constraints
 
@@ -29,6 +36,9 @@ All tables use UUID primary keys, server-generated `created_at`/`updated_at`, fo
 - Published listing search indexes: state, make/model/year, price, mileage, body style, fuel, drivetrain, title status, approximate geography, published timestamp.
 - Message indexes: conversation + created timestamp; reports/cases: state + priority + created timestamp.
 - No public policy may select unpublished listings, ownership documents, legal names, exact location, contact channels, moderation notes, or audit payloads.
+- Auction-source canonical URL is unique after normalization. Event duplicate keys combine source, normalized title and confirmed time range.
+- Auction events require an approved source; expired events leave public queries automatically but remain in historical/audit storage.
+- Public auction queries exclude restricted, unknown-access, expired and unapproved events by default.
 
 ## RLS outline
 

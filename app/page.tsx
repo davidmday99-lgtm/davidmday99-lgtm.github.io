@@ -57,7 +57,11 @@ export default function Home() {
               </h1>
               <p className="mt-7 max-w-xl text-lg leading-8 text-slate-700">Buy directly from verified private owners and avoid dealer markups. Clear checks, honest limits, and cars from people—not lots.</p>
 
-              <form action="/search" className="mt-9 border-2 border-navy bg-white p-3 shadow-[8px_8px_0_#071c2c]" aria-label="Search vehicles">
+              <div className="mt-9 grid grid-cols-2 border-2 border-b-0 border-navy text-xs font-black uppercase tracking-wide">
+                <a className="bg-navy px-4 py-3 text-center text-white" href="/search">Private-owner vehicles</a>
+                <a className="bg-[#f6b82b] px-4 py-3 text-center text-navy hover:bg-[#ffc642]" href="/public-auto-auctions">Public auto auctions</a>
+              </div>
+              <form action="/search" className="border-2 border-navy bg-white p-3 shadow-[8px_8px_0_#071c2c]" aria-label="Search private-owner vehicles">
                 <div className="grid gap-2 sm:grid-cols-[1fr_160px_auto]">
                   <label className="flex h-14 items-center gap-3 border border-slate-300 px-4 text-slate-500 focus-within:border-teal-600">
                     <Search aria-hidden="true" className="size-5 shrink-0" />
