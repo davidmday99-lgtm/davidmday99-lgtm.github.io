@@ -1,9 +1,10 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const defaultSiteOrigin = 'https://owneronlycars.com';
+const previewSiteOrigin = 'https://owneronly-cars.lucky2551.chatgpt.site';
 
 function response(body: unknown, status: number, origin: string) {
-  return new Response(JSON.stringify(body), {
+  return new Response(status === 204 ? null : JSON.stringify(body), {
     status,
     headers: {
       'Access-Control-Allow-Headers': 'authorization, content-type',
@@ -18,11 +19,13 @@ function response(body: unknown, status: number, origin: string) {
 Deno.serve(async (request) => {
   const siteOrigin = Deno.env.get('SITE_ORIGIN') ?? defaultSiteOrigin;
   const requestOrigin = request.headers.get('origin') ?? siteOrigin;
+  const allowedOrigins = new Set([
+    siteOrigin,
+    previewSiteOrigin,
+    'http://localhost:3000',
+  ]);
 
-  if (
-    requestOrigin !== siteOrigin &&
-    requestOrigin !== 'http://localhost:3000'
-  ) {
+  if (!allowedOrigins.has(requestOrigin)) {
     return response({ error: 'origin_not_allowed' }, 403, siteOrigin);
   }
 
@@ -67,7 +70,7 @@ Deno.serve(async (request) => {
   try {
     const payload = await request.json();
     const requestedReturnUrl = new URL(payload.returnUrl);
-    if (requestedReturnUrl.origin === siteOrigin) {
+    if (allowedOrigins.has(requestedReturnUrl.origin)) {
       returnUrl = requestedReturnUrl.toString();
     }
   } catch {
