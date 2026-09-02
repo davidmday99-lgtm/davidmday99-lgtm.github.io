@@ -1,5 +1,7 @@
 import { CarFront } from 'lucide-react';
 
+import { SUPPORT_URL } from '@/lib/support';
+
 export function SiteFooter() {
   return (
     <footer className="bg-navy px-5 py-14 text-slate-300 sm:px-8">
@@ -36,6 +38,7 @@ export function SiteFooter() {
             ['Trust & safety', '/trust-and-safety'],
             ['Help & FAQ', '/help'],
             ['Contact us', '/contact'],
+            ['Support our launch', SUPPORT_URL],
           ]}
         />
         <FooterGroup
@@ -70,7 +73,12 @@ function FooterGroup({
       <ul className="mt-4 space-y-3 text-sm">
         {links.map(([label, href]) => (
           <li key={href}>
-            <a className="hover:text-white" href={href}>
+            <a
+              className="hover:text-white"
+              href={href}
+              rel={href.startsWith('http') ? 'noreferrer' : undefined}
+              target={href.startsWith('http') ? '_blank' : undefined}
+            >
               {label}
             </a>
           </li>

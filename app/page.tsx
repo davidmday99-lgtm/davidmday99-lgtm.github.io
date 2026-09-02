@@ -2,6 +2,7 @@ import {
   ArrowRight,
   BadgeCheck,
   FileCheck2,
+  Heart,
   MessageCircle,
   ShieldCheck,
 } from 'lucide-react';
@@ -12,6 +13,7 @@ import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { demoListings } from '@/lib/demo-data';
+import { SUPPORT_URL } from '@/lib/support';
 
 const checks = [
   {
@@ -84,13 +86,29 @@ export default function Home() {
                 everyday Americans.
               </p>
             </div>
-            <Button
-              className="h-12 w-fit shrink-0 rounded-none border-2 border-[#061C2B] bg-[#061C2B] px-5 text-xs font-black uppercase text-[#FFF8EA] hover:bg-[#FFF8EA] hover:text-[#061C2B]"
-              nativeButton={false}
-              render={<a href="/sell" />}
-            >
-              List your car <ArrowRight />
-            </Button>
+            <div className="flex flex-wrap gap-3 sm:shrink-0">
+              <Button
+                className="h-12 w-fit rounded-none border-2 border-[#061C2B] bg-[#061C2B] px-5 text-xs font-black uppercase text-[#FFF8EA] hover:bg-[#FFF8EA] hover:text-[#061C2B]"
+                nativeButton={false}
+                render={<a href="/sell" />}
+              >
+                List your car <ArrowRight />
+              </Button>
+              <Button
+                className="h-12 w-fit rounded-none border-2 border-[#061C2B] bg-transparent px-5 text-xs font-black uppercase text-[#061C2B] hover:bg-[#FFF8EA]"
+                nativeButton={false}
+                render={
+                  <a
+                    aria-label="Support our launch using secure Stripe checkout (opens in a new tab)"
+                    href={SUPPORT_URL}
+                    rel="noreferrer"
+                    target="_blank"
+                  />
+                }
+              >
+                <Heart /> Support our launch
+              </Button>
+            </div>
           </div>
         </aside>
 

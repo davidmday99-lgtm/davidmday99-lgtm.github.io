@@ -3,12 +3,14 @@ import {
   BadgeCheck,
   DollarSign,
   Handshake,
+  Heart,
   ShieldCheck,
 } from 'lucide-react';
 
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
+import { SUPPORT_URL } from '@/lib/support';
 
 const principles = [
   {
@@ -195,16 +197,36 @@ export default function OurStoryPage() {
             Help build a better car marketplace.
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-            List your vehicle, share OwnerOnly Cars, and help create a direct
-            marketplace for everyday Americans.
+            List your vehicle, share OwnerOnly Cars, or support the work behind
+            a direct marketplace for everyday Americans.
           </p>
-          <Button
-            className="mt-9 h-12 rounded-none bg-[#FFB81C] px-7 font-black uppercase text-[#061C2B] hover:bg-[#FFF8EA]"
-            nativeButton={false}
-            render={<a href="/sell" />}
-          >
-            List your vehicle <ArrowRight />
-          </Button>
+          <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <Button
+              className="h-12 rounded-none bg-[#FFB81C] px-7 font-black uppercase text-[#061C2B] hover:bg-[#FFF8EA]"
+              nativeButton={false}
+              render={<a href="/sell" />}
+            >
+              List your vehicle <ArrowRight />
+            </Button>
+            <Button
+              className="h-12 rounded-none border-2 border-[#16C7BE] bg-transparent px-7 font-black uppercase text-white hover:bg-[#16C7BE] hover:text-[#061C2B]"
+              nativeButton={false}
+              render={
+                <a
+                  aria-label="Support our launch using secure Stripe checkout (opens in a new tab)"
+                  href={SUPPORT_URL}
+                  rel="noreferrer"
+                  target="_blank"
+                />
+              }
+            >
+              <Heart /> Support our launch
+            </Button>
+          </div>
+          <p className="mx-auto mt-4 max-w-2xl text-xs leading-5 text-slate-400">
+            Contributions help cover operating costs and are not tax-deductible.
+            Secure checkout is provided by Stripe.
+          </p>
         </section>
       </main>
       <SiteFooter />
