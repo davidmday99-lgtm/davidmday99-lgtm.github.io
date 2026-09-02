@@ -210,6 +210,10 @@ export function VerificationCenter() {
         },
         body: JSON.stringify({
           action: 'start',
+          forceNew:
+            identityStatus === 'requires_input' ||
+            identityStatus === 'canceled' ||
+            identityStatus === 'redacted',
           returnUrl: `${window.location.origin}/account/verification?identity=returned`,
         }),
       });

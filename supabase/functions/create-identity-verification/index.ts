@@ -100,7 +100,11 @@ Deno.serve(async (request) => {
     return response({ error: 'authentication_required' }, 401, requestOrigin);
   }
 
-  let payload: { action?: unknown; returnUrl?: unknown } = {};
+  let payload: {
+    action?: unknown;
+    forceNew?: unknown;
+    returnUrl?: unknown;
+  } = {};
   try {
     payload = await request.json();
   } catch {
@@ -108,6 +112,7 @@ Deno.serve(async (request) => {
   }
 
   const action = payload.action === 'status' ? 'status' : 'start';
+  const forceNew = action === 'start' && payload.forceNew === true;
   let returnUrl = `${siteOrigin}/account/verification?identity=returned`;
   try {
     const requestedReturnUrl = new URL(String(payload.returnUrl));
@@ -128,14 +133,30 @@ Deno.serve(async (request) => {
       : undefined;
 
   let stripeSession: StripeVerificationSession | null = null;
-  if (typeof previousSessionId === 'string' && previousSessionId) {
+  if (!forceNew && typeof previousSessionId === 'string' && previousSessionId) {
     try {
       stripeSession = await retrieveStripeSession(
         stripeSecretKey,
         previousSessionId,
       );
-    } catch {
-      return response({ error: 'identity_status_failed' }, 502, requestOrigin);
+    } catch (error) {
+      console.error('stripe_identity_session_retrieve_failed', {
+        action,
+        message: error instanceof Error ? error.message : 'unknown_error',
+        sessionId: previousSessionId.slice(0, 12),
+      });
+
+      // A stale session or a session created with a replaced Stripe key must
+      // never permanently block a customer from starting a fresh check.
+      if (action === 'status') {
+        return response(
+          { error: 'identity_status_failed' },
+          502,
+          requestOrigin,
+        );
+      }
+
+      stripeSession = null;
     }
 
     if (
