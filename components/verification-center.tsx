@@ -11,7 +11,7 @@ import {
   Phone,
   RotateCcw,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,6 +49,7 @@ function getIdentityEndpoint() {
 }
 
 export function VerificationCenter() {
+  const autoReconciledIdentityRef = useRef<string | undefined>(undefined);
   const [user, setUser] = useState<User | null | undefined>(() =>
     hasSupabaseConfig() ? undefined : null,
   );
@@ -338,9 +339,24 @@ export function VerificationCenter() {
 
   useEffect(() => {
     if (!userId || typeof window === 'undefined') return;
-    if (
-      new URLSearchParams(window.location.search).get('identity') !== 'returned'
-    ) {
+    const returnedFromStripe =
+      new URLSearchParams(window.location.search).get('identity') ===
+      'returned';
+
+    if (!returnedFromStripe) {
+      if (
+        identityStatus === 'requires_input' ||
+        identityStatus === 'processing'
+      ) {
+        const reconciliationKey = `${userId}:${identityStatus}`;
+        if (autoReconciledIdentityRef.current === reconciliationKey) return;
+        autoReconciledIdentityRef.current = reconciliationKey;
+
+        const timeout = window.setTimeout(() => {
+          void refreshIdentityStatus(true);
+        }, 0);
+        return () => window.clearTimeout(timeout);
+      }
       return;
     }
 
@@ -359,7 +375,7 @@ export function VerificationCenter() {
     return () => {
       active = false;
     };
-  }, [refreshIdentityStatus, userId]);
+  }, [identityStatus, refreshIdentityStatus, userId]);
 
   if (user === undefined) {
     return (
