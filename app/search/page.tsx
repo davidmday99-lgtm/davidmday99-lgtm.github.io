@@ -31,7 +31,7 @@ const trustSignals = [
   {
     icon: ShieldCheck,
     title: 'Identity verified',
-    detail: 'ID and selfie check',
+    detail: 'Government-ID check',
   },
   {
     icon: FileCheck2,

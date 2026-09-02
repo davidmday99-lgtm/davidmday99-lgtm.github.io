@@ -18,7 +18,7 @@ const checks = [
     number: '01',
     icon: BadgeCheck,
     title: 'Identity checked',
-    body: 'Government ID and matching selfie through a hosted Stripe Identity flow.',
+    body: 'Government-ID document verification through a hosted Stripe Identity flow.',
     limit: 'Confirms identity—not vehicle ownership.',
     color: 'bg-[#f6b82b]',
   },
@@ -44,7 +44,7 @@ const trustSignals = [
   {
     icon: ShieldCheck,
     title: 'Identity verified',
-    detail: 'ID and selfie check',
+    detail: 'Government-ID check',
   },
   {
     icon: FileCheck2,
@@ -307,7 +307,7 @@ export default function Home() {
               {[
                 [
                   '01 / Identity',
-                  'Stripe hosts the document and selfie check. Owner Only Cars stores the provider session ID, status, timestamps, and minimum approved fields.',
+                  'Stripe hosts the government-ID document check. Owner Only Cars stores the provider session ID, status, timestamps, and minimum approved fields.',
                 ],
                 [
                   '02 / Location',

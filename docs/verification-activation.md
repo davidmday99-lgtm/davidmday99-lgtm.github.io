@@ -23,8 +23,7 @@ performed per listing.
 4. Verify webhook signatures and use Stripe test mode before switching to live
    Identity.
 5. Confirm that only session ID, status, timestamps, failure category, and
-   minimum approved fields are retained. Do not download raw ID or selfie
-   images.
+   minimum approved fields are retained. Do not download raw ID images.
 
 Stripe Identity session creation must remain server-side. The secret key must
 never be placed in the website bundle or a public GitHub variable.

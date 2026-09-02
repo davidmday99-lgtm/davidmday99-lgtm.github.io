@@ -10,7 +10,7 @@ export default function Page() {
       sections={[
         {
           title: 'Identity data',
-          body: 'Stripe hosts government-document and selfie verification. OwnerOnly Cars intends to store only the verification session ID, outcome, timestamps, failure category, and minimum approved fields.',
+          body: 'Stripe hosts government-document verification. OwnerOnly Cars intends to store only the verification session ID, outcome, timestamps, failure category, and minimum approved fields—not raw ID images.',
         },
         {
           title: 'Ownership documents',

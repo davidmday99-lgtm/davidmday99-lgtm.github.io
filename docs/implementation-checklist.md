@@ -23,7 +23,7 @@
 
 - [ ] Supabase schema, migrations, RLS, storage policies, seed data, and rollback plan pass automated tests.
 - [ ] Configure Google OAuth in Google Cloud and Supabase, implement PKCE callback/session handling, test identity linking and failure states, and keep the UI disabled until verified end to end.
-- [ ] Stripe Identity session creation is authenticated/server-only; signed webhooks are idempotent; no raw ID/selfie images are stored or logged.
+- [ ] Stripe Identity session creation is authenticated/server-only; signed webhooks are idempotent; no raw ID images are stored or logged.
 - [ ] Upload pipeline validates signatures/types/sizes/dimensions/count, strips metadata, re-encodes, and deletes ownership documents on schedule.
 - [ ] Publish/message mutations deny unverified, suspended, blocked, or unauthorized users in server and RLS tests.
 - [ ] Risk signals feed human review; no IP/score-only automatic ban; suspension and appeal workflows are audited.

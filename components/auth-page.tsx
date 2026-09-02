@@ -197,7 +197,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
               {[
                 'Google or email account sign-in',
                 'Phone and account confirmation',
-                'Hosted ID + selfie check',
+                'Hosted government-ID check',
                 'Separate ownership-document review',
                 'Approximate public location only',
               ].map((item) => (

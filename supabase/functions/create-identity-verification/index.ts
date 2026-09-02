@@ -79,7 +79,6 @@ Deno.serve(async (request) => {
     return_url: returnUrl,
     client_reference_id: user.id,
     'metadata[user_id]': user.id,
-    'options[document][require_matching_selfie]': 'true',
   });
   const stripeResponse = await fetch(
     'https://api.stripe.com/v1/identity/verification_sessions',

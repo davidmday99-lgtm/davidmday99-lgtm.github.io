@@ -6,7 +6,7 @@
 - Tailwind CSS and accessible reusable components.
 - Supabase PostgreSQL, Auth, row-level security, private Storage, and Realtime.
 - Google OAuth through Supabase Auth using PKCE and minimum `openid`, email, and profile scopes; no Gmail-data access.
-- Stripe Identity hosted document + matching-selfie verification.
+- Stripe Identity hosted government-ID document verification.
 - NHTSA vPIC adapter with successful-response caching.
 - Approved NMVTIS provider behind a provider interface; mock adapter until contracted.
 - Vitest for units/integrations and Playwright for protected-flow end-to-end tests.
@@ -23,7 +23,7 @@
 
 ## Data minimization
 
-- Do not download Stripe ID or selfie images.
+- Do not download Stripe ID images.
 - Store Stripe session ID, state, timestamps, failure category, and minimum approved fields only.
 - Ownership documents are private and auto-deleted after configured retention and resolved appeal window.
 - Photo pipeline strips EXIF metadata and validates content signature, type, dimensions, size, and count.

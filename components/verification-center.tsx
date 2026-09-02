@@ -259,7 +259,7 @@ export function VerificationCenter() {
   const identityCopy = {
     not_started: {
       status: 'Not started',
-      body: 'Hosted government-ID and matching-selfie check through Stripe Identity.',
+      body: 'Hosted government-ID document check through Stripe Identity.',
       action: 'Start identity check',
     },
     requires_input: {
@@ -274,7 +274,7 @@ export function VerificationCenter() {
     },
     verified: {
       status: 'Complete',
-      body: 'Government ID and matching-selfie check completed.',
+      body: 'Government-ID document check completed.',
       action: 'Complete',
     },
   }[identityStatus];
@@ -501,9 +501,9 @@ export function VerificationCenter() {
             <h2 className="font-black uppercase text-navy">Privacy promise</h2>
             <p className="mt-2 leading-7 text-slate-600">
               Phone status comes from the authenticated account. Stripe hosts
-              government-ID and selfie collection. Owner Only Cars stores only
+              government-ID document collection. Owner Only Cars stores only
               the provider session ID, result, timestamps, failure category, and
-              minimum approved fields—not raw ID or selfie images.
+              minimum approved fields—not raw ID images.
             </p>
           </div>
         </div>

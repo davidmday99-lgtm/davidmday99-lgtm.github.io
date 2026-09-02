@@ -16,7 +16,7 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 ## Core flows
 
 1. Browse and filter published private-owner listings.
-2. Create account, confirm phone, and complete Stripe Identity hosted ID + selfie verification.
+2. Create account, confirm phone, and complete Stripe Identity hosted government-ID document verification.
 3. Create a six-step listing: VIN; facts and price; features, description, and optional seller-provided CARFAX link; photos; ownership document; review.
 4. Decode VIN through NHTSA vPIC and preserve both raw response and seller-corrected non-authoritative fields.
 5. Submit title or registration privately; moderator compares legal name and VIN.
@@ -55,7 +55,7 @@ OwnerOnly Cars is a United States marketplace where private vehicle owners adver
 
 | Check                       | Establishes                                                                  | Does not establish                                                         |
 | --------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Government ID + selfie      | User likely matches submitted ID                                             | Vehicle ownership                                                          |
+| Government-ID document      | Submitted identity document passes the provider check                        | Vehicle ownership or a biometric match                                     |
 | Title/registration review   | Seller name and VIN match current document                                   | Mechanical condition                                                       |
 | NMVTIS provider report      | Available title, odometer, brand, salvage/total-loss, and certain theft data | Complete repair history                                                    |
 | Seller-provided CARFAX link | The seller supplied a link hosted on a CARFAX domain                         | That the report is current, complete, authentic, or for the listed vehicle |
