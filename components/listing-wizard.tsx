@@ -20,6 +20,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CARFAX_REPORTS_URL, validateSellerCarfaxUrl } from '@/lib/carfax';
+import {
+  getSupabaseBrowserClient,
+  hasSupabaseConfig,
+} from '@/lib/supabase-browser';
 
 const steps = [
   'VIN & vehicle',
@@ -54,17 +58,28 @@ type SelectedPhoto = {
 
 export function ListingWizard() {
   const [step, setStep] = useState(0);
+  const [vin, setVin] = useState('');
   const [carfaxUrl, setCarfaxUrl] = useState('');
   const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
   const [photoError, setPhotoError] = useState<string>();
   const [ownershipDocument, setOwnershipDocument] = useState<File>();
   const [ownershipError, setOwnershipError] = useState<string>();
+  const [documentScreeningConsent, setDocumentScreeningConsent] = useState(false);
   const [attested, setAttested] = useState(false);
   const [reviewReady, setReviewReady] = useState(false);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewError, setReviewError] = useState<string>();
+  const [reviewId, setReviewId] = useState<string>();
   const photoUrls = useRef(new Set<string>());
   const carfaxValidation = validateSellerCarfaxUrl(carfaxUrl);
+  const normalizedVin = vin.trim().toUpperCase();
+  const validVin = /^[A-HJ-NPR-Z0-9]{17}$/.test(normalizedVin);
   const canSubmitForReview = Boolean(
-    photos.length > 0 && ownershipDocument && attested,
+    validVin &&
+      photos.length > 0 &&
+      ownershipDocument &&
+      documentScreeningConsent &&
+      attested,
   );
 
   useEffect(() => {
@@ -140,8 +155,56 @@ export function ListingWizard() {
     setOwnershipError(undefined);
   }
 
+  async function submitForReview() {
+    if (!ownershipDocument || !canSubmitForReview) return;
+    setReviewBusy(true);
+    setReviewError(undefined);
+    setReviewReady(false);
+
+    try {
+      if (!hasSupabaseConfig()) {
+        throw new Error('The secure document service is not configured yet.');
+      }
+      const supabase = getSupabaseBrowserClient();
+      const { data } = await supabase.auth.getSession();
+      const accessToken = data.session?.access_token;
+      if (!accessToken) {
+        throw new Error('Log in before submitting an ownership document.');
+      }
+
+      const form = new FormData();
+      form.set('document', ownershipDocument);
+      form.set('vin', normalizedVin);
+      form.set('automatedScreeningConsent', 'true');
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!supabaseUrl) throw new Error('The secure document service is not configured yet.');
+
+      const response = await fetch(
+        new URL('/functions/v1/submit-ownership-document', supabaseUrl),
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: form,
+        },
+      );
+      const result = (await response.json().catch(() => ({}))) as {
+        reviewId?: string;
+      };
+      if (!response.ok || !result.reviewId) {
+        throw new Error('The document could not be submitted. Please check the file and try again.');
+      }
+
+      setReviewId(result.reviewId);
+      setReviewReady(true);
+    } catch (caught) {
+      setReviewError(caught instanceof Error ? caught.message : 'The document could not be submitted.');
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
   const reviewItems = [
-    { label: 'VIN decoded', ready: true },
+    { label: validVin ? 'VIN ready for review' : 'Valid VIN still needed', ready: validVin },
     { label: 'Vehicle facts entered', ready: true },
     { label: 'Description complete', ready: true },
     {
@@ -164,6 +227,12 @@ export function ListingWizard() {
         ? `Ownership document selected: ${ownershipDocument.name}`
         : 'Ownership document still needed',
       ready: Boolean(ownershipDocument),
+    },
+    {
+      label: documentScreeningConsent
+        ? 'Automated screening disclosure accepted'
+        : 'Automated screening disclosure required',
+      ready: documentScreeningConsent,
     },
     {
       label: attested
@@ -210,7 +279,9 @@ export function ListingWizard() {
               <Input
                 className="mt-2 h-12 rounded-none font-mono uppercase"
                 maxLength={17}
+                onChange={(event) => setVin(event.target.value)}
                 placeholder="Enter the vehicle VIN"
+                value={vin}
               />
             </label>
           </div>
@@ -463,10 +534,23 @@ export function ListingWizard() {
               className="mt-4 max-w-2xl text-xs leading-5 text-slate-500"
               id="ownership-document-help"
             >
-              During this practice version, the selected document remains only
-              in this browser tab and is cleared when the page refreshes. It is
-              not uploaded until private document storage is connected.
+              The document is stored privately for a limited review period. It
+              never appears on a public listing.
             </p>
+            <label className="mt-5 flex max-w-2xl items-start gap-3 border-l-4 border-amber-500 bg-amber-50 p-4 text-sm leading-6 text-navy">
+              <input
+                checked={documentScreeningConsent}
+                className="mt-1 size-4 shrink-0"
+                onChange={(event) => {
+                  setDocumentScreeningConsent(event.target.checked);
+                  setReviewReady(false);
+                }}
+                type="checkbox"
+              />
+              I understand that this ownership document may be analyzed by an
+              automated service to flag possible mismatches, poor legibility,
+              or visible alteration. A human reviewer makes the final decision.
+            </label>
           </div>
         )}
 
@@ -504,12 +588,25 @@ export function ListingWizard() {
             </label>
             <Button
               className={`mt-6 h-12 rounded-none font-black uppercase ${canSubmitForReview ? 'bg-[#16C7BE] text-navy shadow-[4px_4px_0_#061C2B] hover:bg-[#FFB81C]' : 'bg-slate-300 text-slate-600'}`}
-              disabled={!canSubmitForReview}
-              onClick={() => setReviewReady(true)}
+              disabled={!canSubmitForReview || reviewBusy || reviewReady}
+              onClick={() => void submitForReview()}
               type="button"
             >
-              {reviewReady ? 'Review ready' : 'Submit for review'}
+              {reviewBusy
+                ? 'Submitting securely…'
+                : reviewReady
+                  ? 'Submitted for review'
+                  : 'Submit for review'}
             </Button>
+
+            {reviewError && (
+              <p className="mt-4 border-l-4 border-red-600 bg-red-50 p-4 text-sm font-bold text-red-800" role="alert">
+                {reviewError}{' '}
+                {reviewError.startsWith('Log in') && (
+                  <a className="underline" href="/login?next=/sell">Go to login</a>
+                )}
+              </p>
+            )}
 
             {reviewReady && (
               <div
@@ -523,10 +620,15 @@ export function ListingWizard() {
                       Listing review is ready
                     </h3>
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                      Next, the seller must complete identity verification.
-                      This practice form does not upload or permanently save
-                      the document yet.
+                      Your ownership document is in the private human-review
+                      queue. Automated risk screening may add flags for the
+                      reviewer, but it cannot approve or reject the document.
                     </p>
+                    {reviewId && (
+                      <p className="mt-2 text-xs text-slate-500">
+                        Review reference: {reviewId.slice(0, 8)}
+                      </p>
+                    )}
                     <Button
                       className="mt-4 rounded-none bg-navy font-black uppercase"
                       nativeButton={false}

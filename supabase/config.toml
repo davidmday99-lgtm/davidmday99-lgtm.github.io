@@ -3,3 +3,9 @@ verify_jwt = true
 
 [functions.stripe-identity-webhook]
 verify_jwt = false
+
+[functions.submit-ownership-document]
+verify_jwt = true
+
+[functions.moderation-admin]
+verify_jwt = true

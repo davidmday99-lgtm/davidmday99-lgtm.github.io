@@ -4,7 +4,7 @@ export default function Page() {
   return (
     <MarketingPage
       cta={false}
-      eyebrow="Privacy placeholder"
+      eyebrow="Privacy"
       title="Privacy comes before convenience."
       intro="This placeholder describes the intended data-minimization approach and must be replaced with counsel-reviewed disclosures before launch."
       sections={[
@@ -14,7 +14,7 @@ export default function Page() {
         },
         {
           title: 'Ownership documents',
-          body: 'Title or registration images are private, access-controlled, and retained only long enough for review and appeal under a configurable retention policy.',
+          body: 'Title or registration images are stored in a private, access-controlled area for review. If you give consent during upload, the document may be sent to OpenAI for automated risk screening. The screening returns limited signals such as document type, legibility, a VIN-last-six comparison, name-match status, and possible visible alteration; a human makes every final decision. Documents are not shown on public listings and are marked for removal under a configurable retention policy.',
         },
         {
           title: 'Public listing data',

@@ -98,6 +98,15 @@ Deno.serve(async (request) => {
         provider: 'stripe',
         session_id: session.id,
         status,
+        verified_name:
+          status === 'verified'
+            ? [
+                session.verified_outputs?.first_name,
+                session.verified_outputs?.last_name,
+              ]
+                .filter(Boolean)
+                .join(' ') || null
+            : null,
         failure_category: session.last_error?.code ?? null,
         updated_at: new Date().toISOString(),
       },
