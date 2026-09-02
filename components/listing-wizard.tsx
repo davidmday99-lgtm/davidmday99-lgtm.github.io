@@ -299,6 +299,14 @@ export function ListingWizard() {
               <SelectField label="Title status" value="Clean" />
               <SelectField label="Lien status" value="No lien" />
             </div>
+            <a
+              className="mt-6 inline-flex items-center gap-2 border-b-2 border-teal-600 text-sm font-black uppercase text-teal-800"
+              href="/value-checker"
+              target="_blank"
+            >
+              Compare Kelley Blue Book and Edmunds values
+              <ArrowRight className="size-4" />
+            </a>
           </div>
         )}
 

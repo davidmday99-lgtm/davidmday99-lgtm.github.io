@@ -235,6 +235,14 @@ export function SiteHeader() {
             </a>
             <a
               className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
+              href="/value-checker"
+            >
+              Value
+              <br />
+              Checker
+            </a>
+            <a
+              className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
               href="/trust-and-safety"
             >
               Trust &<br />
@@ -305,6 +313,7 @@ export function SiteHeader() {
                 ['Private seller auctions', '/private-seller-auctions'],
                 ['Public auto auctions', '/public-auto-auctions'],
                 ['Sell your car', '/sell'],
+                ['Value checker', '/value-checker'],
                 ['Trust & safety', '/trust-and-safety'],
                 ['Our story', '/our-story'],
                 ['Blog', '/blog'],

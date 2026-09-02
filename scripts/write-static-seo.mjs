@@ -9,6 +9,7 @@ const siteUrl = (
 const excludedRoutes = [
   '/404',
   '/account',
+  '/admin',
   '/cars',
   '/dashboard',
   '/favorites',
@@ -71,6 +72,7 @@ async function writeStaticSeoFiles() {
     'User-agent: *',
     'Allow: /',
     'Disallow: /account/',
+    'Disallow: /admin/',
     'Disallow: /dashboard',
     'Disallow: /favorites',
     'Disallow: /messages',
