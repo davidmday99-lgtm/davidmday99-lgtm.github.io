@@ -23,9 +23,21 @@ export const metadata: Metadata = {
   description:
     'A marketplace for buying and selling cars directly with verified private owners—without dealer markups.',
   icons: {
-    icon: [{ url: '/favicon-logo.png', type: 'image/png' }],
-    shortcut: ['/favicon-logo.png'],
-    apple: [{ url: '/favicon-logo.png', type: 'image/png' }],
+    icon: [
+      {
+        url: '/favicon-logo.png?v=20260902-2',
+        type: 'image/png',
+        sizes: '1254x1254',
+      },
+    ],
+    shortcut: ['/favicon-logo.png?v=20260902-2'],
+    apple: [
+      {
+        url: '/favicon-logo.png?v=20260902-2',
+        type: 'image/png',
+        sizes: '1254x1254',
+      },
+    ],
   },
   openGraph: {
     title: 'Owner Only Cars',
