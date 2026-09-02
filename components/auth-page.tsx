@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { getSafeAuthReturnTo } from '@/lib/auth-return';
 import {
   getSupabaseBrowserClient,
   hasSupabaseConfig,
@@ -15,6 +16,10 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const signup = mode === 'signup';
   const [googleBusy, setGoogleBusy] = useState(false);
   const [message, setMessage] = useState<string>();
+
+  function returnAfterSignIn() {
+    return getSafeAuthReturnTo(window.location.search);
+  }
 
   useEffect(() => {
     if (!hasSupabaseConfig()) return;
@@ -28,13 +33,13 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
         setMessage('We could not finish Google sign-in. Please try again.');
         return;
       }
-      if (data.session) window.location.replace('/dashboard');
+      if (data.session) window.location.replace(returnAfterSignIn());
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active && session) window.location.replace('/dashboard');
+      if (active && session) window.location.replace(returnAfterSignIn());
     });
 
     return () => {
@@ -55,10 +60,11 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
 
     setGoogleBusy(true);
     const supabase = getSupabaseBrowserClient();
+    const returnTo = returnAfterSignIn();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/login?oauth=complete`,
+        redirectTo: `${window.location.origin}/login?oauth=complete&returnTo=${encodeURIComponent(returnTo)}`,
         queryParams: {
           prompt: 'select_account',
         },

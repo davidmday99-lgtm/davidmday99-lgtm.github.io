@@ -15,6 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { loginPath } from '@/lib/auth-return';
 import {
   maskPhoneNumber,
   normalizePhoneNumber,
@@ -94,6 +95,7 @@ export function VerificationCenter() {
 
   const phoneVerified = Boolean(user?.phone && user.phone_confirmed_at);
   const identityStatus = useMemo(() => getIdentityStatus(user), [user]);
+  const verificationLoginPath = loginPath('/account/verification');
 
   function showMessage(text: string, tone: 'error' | 'success' = 'error') {
     setMessage(text);
@@ -289,7 +291,7 @@ export function VerificationCenter() {
           <Button
             className="mt-4 rounded-none bg-[#16c7be] font-black uppercase text-navy"
             nativeButton={false}
-            render={<a href="/login" />}
+            render={<a href={verificationLoginPath} />}
           >
             Log in
           </Button>
@@ -298,7 +300,13 @@ export function VerificationCenter() {
 
       <div className="grid gap-6 xl:grid-cols-3">
         <VerificationCard
-          action={phoneVerified ? 'Complete' : 'Verify phone'}
+          action={
+            !user
+              ? 'Log in to verify'
+              : phoneVerified
+                ? 'Complete'
+                : 'Verify phone'
+          }
           body={
             phoneVerified
               ? maskPhoneNumber(user?.phone)
@@ -306,38 +314,51 @@ export function VerificationCenter() {
           }
           color="bg-teal-50"
           complete={phoneVerified}
-          disabled={!user || phoneVerified}
+          disabled={phoneVerified}
+          href={!user ? verificationLoginPath : undefined}
           icon={Phone}
           onAction={() => setPhonePanelOpen(true)}
-          status={phoneVerified ? 'Complete' : 'Not started'}
+          status={
+            !user
+              ? 'Sign in required'
+              : phoneVerified
+                ? 'Complete'
+                : 'Not started'
+          }
           title="Phone verification"
         />
 
         <VerificationCard
-          action={identityBusy ? 'Connecting…' : identityCopy.action}
+          action={
+            !user
+              ? 'Log in to verify'
+              : identityBusy
+                ? 'Connecting…'
+                : identityCopy.action
+          }
           body={identityCopy.body}
           color="bg-[#96d9ed]"
           complete={identityStatus === 'verified'}
           disabled={
-            !user ||
             identityBusy ||
             identityStatus === 'verified' ||
             identityStatus === 'processing'
           }
+          href={!user ? verificationLoginPath : undefined}
           icon={BadgeCheck}
           loading={identityBusy}
           onAction={() => void startIdentityCheck()}
-          status={identityCopy.status}
+          status={!user ? 'Sign in required' : identityCopy.status}
           title="Identity verification"
         />
 
         <VerificationCard
-          action="Create a listing"
+          action={!user ? 'Log in to continue' : 'Create a listing'}
           body="Submit a current title or registration inside each vehicle listing for private review."
           color="bg-[#f6b82b]"
           complete={false}
-          disabled={!user}
-          href="/sell"
+          disabled={false}
+          href={user ? '/sell' : loginPath('/sell')}
           icon={FileCheck2}
           status="Needed per listing"
           title="Ownership verification"
