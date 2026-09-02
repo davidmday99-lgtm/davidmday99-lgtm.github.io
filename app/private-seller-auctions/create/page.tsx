@@ -8,7 +8,7 @@ import { SiteHeader } from '@/components/site-header';
 export const metadata: Metadata = {
   title: 'Create a Private Seller Auction | OwnerOnly Cars',
   description:
-    'Preview the OwnerOnly Cars vehicle auction setup flow with an optional private reserve.',
+    'Prepare and validate a private-owner vehicle auction with an optional private reserve.',
 };
 
 const requirements = [
@@ -47,17 +47,22 @@ export default function CreatePrivateAuctionPage() {
           <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_330px]">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-[#0B8F89]">
-                Seller auction preview
+                Six-step seller auction setup
               </p>
               <h1 className="mt-4 text-5xl font-black uppercase leading-[0.9] tracking-[-0.05em] sm:text-7xl">
                 Auction your car.
                 <span className="block text-[#0B8F89]">Set your terms.</span>
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700">
-                Choose a starting bid and auction length, then decide whether
-                you want a private reserve. This demonstration does not save or
-                publish anything.
+                Enter the vehicle, set the auction terms, choose a reserve, add
+                current photos and ownership proof, then review everything
+                before continuing to identity verification.
               </p>
+              <div className="mt-6 border-l-4 border-[#FFB81C] bg-white p-4 text-sm leading-6 text-slate-700">
+                <strong>Practice launch:</strong> every field and file selector
+                works and is validated. Files remain private in this browser tab
+                until secure auction storage and moderator review launch.
+              </div>
               <div className="mt-10">
                 <AuctionSetupWizard />
               </div>

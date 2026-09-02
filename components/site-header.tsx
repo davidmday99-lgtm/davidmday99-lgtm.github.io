@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   Settings,
+  X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -93,11 +94,7 @@ function AccountMenu({ user }: { user: User }) {
       >
         <Avatar className="size-11 border-2 border-[#061C2B] bg-[#16C7BE] shadow-[3px_3px_0_#061C2B]">
           {avatarUrl ? (
-            <AvatarImage
-              alt=""
-              referrerPolicy="no-referrer"
-              src={avatarUrl}
-            />
+            <AvatarImage alt="" referrerPolicy="no-referrer" src={avatarUrl} />
           ) : null}
           <AvatarFallback className="bg-[#16C7BE] font-black text-[#061C2B]">
             {userInitials(user)}
@@ -161,6 +158,7 @@ function AccountMenu({ user }: { user: User }) {
 
 export function SiteHeader() {
   const [user, setUser] = useState<User | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!hasSupabaseConfig()) return;
@@ -283,15 +281,84 @@ export function SiteHeader() {
           <div className="flex items-center gap-2 lg:hidden">
             {user ? <AccountMenu user={user} /> : null}
             <Button
-              aria-label="Open menu"
+              aria-controls="mobile-navigation"
+              aria-expanded={mobileMenuOpen}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
               className="text-[#061C2B] hover:bg-[#16C7BE]/15 hover:text-[#0B8F89]"
+              onClick={() => setMobileMenuOpen((open) => !open)}
               size="icon"
               variant="ghost"
             >
-              <Menu />
+              {mobileMenuOpen ? <X /> : <Menu />}
             </Button>
           </div>
         </div>
+        {mobileMenuOpen ? (
+          <nav
+            aria-label="Mobile navigation"
+            className="border-t-2 border-[#061C2B] bg-[#FFF8EA] px-5 py-5 lg:hidden"
+            id="mobile-navigation"
+          >
+            <div className="mx-auto grid max-w-7xl gap-2 sm:grid-cols-2">
+              {[
+                ['Buy from owners', '/search'],
+                ['Private seller auctions', '/private-seller-auctions'],
+                ['Public auto auctions', '/public-auto-auctions'],
+                ['Sell your car', '/sell'],
+                ['Trust & safety', '/trust-and-safety'],
+                ['Our story', '/our-story'],
+                ['Blog', '/blog'],
+              ].map(([label, href]) => (
+                <a
+                  className="border-2 border-[#061C2B] bg-white px-4 py-3 text-sm font-black uppercase text-[#061C2B] hover:bg-[#16C7BE]"
+                  href={href}
+                  key={href}
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+            <div className="mx-auto mt-4 flex max-w-7xl gap-3 border-t border-[#061C2B]/20 pt-4">
+              {user ? (
+                <>
+                  <Button
+                    className="h-11 flex-1 rounded-none border-2 border-[#061C2B] bg-white font-black uppercase text-[#061C2B]"
+                    nativeButton={false}
+                    render={<a href="/dashboard" />}
+                    variant="outline"
+                  >
+                    Dashboard
+                  </Button>
+                  <Button
+                    className="h-11 flex-1 rounded-none bg-[#16C7BE] font-black uppercase text-[#061C2B] hover:bg-[#FFB81C]"
+                    nativeButton={false}
+                    render={<a href="/settings" />}
+                  >
+                    Settings
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    className="h-11 flex-1 rounded-none border-2 border-[#061C2B] bg-white font-black uppercase text-[#061C2B]"
+                    nativeButton={false}
+                    render={<a href="/login" />}
+                    variant="outline"
+                  >
+                    Log in
+                  </Button>
+                  <Button
+                    className="h-11 flex-1 rounded-none bg-[#16C7BE] font-black uppercase text-[#061C2B] hover:bg-[#FFB81C]"
+                    nativeButton={false}
+                    render={<a href="/signup" />}
+                  >
+                    Join free
+                  </Button>
+                </>
+              )}
+            </div>
+          </nav>
+        ) : null}
       </div>
     </header>
   );
