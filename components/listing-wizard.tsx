@@ -49,6 +49,30 @@ const acceptedOwnershipTypes = new Set([
 const acceptedOwnershipExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
 const maxOwnershipBytes = 10 * 1024 * 1024;
 
+const ownershipSubmissionErrors: Record<string, string> = {
+  authentication_required:
+    'Your login expired. Log in again, then return and resubmit the document.',
+  document_required:
+    'Choose a title or registration document before submitting.',
+  document_signature_mismatch:
+    'That file is not a valid PDF, JPG, PNG, or WebP document. Open it and export or download it again, then choose the new file.',
+  identity_verification_required:
+    'Identity verification is required before submitting a listing.',
+  invalid_document_size:
+    'The ownership document must be between 1 byte and 10 MB.',
+  invalid_form_data:
+    'The document upload was incomplete. Choose the file again and resubmit it.',
+  private_upload_failed:
+    'The secure document storage service could not save the file. Please try again.',
+  review_queue_failed:
+    'The document was received but could not be added to the review queue. Please try again.',
+  screening_consent_required:
+    'Accept the automated-screening disclosure before submitting.',
+  unsupported_document_type:
+    'Choose a valid PDF, JPG, PNG, or WebP document.',
+  valid_vin_required: 'Enter a valid 17-character VIN before submitting.',
+};
+
 type SelectedPhoto = {
   file: File;
   id: string;
@@ -207,13 +231,9 @@ export function ListingWizard() {
         reviewId?: string;
       };
       if (!response.ok || !result.reviewId) {
-        if (result.error === 'identity_verification_required') {
-          throw new Error(
-            'Identity verification is required before submitting a listing.',
-          );
-        }
         throw new Error(
-          'The document could not be submitted. Please check the file and try again.',
+          (result.error && ownershipSubmissionErrors[result.error]) ??
+            'The document could not be submitted. Please try again.',
         );
       }
 

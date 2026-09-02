@@ -59,13 +59,6 @@ async function authenticateRequest(request: Request) {
 }
 
 const maximumBytes = 10 * 1024 * 1024;
-const supportedTypes = new Set([
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-]);
-
 type AiResult = {
   document_type: 'title' | 'registration' | 'unknown';
   legibility: 'good' | 'partial' | 'unreadable';
@@ -80,24 +73,20 @@ type AiResult = {
   summary: string;
 };
 
-function validSignature(bytes: Uint8Array, mimeType: string) {
-  if (mimeType === 'application/pdf') {
-    return new TextDecoder().decode(bytes.slice(0, 5)) === '%PDF-';
+function detectMimeType(bytes: Uint8Array) {
+  const headerText = new TextDecoder().decode(bytes.slice(0, 1024));
+  if (headerText.includes('%PDF-')) return 'application/pdf';
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)
+    return 'image/jpeg';
+  const png = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  if (png.every((value, index) => bytes[index] === value)) return 'image/png';
+  if (
+    new TextDecoder().decode(bytes.slice(0, 4)) === 'RIFF' &&
+    new TextDecoder().decode(bytes.slice(8, 12)) === 'WEBP'
+  ) {
+    return 'image/webp';
   }
-  if (mimeType === 'image/jpeg') {
-    return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
-  }
-  if (mimeType === 'image/png') {
-    const png = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
-    return png.every((value, index) => bytes[index] === value);
-  }
-  if (mimeType === 'image/webp') {
-    return (
-      new TextDecoder().decode(bytes.slice(0, 4)) === 'RIFF' &&
-      new TextDecoder().decode(bytes.slice(8, 12)) === 'WEBP'
-    );
-  }
-  return false;
+  return null;
 }
 
 function extensionFor(mimeType: string) {
@@ -351,16 +340,15 @@ Deno.serve(async (request) => {
     return jsonResponse({ error: 'valid_vin_required' }, 400, origin);
   if (!consent)
     return jsonResponse({ error: 'screening_consent_required' }, 400, origin);
-  if (!supportedTypes.has(document.type))
-    return jsonResponse({ error: 'unsupported_document_type' }, 400, origin);
   if (document.size < 1 || document.size > maximumBytes)
     return jsonResponse({ error: 'invalid_document_size' }, 400, origin);
 
   const bytes = new Uint8Array(await document.arrayBuffer());
-  if (!validSignature(bytes, document.type))
+  const mimeType = detectMimeType(bytes);
+  if (!mimeType)
     return jsonResponse({ error: 'document_signature_mismatch' }, 400, origin);
 
-  const extension = extensionFor(document.type);
+  const extension = extensionFor(mimeType);
   const reviewId = crypto.randomUUID();
   const documentPath = `${user.id}/${reviewId}.${extension}`;
   const retentionDays = Math.min(
@@ -376,7 +364,7 @@ Deno.serve(async (request) => {
 
   const { error: uploadError } = await admin.storage
     .from('ownership-documents')
-    .upload(documentPath, bytes, { contentType: document.type, upsert: false });
+    .upload(documentPath, bytes, { contentType: mimeType, upsert: false });
   if (uploadError)
     return jsonResponse({ error: 'private_upload_failed' }, 502, origin);
 
@@ -387,7 +375,7 @@ Deno.serve(async (request) => {
     claimed_vin: claimedVin,
     document_path: documentPath,
     original_filename: document.name.slice(0, 240),
-    mime_type: document.type,
+    mime_type: mimeType,
     file_size_bytes: document.size,
     status: 'ai_reviewing',
     retain_until: retainUntil,
