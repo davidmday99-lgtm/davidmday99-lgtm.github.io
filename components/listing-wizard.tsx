@@ -16,10 +16,18 @@ import {
   Trash2,
 } from 'lucide-react';
 
+import {
+  VehicleConditionFields,
+  VehicleFeatureFields,
+} from '@/components/listing-details-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CARFAX_REPORTS_URL, validateSellerCarfaxUrl } from '@/lib/carfax';
+import {
+  conditionQuestionCount,
+  conditionQuestionGroups,
+} from '@/lib/listing-disclosures';
 import {
   getSupabaseBrowserClient,
   hasSupabaseConfig,
@@ -60,6 +68,9 @@ export function ListingWizard() {
   const [step, setStep] = useState(0);
   const [vin, setVin] = useState('');
   const [carfaxUrl, setCarfaxUrl] = useState('');
+  const [conditionAnswers, setConditionAnswers] = useState<Record<string, string>>({});
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [featuresReviewed, setFeaturesReviewed] = useState(false);
   const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
   const [photoError, setPhotoError] = useState<string>();
   const [ownershipDocument, setOwnershipDocument] = useState<File>();
@@ -74,8 +85,16 @@ export function ListingWizard() {
   const carfaxValidation = validateSellerCarfaxUrl(carfaxUrl);
   const normalizedVin = vin.trim().toUpperCase();
   const validVin = /^[A-HJ-NPR-Z0-9]{17}$/.test(normalizedVin);
+  const completedConditionCount = conditionQuestionGroups.reduce(
+    (total, group) =>
+      total + group.questions.filter((question) => conditionAnswers[question.id]).length,
+    0,
+  );
+  const conditionComplete = completedConditionCount === conditionQuestionCount;
   const canSubmitForReview = Boolean(
     validVin &&
+      conditionComplete &&
+      featuresReviewed &&
       photos.length > 0 &&
       ownershipDocument &&
       documentScreeningConsent &&
@@ -206,6 +225,18 @@ export function ListingWizard() {
   const reviewItems = [
     { label: validVin ? 'VIN ready for review' : 'Valid VIN still needed', ready: validVin },
     { label: 'Vehicle facts entered', ready: true },
+    {
+      label: conditionComplete
+        ? 'Condition disclosure complete'
+        : `${completedConditionCount} of ${conditionQuestionCount} condition answers complete`,
+      ready: conditionComplete,
+    },
+    {
+      label: featuresReviewed
+        ? `${selectedFeatures.length} installed feature${selectedFeatures.length === 1 ? '' : 's'} confirmed`
+        : 'Installed features still need review',
+      ready: featuresReviewed,
+    },
     { label: 'Description complete', ready: true },
     {
       label: carfaxUrl.trim()
@@ -299,6 +330,12 @@ export function ListingWizard() {
               <SelectField label="Title status" value="Clean" />
               <SelectField label="Lien status" value="No lien" />
             </div>
+            <VehicleConditionFields
+              answers={conditionAnswers}
+              onAnswer={(id, answer) =>
+                setConditionAnswers((current) => ({ ...current, [id]: answer }))
+              }
+            />
             <a
               className="mt-6 inline-flex items-center gap-2 border-b-2 border-teal-600 text-sm font-black uppercase text-teal-800"
               href="/value-checker"
@@ -327,6 +364,18 @@ export function ListingWizard() {
                 defaultValue="Well-kept everyday vehicle with regular maintenance. Selling because our household needs changed."
               />
             </label>
+            <VehicleFeatureFields
+              onReviewedChange={setFeaturesReviewed}
+              onToggle={(feature) =>
+                setSelectedFeatures((current) =>
+                  current.includes(feature)
+                    ? current.filter((item) => item !== feature)
+                    : [...current, feature],
+                )
+              }
+              reviewed={featuresReviewed}
+              selected={selectedFeatures}
+            />
             <div className="mt-7 border-2 border-navy bg-teal-50 p-5">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-800">
                 Vehicle history · optional

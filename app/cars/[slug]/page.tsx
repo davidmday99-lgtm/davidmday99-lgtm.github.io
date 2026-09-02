@@ -15,6 +15,7 @@ import {
 
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { ListingDisclosureSections } from '@/components/listing-disclosure-sections';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CARFAX_REPORTS_URL } from '@/lib/carfax';
@@ -160,6 +161,7 @@ export default function VehiclePage({ params }: { params: { slug: string } }) {
                 interior. Selling because our household needs changed. This is
                 fictional demonstration content and not a real offer to sell.
               </p>
+              <ListingDisclosureSections slug={listing.slug} />
               <section
                 className="mt-10 border-2 border-navy bg-white p-6 shadow-[6px_6px_0_rgba(7,28,44,.15)]"
                 aria-labelledby="vehicle-history-heading"
