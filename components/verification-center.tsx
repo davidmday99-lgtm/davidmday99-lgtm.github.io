@@ -11,7 +11,7 @@ import {
   Phone,
   RotateCcw,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,30 +22,20 @@ import {
   phoneVerificationError,
 } from '@/lib/phone-verification';
 import {
+  identityFailureMessage,
+  normalizeIdentityStatus,
+} from '@/lib/identity-verification';
+import {
   getSupabaseBrowserClient,
   hasSupabaseConfig,
 } from '@/lib/supabase-browser';
 
-type IdentityStatus =
-  | 'not_started'
-  | 'requires_input'
-  | 'processing'
-  | 'verified';
-
-function getIdentityStatus(user?: User | null): IdentityStatus {
+function getIdentityStatus(user?: User | null) {
   const verification = user?.app_metadata?.identity_verification;
   if (!verification || typeof verification !== 'object') return 'not_started';
 
   const status = (verification as { status?: unknown }).status;
-  if (
-    status === 'verified' ||
-    status === 'processing' ||
-    status === 'requires_input'
-  ) {
-    return status;
-  }
-
-  return 'not_started';
+  return normalizeIdentityStatus(status);
 }
 
 function getIdentityEndpoint() {
@@ -68,6 +58,7 @@ export function VerificationCenter() {
   const [code, setCode] = useState('');
   const [phoneBusy, setPhoneBusy] = useState(false);
   const [identityBusy, setIdentityBusy] = useState(false);
+  const [identityFailure, setIdentityFailure] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [messageTone, setMessageTone] = useState<'error' | 'success'>('error');
 
@@ -94,13 +85,17 @@ export function VerificationCenter() {
   }, []);
 
   const phoneVerified = Boolean(user?.phone && user.phone_confirmed_at);
+  const userId = user?.id;
   const identityStatus = useMemo(() => getIdentityStatus(user), [user]);
   const verificationLoginPath = loginPath('/account/verification');
 
-  function showMessage(text: string, tone: 'error' | 'success' = 'error') {
-    setMessage(text);
-    setMessageTone(tone);
-  }
+  const showMessage = useCallback(
+    (text: string, tone: 'error' | 'success' = 'error') => {
+      setMessage(text);
+      setMessageTone(tone);
+    },
+    [],
+  );
 
   async function sendPhoneCode() {
     if (!user) {
@@ -213,6 +208,7 @@ export function VerificationCenter() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          action: 'start',
           returnUrl: `${window.location.origin}/account/verification?identity=returned`,
         }),
       });
@@ -222,7 +218,32 @@ export function VerificationCenter() {
         throw new Error('identity_unavailable');
       }
 
-      const result = (await response.json()) as { url?: string };
+      const result = (await response.json()) as {
+        failureCategory?: string | null;
+        failureReason?: string | null;
+        status?: unknown;
+        url?: string;
+      };
+      const returnedStatus = normalizeIdentityStatus(result.status);
+      setIdentityFailure(
+        result.failureReason ??
+          identityFailureMessage(result.failureCategory) ??
+          undefined,
+      );
+
+      if (returnedStatus === 'processing' || returnedStatus === 'verified') {
+        const { data } = await getSupabaseBrowserClient().auth.getUser();
+        setUser(data.user);
+        setIdentityBusy(false);
+        showMessage(
+          returnedStatus === 'verified'
+            ? 'Your identity verification is complete.'
+            : 'Stripe is still processing your submission. You can refresh the status here.',
+          returnedStatus === 'verified' ? 'success' : 'error',
+        );
+        return;
+      }
+
       const verificationUrl = result.url ? new URL(result.url) : undefined;
       const trustedStripeHost =
         verificationUrl?.protocol === 'https:' &&
@@ -244,6 +265,102 @@ export function VerificationCenter() {
     }
   }
 
+  const refreshIdentityStatus = useCallback(
+    async (showResult = true) => {
+      const endpoint = getIdentityEndpoint();
+      if (!endpoint) return 'not_started' as const;
+
+      setIdentityBusy(true);
+      if (showResult) setMessage(undefined);
+
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session) throw new Error('missing_session');
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ action: 'status' }),
+        });
+        if (!response.ok) throw new Error('identity_unavailable');
+
+        const result = (await response.json()) as {
+          failureCategory?: string | null;
+          failureReason?: string | null;
+          status?: unknown;
+        };
+        const status = normalizeIdentityStatus(result.status);
+        setIdentityFailure(
+          result.failureReason ??
+            identityFailureMessage(result.failureCategory) ??
+            undefined,
+        );
+
+        const { data } = await supabase.auth.getUser();
+        setUser(data.user);
+
+        if (showResult) {
+          if (status === 'verified') {
+            showMessage('Your identity verification is complete.', 'success');
+          } else if (status === 'processing') {
+            showMessage('Stripe is still processing your submission.');
+          } else if (status === 'requires_input') {
+            showMessage(
+              result.failureReason ??
+                identityFailureMessage(result.failureCategory) ??
+                'Stripe needs another clear ID submission. The retry button is ready.',
+            );
+          } else {
+            showMessage('You can start a new identity check now.');
+          }
+        }
+
+        return status;
+      } catch {
+        if (showResult) {
+          showMessage(
+            'The verification status could not be refreshed. Please try again.',
+          );
+        }
+        return 'not_started' as const;
+      } finally {
+        setIdentityBusy(false);
+      }
+    },
+    [showMessage],
+  );
+
+  useEffect(() => {
+    if (!userId || typeof window === 'undefined') return;
+    if (
+      new URLSearchParams(window.location.search).get('identity') !== 'returned'
+    ) {
+      return;
+    }
+
+    let active = true;
+    void (async () => {
+      for (let attempt = 0; attempt < 4 && active; attempt += 1) {
+        const status = await refreshIdentityStatus(attempt === 3);
+        if (status !== 'processing') {
+          if (active && attempt < 3) await refreshIdentityStatus(true);
+          return;
+        }
+        await new Promise((resolve) => window.setTimeout(resolve, 2500));
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [refreshIdentityStatus, userId]);
+
   if (user === undefined) {
     return (
       <div className="flex min-h-64 items-center justify-center border-2 border-navy bg-white">
@@ -264,18 +381,30 @@ export function VerificationCenter() {
     },
     requires_input: {
       status: 'Needs attention',
-      body: 'Stripe needs another submission before the identity check can be completed.',
+      body:
+        identityFailure ??
+        'Stripe needs another submission before the identity check can be completed.',
       action: 'Try identity check again',
     },
     processing: {
       status: 'Processing',
       body: 'Stripe is processing the submitted identity information.',
-      action: 'Check in progress',
+      action: 'Refresh status',
     },
     verified: {
       status: 'Complete',
       body: 'Government-ID document check completed.',
       action: 'Complete',
+    },
+    canceled: {
+      status: 'Not completed',
+      body: 'The previous check was canceled. You can start a new secure ID check.',
+      action: 'Start a new check',
+    },
+    redacted: {
+      status: 'New check needed',
+      body: 'The previous verification record is no longer available. Start a new secure ID check.',
+      action: 'Start a new check',
     },
   }[identityStatus];
 
@@ -339,15 +468,15 @@ export function VerificationCenter() {
           body={identityCopy.body}
           color="bg-[#96d9ed]"
           complete={identityStatus === 'verified'}
-          disabled={
-            identityBusy ||
-            identityStatus === 'verified' ||
-            identityStatus === 'processing'
-          }
+          disabled={identityBusy || identityStatus === 'verified'}
           href={!user ? verificationLoginPath : undefined}
           icon={BadgeCheck}
           loading={identityBusy}
-          onAction={() => void startIdentityCheck()}
+          onAction={() =>
+            void (identityStatus === 'processing'
+              ? refreshIdentityStatus()
+              : startIdentityCheck())
+          }
           status={!user ? 'Sign in required' : identityCopy.status}
           title="Identity verification"
         />
@@ -501,8 +630,8 @@ export function VerificationCenter() {
             <h2 className="font-black uppercase text-navy">Privacy promise</h2>
             <p className="mt-2 leading-7 text-slate-600">
               Phone status comes from the authenticated account. Stripe hosts
-              government-ID document collection. Owner Only Cars stores only
-              the provider session ID, result, timestamps, failure category, and
+              government-ID document collection. Owner Only Cars stores only the
+              provider session ID, result, timestamps, failure category, and
               minimum approved fields—not raw ID images.
             </p>
           </div>

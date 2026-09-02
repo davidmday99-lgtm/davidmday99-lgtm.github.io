@@ -7,6 +7,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 
+import { CaramelCheckoutSection } from '@/components/caramel-checkout-section';
 import { ListingCard } from '@/components/listing-card';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -230,6 +231,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <CaramelCheckoutSection />
 
         <section
           id="trust"

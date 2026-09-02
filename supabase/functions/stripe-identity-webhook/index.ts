@@ -108,6 +108,10 @@ Deno.serve(async (request) => {
                 .join(' ') || null
             : null,
         failure_category: session.last_error?.code ?? null,
+        failure_reason:
+          typeof session.last_error?.reason === 'string'
+            ? session.last_error.reason.slice(0, 240)
+            : null,
         updated_at: new Date().toISOString(),
       },
     },
