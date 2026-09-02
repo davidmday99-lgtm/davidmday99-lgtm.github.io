@@ -57,7 +57,7 @@ export default function SearchPage() {
           <div className="mx-auto flex max-w-7xl flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
             <div>
               <p className="text-lg font-black leading-tight text-[#061C2B] sm:text-xl">
-                Help launch OwnerOnly Cars—
+                Help launch Owner Only Cars—
                 <a
                   className="underline decoration-2 underline-offset-4 hover:text-[#FFF8EA]"
                   href="/our-story"
@@ -86,7 +86,7 @@ export default function SearchPage() {
             <div className="grid items-center gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12">
               <div className="relative z-10">
                 <img
-                  alt="OwnerOnly Cars"
+                  alt="Owner Only Cars"
                   className="h-auto w-[250px] object-contain object-left sm:w-[330px]"
                   src="/owneronly-hero-logo.png"
                 />
