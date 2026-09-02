@@ -24,6 +24,137 @@ export type BlogPost = {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'private-owner-car-buying-checklist',
+    title: 'Buying a car from a private owner: the no-rush checklist',
+    excerpt:
+      'A practical step-by-step guide to checking the seller, VIN, title, vehicle history, inspection, payment plan, and paperwork before you buy.',
+    category: 'Buying guide',
+    publishedLabel: 'September 1, 2026',
+    publishedIso: '2026-09-01',
+    readTime: '8 min read',
+    image: '/owner-car-driveway.png',
+    imageAlt: 'Private-owner vehicle parked in a residential driveway',
+    intro:
+      'A private sale can be a straightforward way to buy a vehicle, but it puts more responsibility on the buyer. Slow the process down, verify each part separately, and be willing to walk away when the car, seller, documents, or payment instructions do not line up.',
+    sections: [
+      {
+        heading: '1. Set the real budget first.',
+        paragraphs: [
+          'Decide what you can spend before you start negotiating. Include sales tax, title and registration charges, insurance, an independent inspection, immediate maintenance, and a repair cushion—not only the advertised price.',
+          'If you need financing, confirm that the lender handles private-party purchases. Ask what vehicle, seller, title, lien, insurance, and payment documents it requires before agreeing to a deal.',
+        ],
+      },
+      {
+        heading: '2. Keep the first conversation on-platform.',
+        paragraphs: [
+          'Use marketplace messaging while you ask basic questions. Avoid publishing your phone number, personal email, or home address. Moving off-platform too early can remove useful reporting, blocking, and moderation tools.',
+        ],
+        bullets: [
+          'Ask why the vehicle is being sold and how long the seller has owned it.',
+          'Ask about title status, liens, known damage, warning lights, mechanical problems, and recent repairs.',
+          'Ask whether the seller will allow an independent inspection.',
+          'Do not send a deposit merely because someone says other buyers are waiting.',
+        ],
+      },
+      {
+        heading: '3. Check the VIN in more than one place.',
+        paragraphs: [
+          'Compare the 17-character VIN shown in the listing with the VIN at the lower windshield, the driver-door label, and the ownership document. A mismatch, altered plate, unreadable label, or explanation that keeps changing is a reason to stop.',
+          'Use the official NHTSA decoder to confirm basic vehicle information. A decoder helps identify the vehicle; it does not prove ownership, title status, mileage, or mechanical condition.',
+        ],
+      },
+      {
+        heading: '4. Read history reports for what they actually cover.',
+        paragraphs: [
+          'An NMVTIS report can provide current and prior state-title information, title brands, the latest reported odometer data, and certain junk, salvage, total-loss, and theft information. It is an important check, but it is not a complete repair or accident history.',
+          'Also run the VIN through NHTSA’s recall lookup. The result may identify unrepaired safety recalls for participating manufacturers, but NHTSA explains that the search has limits and may not show every campaign or completed repair.',
+        ],
+      },
+      {
+        heading: '5. Inspect the vehicle in daylight.',
+        bullets: [
+          'Meet in a busy public place and bring another adult when practical.',
+          'Confirm the seller, vehicle, plate, VIN, mileage, and documents match the listing.',
+          'Check tires, lights, glass, fluids, visible leaks, body gaps, rust, warning lights, accessories, and both sets of keys.',
+          'Test the vehicle on an agreed route that includes normal streets and safe braking and turning conditions.',
+          'Never let a short test drive replace a professional inspection.',
+        ],
+      },
+      {
+        heading: '6. Pay for an independent inspection.',
+        paragraphs: [
+          'Choose the mechanic yourself and request a written report that identifies the vehicle and estimated repair costs. The FTC recommends an independent mechanical inspection even when a used vehicle has already been described as inspected or certified.',
+          'If the seller will not permit a reasonable inspection or mobile inspection, treat that refusal as useful information and consider another vehicle.',
+        ],
+      },
+      {
+        heading: '7. Verify the title and lien before payment.',
+        paragraphs: [
+          'Compare the seller’s legal name and the VIN with the title or current registration. Review the title for brands, alterations, missing signatures, ownership conflicts, and a recorded lien. A name mismatch may have a legitimate explanation, but it should be resolved with the relevant motor-vehicle agency—not waved away.',
+          'Title-transfer, tax, inspection, notarization, plate, and bill-of-sale rules vary by state. Check the official motor-vehicle agency for the state where the transaction will occur. Do not rely on a generic online checklist for state-specific requirements.',
+        ],
+      },
+      {
+        heading: '8. Agree on a payment and handoff plan.',
+        paragraphs: [
+          'Before anyone exchanges money or keys, agree on where the payment will be verified, how an existing lien will be released, when the title will be signed, and when possession changes. A bank, credit union, or motor-vehicle office may be a safer setting when the transaction requires lender or title coordination.',
+          'Do not pay with gift cards or send money because someone claims you must act immediately. Sellers should reject overpayment checks and requests to send the extra money elsewhere; the FTC warns that the deposited funds can appear available before the fake check is discovered.',
+        ],
+      },
+      {
+        heading: '9. Keep copies and complete the state process.',
+        bullets: [
+          'Use a written bill of sale when required or helpful, and give both parties a copy.',
+          'Record the date, price, VIN, mileage, vehicle description, and the parties’ signatures as state law allows or requires.',
+          'Complete title, registration, tax, plate, insurance, lien, and seller-notice steps through the appropriate official agencies.',
+          'Keep the listing, inspection report, history report, signed documents, and payment records.',
+        ],
+      },
+      {
+        heading: '10. Know the walk-away signs.',
+        bullets: [
+          'The seller will not meet in person or allow an independent inspection.',
+          'The VIN, vehicle, seller, title, or listing details do not match.',
+          'The price is paired with urgency, secrecy, or an unusual shipping story.',
+          'Payment must be made by gift card, cryptocurrency, unexpected wire, or an overpayment arrangement.',
+          'You are told to ignore a title brand, open lien, ownership mismatch, or missing document.',
+        ],
+        paragraphs: [
+          'A good deal should survive careful questions. No badge, report, platform, or payment method replaces your own inspection and independent verification.',
+        ],
+      },
+      {
+        heading: 'Official resources.',
+        links: [
+          {
+            label: 'NHTSA: Decode a VIN',
+            href: 'https://www.nhtsa.gov/vin-decoder',
+          },
+          {
+            label: 'NHTSA: Check for safety recalls',
+            href: 'https://www.nhtsa.gov/recalls',
+          },
+          {
+            label: 'NMVTIS: Understand a vehicle-history report',
+            href: 'https://vehiclehistory.bja.ojp.gov/nmvtis_understandingvhr',
+          },
+          {
+            label: 'FTC: What to know when buying a used car online',
+            href: 'https://consumer.ftc.gov/consumer-alerts/2024/07/what-know-when-buying-used-car-online',
+          },
+          {
+            label: 'FTC: Avoid phony online car sales',
+            href: 'https://consumer.ftc.gov/consumer-alerts/2019/06/put-brakes-phony-online-car-sales',
+          },
+          {
+            label: 'FTC: Fake-check scams targeting online car sellers',
+            href: 'https://consumer.ftc.gov/consumer-alerts/2025/02/fake-check-scam-targets-online-car-sellers',
+          },
+        ],
+      },
+    ],
+  },
+  {
     slug: 'why-we-are-building-owneronly-cars',
     title: 'Why we’re building Owner Only Cars',
     excerpt:

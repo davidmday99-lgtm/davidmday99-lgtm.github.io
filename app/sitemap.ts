@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 
 import { demoListings } from '@/lib/demo-data';
 import { stateAuctionGuides } from '@/lib/auction-data';
+import { blogPosts } from '@/lib/blog-data';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://owneronlycars.com';
@@ -13,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/seller-fees',
     '/about',
     '/help',
+    '/blog',
     '/terms',
     '/privacy',
     '/public-auto-auctions',
@@ -30,6 +32,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...stateAuctionGuides.map((state) => ({
       url: `${base}/public-auto-auctions/${state.slug}`,
       lastModified: new Date('2026-09-01'),
+      changeFrequency: 'monthly' as const,
+    })),
+    ...blogPosts.map((post) => ({
+      url: `${base}/blog/${post.slug}`,
+      lastModified: new Date(post.publishedIso),
       changeFrequency: 'monthly' as const,
     })),
     ...demoListings.map((listing) => ({
