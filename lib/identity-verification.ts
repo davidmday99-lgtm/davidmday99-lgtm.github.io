@@ -55,3 +55,7 @@ export function canRetryIdentity(status: IdentityStatus) {
     status === 'redacted'
   );
 }
+
+export function canStartSellerListing(status: IdentityStatus) {
+  return status === 'verified';
+}

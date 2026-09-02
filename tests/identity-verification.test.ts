@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  canStartSellerListing,
   canRetryIdentity,
   identityFailureMessage,
   normalizeIdentityStatus,
@@ -32,5 +33,14 @@ describe('identity verification helpers', () => {
       'good light',
     );
     expect(identityFailureMessage('unknown_code')).toBeUndefined();
+  });
+
+  it('opens the listing form only after identity verification succeeds', () => {
+    expect(canStartSellerListing('verified')).toBe(true);
+    expect(canStartSellerListing('not_started')).toBe(false);
+    expect(canStartSellerListing('requires_input')).toBe(false);
+    expect(canStartSellerListing('processing')).toBe(false);
+    expect(canStartSellerListing('canceled')).toBe(false);
+    expect(canStartSellerListing('redacted')).toBe(false);
   });
 });

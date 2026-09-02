@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  type ChangeEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -42,11 +37,7 @@ const steps = [
   'Review',
 ];
 
-const acceptedPhotoTypes = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-]);
+const acceptedPhotoTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const maxPhotoBytes = 10 * 1024 * 1024;
 const maxPhotos = 20;
 const acceptedOwnershipTypes = new Set([
@@ -68,14 +59,17 @@ export function ListingWizard() {
   const [step, setStep] = useState(0);
   const [vin, setVin] = useState('');
   const [carfaxUrl, setCarfaxUrl] = useState('');
-  const [conditionAnswers, setConditionAnswers] = useState<Record<string, string>>({});
+  const [conditionAnswers, setConditionAnswers] = useState<
+    Record<string, string>
+  >({});
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [featuresReviewed, setFeaturesReviewed] = useState(false);
   const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
   const [photoError, setPhotoError] = useState<string>();
   const [ownershipDocument, setOwnershipDocument] = useState<File>();
   const [ownershipError, setOwnershipError] = useState<string>();
-  const [documentScreeningConsent, setDocumentScreeningConsent] = useState(false);
+  const [documentScreeningConsent, setDocumentScreeningConsent] =
+    useState(false);
   const [attested, setAttested] = useState(false);
   const [reviewReady, setReviewReady] = useState(false);
   const [reviewBusy, setReviewBusy] = useState(false);
@@ -87,18 +81,20 @@ export function ListingWizard() {
   const validVin = /^[A-HJ-NPR-Z0-9]{17}$/.test(normalizedVin);
   const completedConditionCount = conditionQuestionGroups.reduce(
     (total, group) =>
-      total + group.questions.filter((question) => conditionAnswers[question.id]).length,
+      total +
+      group.questions.filter((question) => conditionAnswers[question.id])
+        .length,
     0,
   );
   const conditionComplete = completedConditionCount === conditionQuestionCount;
   const canSubmitForReview = Boolean(
     validVin &&
-      conditionComplete &&
-      featuresReviewed &&
-      photos.length > 0 &&
-      ownershipDocument &&
-      documentScreeningConsent &&
-      attested,
+    conditionComplete &&
+    featuresReviewed &&
+    photos.length > 0 &&
+    ownershipDocument &&
+    documentScreeningConsent &&
+    attested,
   );
 
   useEffect(() => {
@@ -112,8 +108,7 @@ export function ListingWizard() {
     const chosenFiles = Array.from(event.target.files ?? []);
     const remainingSlots = Math.max(0, maxPhotos - photos.length);
     const validFiles = chosenFiles.filter(
-      (file) =>
-        acceptedPhotoTypes.has(file.type) && file.size <= maxPhotoBytes,
+      (file) => acceptedPhotoTypes.has(file.type) && file.size <= maxPhotoBytes,
     );
     const filesToAdd = validFiles.slice(0, remainingSlots);
 
@@ -196,7 +191,8 @@ export function ListingWizard() {
       form.set('vin', normalizedVin);
       form.set('automatedScreeningConsent', 'true');
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      if (!supabaseUrl) throw new Error('The secure document service is not configured yet.');
+      if (!supabaseUrl)
+        throw new Error('The secure document service is not configured yet.');
 
       const response = await fetch(
         new URL('/functions/v1/submit-ownership-document', supabaseUrl),
@@ -207,23 +203,38 @@ export function ListingWizard() {
         },
       );
       const result = (await response.json().catch(() => ({}))) as {
+        error?: string;
         reviewId?: string;
       };
       if (!response.ok || !result.reviewId) {
-        throw new Error('The document could not be submitted. Please check the file and try again.');
+        if (result.error === 'identity_verification_required') {
+          throw new Error(
+            'Identity verification is required before submitting a listing.',
+          );
+        }
+        throw new Error(
+          'The document could not be submitted. Please check the file and try again.',
+        );
       }
 
       setReviewId(result.reviewId);
       setReviewReady(true);
     } catch (caught) {
-      setReviewError(caught instanceof Error ? caught.message : 'The document could not be submitted.');
+      setReviewError(
+        caught instanceof Error
+          ? caught.message
+          : 'The document could not be submitted.',
+      );
     } finally {
       setReviewBusy(false);
     }
   }
 
   const reviewItems = [
-    { label: validVin ? 'VIN ready for review' : 'Valid VIN still needed', ready: validVin },
+    {
+      label: validVin ? 'VIN ready for review' : 'Valid VIN still needed',
+      ready: validVin,
+    },
     { label: 'Vehicle facts entered', ready: true },
     {
       label: conditionComplete
@@ -605,8 +616,8 @@ export function ListingWizard() {
                 type="checkbox"
               />
               I understand that this ownership document may be analyzed by an
-              automated service to flag possible mismatches, poor legibility,
-              or visible alteration. A human reviewer makes the final decision.
+              automated service to flag possible mismatches, poor legibility, or
+              visible alteration. A human reviewer makes the final decision.
             </label>
           </div>
         )}
@@ -657,10 +668,20 @@ export function ListingWizard() {
             </Button>
 
             {reviewError && (
-              <p className="mt-4 border-l-4 border-red-600 bg-red-50 p-4 text-sm font-bold text-red-800" role="alert">
+              <p
+                className="mt-4 border-l-4 border-red-600 bg-red-50 p-4 text-sm font-bold text-red-800"
+                role="alert"
+              >
                 {reviewError}{' '}
                 {reviewError.startsWith('Log in') && (
-                  <a className="underline" href="/login?next=/sell">Go to login</a>
+                  <a className="underline" href="/login?next=/sell">
+                    Go to login
+                  </a>
+                )}
+                {reviewError.startsWith('Identity verification') && (
+                  <a className="underline" href="/account/verification">
+                    Go to verification
+                  </a>
                 )}
               </p>
             )}

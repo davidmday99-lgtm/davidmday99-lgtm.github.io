@@ -6,7 +6,12 @@ const previewOrigin = 'https://owneronly-cars.lucky2551.chatgpt.site';
 function allowedOrigin(request: Request) {
   const configured = Deno.env.get('SITE_ORIGIN') ?? productionOrigin;
   const origin = request.headers.get('origin') ?? configured;
-  return new Set([configured, productionOrigin, previewOrigin, 'http://localhost:3000']).has(origin)
+  return new Set([
+    configured,
+    productionOrigin,
+    previewOrigin,
+    'http://localhost:3000',
+  ]).has(origin)
     ? origin
     : null;
 }
@@ -26,9 +31,11 @@ function jsonResponse(body: unknown, status: number, origin: string) {
 
 function preflight(request: Request) {
   const origin = allowedOrigin(request);
-  if (!origin) return jsonResponse({ error: 'origin_not_allowed' }, 403, productionOrigin);
+  if (!origin)
+    return jsonResponse({ error: 'origin_not_allowed' }, 403, productionOrigin);
   if (request.method === 'OPTIONS') return jsonResponse({}, 204, origin);
-  if (request.method !== 'POST') return jsonResponse({ error: 'method_not_allowed' }, 405, origin);
+  if (request.method !== 'POST')
+    return jsonResponse({ error: 'method_not_allowed' }, 405, origin);
   return origin;
 }
 
@@ -37,7 +44,8 @@ async function authenticateRequest(request: Request) {
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   const authorization = request.headers.get('authorization');
-  if (!supabaseUrl || !anonKey || !serviceRoleKey || !authorization) return null;
+  if (!supabaseUrl || !anonKey || !serviceRoleKey || !authorization)
+    return null;
   const authClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authorization } },
     auth: { persistSession: false },
@@ -93,12 +101,14 @@ function validSignature(bytes: Uint8Array, mimeType: string) {
 }
 
 function extensionFor(mimeType: string) {
-  return {
-    'application/pdf': 'pdf',
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-  }[mimeType] ?? 'bin';
+  return (
+    {
+      'application/pdf': 'pdf',
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+    }[mimeType] ?? 'bin'
+  );
 }
 
 function encodeBase64(bytes: Uint8Array) {
@@ -137,18 +147,32 @@ async function screenDocument(
 ) {
   const apiKey = Deno.env.get('OPENAI_API_KEY');
   const model = Deno.env.get('DOCUMENT_AI_MODEL') ?? 'gpt-5.4-mini';
-  if (!apiKey) return { result: null, model: null, error: 'automated_review_not_configured' };
+  if (!apiKey)
+    return {
+      result: null,
+      model: null,
+      error: 'automated_review_not_configured',
+    };
 
   const schema = {
     type: 'object',
     additionalProperties: false,
     properties: {
-      document_type: { type: 'string', enum: ['title', 'registration', 'unknown'] },
+      document_type: {
+        type: 'string',
+        enum: ['title', 'registration', 'unknown'],
+      },
       legibility: { type: 'string', enum: ['good', 'partial', 'unreadable'] },
       vin_present: { type: 'boolean' },
-      vin_last_six: { type: ['string', 'null'], pattern: '^[A-HJ-NPR-Z0-9]{6}$' },
+      vin_last_six: {
+        type: ['string', 'null'],
+        pattern: '^[A-HJ-NPR-Z0-9]{6}$',
+      },
       name_present: { type: 'boolean' },
-      owner_name_match: { type: 'string', enum: ['match', 'mismatch', 'unknown'] },
+      owner_name_match: {
+        type: 'string',
+        enum: ['match', 'mismatch', 'unknown'],
+      },
       potential_alteration: { type: 'boolean' },
       suspicious_reasons: {
         type: 'array',
@@ -235,17 +259,24 @@ async function screenDocument(
   }
 }
 
-function calculateRisk(result: AiResult | null, claimedVin: string, aiError: string | null) {
+function calculateRisk(
+  result: AiResult | null,
+  claimedVin: string,
+  aiError: string | null,
+) {
   const flags: string[] = [];
   if (aiError) flags.push(aiError);
   if (!result) return { level: 'unknown', flags };
 
   if (result.document_type === 'unknown') flags.push('document_type_unclear');
-  if (result.legibility !== 'good') flags.push(`legibility_${result.legibility}`);
+  if (result.legibility !== 'good')
+    flags.push(`legibility_${result.legibility}`);
   if (!result.vin_present) flags.push('vin_not_found');
   if (!result.name_present) flags.push('owner_name_not_found');
-  if (result.owner_name_match === 'mismatch') flags.push('verified_name_mismatch');
-  if (result.owner_name_match === 'unknown') flags.push('verified_name_comparison_unavailable');
+  if (result.owner_name_match === 'mismatch')
+    flags.push('verified_name_mismatch');
+  if (result.owner_name_match === 'unknown')
+    flags.push('verified_name_comparison_unavailable');
   if (result.potential_alteration) flags.push('possible_visible_alteration');
   if (
     result.vin_last_six &&
@@ -256,12 +287,22 @@ function calculateRisk(result: AiResult | null, claimedVin: string, aiError: str
   flags.push(...result.suspicious_reasons.map((reason) => `ai_note:${reason}`));
 
   const highRisk = flags.some((flag) =>
-    ['vin_mismatch', 'verified_name_mismatch', 'possible_visible_alteration', 'legibility_unreadable'].includes(flag),
+    [
+      'vin_mismatch',
+      'verified_name_mismatch',
+      'possible_visible_alteration',
+      'legibility_unreadable',
+    ].includes(flag),
   );
   const mediumRisk =
     result.human_review_recommended ||
     flags.some((flag) =>
-      ['document_type_unclear', 'legibility_partial', 'vin_not_found', 'owner_name_not_found'].includes(flag),
+      [
+        'document_type_unclear',
+        'legibility_partial',
+        'vin_not_found',
+        'owner_name_not_found',
+      ].includes(flag),
     );
   return { level: highRisk ? 'high' : mediumRisk ? 'medium' : 'low', flags };
 }
@@ -272,8 +313,20 @@ Deno.serve(async (request) => {
   const origin = allowedOrigin(request) ?? preflightResult;
 
   const authenticated = await authenticateRequest(request);
-  if (!authenticated) return jsonResponse({ error: 'authentication_required' }, 401, origin);
+  if (!authenticated)
+    return jsonResponse({ error: 'authentication_required' }, 401, origin);
   const { admin, user } = authenticated;
+
+  const identityVerification = user.app_metadata?.identity_verification as
+    | { status?: unknown }
+    | undefined;
+  if (identityVerification?.status !== 'verified') {
+    return jsonResponse(
+      { error: 'identity_verification_required' },
+      403,
+      origin,
+    );
+  }
 
   let form: FormData;
   try {
@@ -283,32 +336,49 @@ Deno.serve(async (request) => {
   }
 
   const document = form.get('document');
-  const claimedVin = String(form.get('vin') ?? '').trim().toUpperCase();
-  const listingReference = String(form.get('listingReference') ?? '').trim().slice(0, 120) || null;
+  const claimedVin = String(form.get('vin') ?? '')
+    .trim()
+    .toUpperCase();
+  const listingReference =
+    String(form.get('listingReference') ?? '')
+      .trim()
+      .slice(0, 120) || null;
   const consent = form.get('automatedScreeningConsent') === 'true';
 
-  if (!(document instanceof File)) return jsonResponse({ error: 'document_required' }, 400, origin);
-  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(claimedVin)) return jsonResponse({ error: 'valid_vin_required' }, 400, origin);
-  if (!consent) return jsonResponse({ error: 'screening_consent_required' }, 400, origin);
-  if (!supportedTypes.has(document.type)) return jsonResponse({ error: 'unsupported_document_type' }, 400, origin);
-  if (document.size < 1 || document.size > maximumBytes) return jsonResponse({ error: 'invalid_document_size' }, 400, origin);
+  if (!(document instanceof File))
+    return jsonResponse({ error: 'document_required' }, 400, origin);
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(claimedVin))
+    return jsonResponse({ error: 'valid_vin_required' }, 400, origin);
+  if (!consent)
+    return jsonResponse({ error: 'screening_consent_required' }, 400, origin);
+  if (!supportedTypes.has(document.type))
+    return jsonResponse({ error: 'unsupported_document_type' }, 400, origin);
+  if (document.size < 1 || document.size > maximumBytes)
+    return jsonResponse({ error: 'invalid_document_size' }, 400, origin);
 
   const bytes = new Uint8Array(await document.arrayBuffer());
-  if (!validSignature(bytes, document.type)) return jsonResponse({ error: 'document_signature_mismatch' }, 400, origin);
+  if (!validSignature(bytes, document.type))
+    return jsonResponse({ error: 'document_signature_mismatch' }, 400, origin);
 
   const extension = extensionFor(document.type);
   const reviewId = crypto.randomUUID();
   const documentPath = `${user.id}/${reviewId}.${extension}`;
   const retentionDays = Math.min(
     90,
-    Math.max(1, Number(Deno.env.get('OWNERSHIP_DOCUMENT_RETENTION_DAYS') ?? 30)),
+    Math.max(
+      1,
+      Number(Deno.env.get('OWNERSHIP_DOCUMENT_RETENTION_DAYS') ?? 30),
+    ),
   );
-  const retainUntil = new Date(Date.now() + retentionDays * 86400000).toISOString();
+  const retainUntil = new Date(
+    Date.now() + retentionDays * 86400000,
+  ).toISOString();
 
   const { error: uploadError } = await admin.storage
     .from('ownership-documents')
     .upload(documentPath, bytes, { contentType: document.type, upsert: false });
-  if (uploadError) return jsonResponse({ error: 'private_upload_failed' }, 502, origin);
+  if (uploadError)
+    return jsonResponse({ error: 'private_upload_failed' }, 502, origin);
 
   const { error: insertError } = await admin.from('document_reviews').insert({
     id: reviewId,
@@ -358,7 +428,9 @@ Deno.serve(async (request) => {
     .update({
       status: 'human_review',
       risk_level: risk.level,
-      ai_summary: aiResult?.summary ?? 'Automated screening was unavailable. Human review is required.',
+      ai_summary:
+        aiResult?.summary ??
+        'Automated screening was unavailable. Human review is required.',
       ai_flags: risk.flags,
       ai_result: aiResult,
       ai_model: aiModel,
