@@ -308,6 +308,7 @@ export function SiteHeader() {
                 ['Trust & safety', '/trust-and-safety'],
                 ['Our story', '/our-story'],
                 ['Blog', '/blog'],
+                ['Contact', '/contact'],
               ].map(([label, href]) => (
                 <a
                   className="border-2 border-[#061C2B] bg-white px-4 py-3 text-sm font-black uppercase text-[#061C2B] hover:bg-[#16C7BE]"

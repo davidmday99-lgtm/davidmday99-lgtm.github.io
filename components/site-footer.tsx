@@ -35,6 +35,7 @@ export function SiteFooter() {
             ['Our story', '/our-story'],
             ['Trust & safety', '/trust-and-safety'],
             ['Help & FAQ', '/help'],
+            ['Contact us', '/contact'],
           ]}
         />
         <FooterGroup

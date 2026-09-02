@@ -9,6 +9,7 @@ describe('public sitemap', () => {
 
     expect(urls).toContain('https://owneronlycars.com');
     expect(urls).toContain('https://owneronlycars.com/our-story');
+    expect(urls).toContain('https://owneronlycars.com/contact');
     expect(urls).toContain('https://owneronlycars.com/private-seller-auctions');
 
     for (const state of stateAuctionGuides) {
