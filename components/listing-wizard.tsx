@@ -59,8 +59,13 @@ export function ListingWizard() {
   const [photoError, setPhotoError] = useState<string>();
   const [ownershipDocument, setOwnershipDocument] = useState<File>();
   const [ownershipError, setOwnershipError] = useState<string>();
+  const [attested, setAttested] = useState(false);
+  const [reviewReady, setReviewReady] = useState(false);
   const photoUrls = useRef(new Set<string>());
   const carfaxValidation = validateSellerCarfaxUrl(carfaxUrl);
+  const canSubmitForReview = Boolean(
+    photos.length > 0 && ownershipDocument && attested,
+  );
 
   useEffect(() => {
     const urls = photoUrls.current;
@@ -160,7 +165,12 @@ export function ListingWizard() {
         : 'Ownership document still needed',
       ready: Boolean(ownershipDocument),
     },
-    { label: 'Seller attestation required', ready: false },
+    {
+      label: attested
+        ? 'Seller attestation complete'
+        : 'Seller attestation required',
+      ready: attested,
+    },
   ];
 
   return (
@@ -479,17 +489,55 @@ export function ListingWizard() {
               ))}
             </div>
             <label className="mt-7 flex items-start gap-3 text-sm leading-6 text-slate-700">
-              <input className="mt-1 size-4" type="checkbox" />I attest
-              that I own this vehicle, am not acting as a dealer, broker,
-              reseller, or representative, and the listing is accurate to the
-              best of my knowledge.
+              <input
+                checked={attested}
+                className="mt-1 size-4"
+                onChange={(event) => {
+                  setAttested(event.target.checked);
+                  setReviewReady(false);
+                }}
+                type="checkbox"
+              />
+              I attest that I own this vehicle, am not acting as a dealer,
+              broker, reseller, or representative, and the listing is accurate
+              to the best of my knowledge.
             </label>
             <Button
-              className="mt-6 h-12 rounded-none bg-slate-300 font-black uppercase text-slate-600"
-              disabled
+              className={`mt-6 h-12 rounded-none font-black uppercase ${canSubmitForReview ? 'bg-[#16C7BE] text-navy shadow-[4px_4px_0_#061C2B] hover:bg-[#FFB81C]' : 'bg-slate-300 text-slate-600'}`}
+              disabled={!canSubmitForReview}
+              onClick={() => setReviewReady(true)}
+              type="button"
             >
-              Submit for review
+              {reviewReady ? 'Review ready' : 'Submit for review'}
             </Button>
+
+            {reviewReady && (
+              <div
+                aria-live="polite"
+                className="mt-6 border-2 border-teal-600 bg-teal-50 p-5"
+              >
+                <div className="flex gap-3">
+                  <CheckCircle2 className="mt-0.5 size-6 shrink-0 text-teal-700" />
+                  <div>
+                    <h3 className="font-black uppercase text-navy">
+                      Listing review is ready
+                    </h3>
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                      Next, the seller must complete identity verification.
+                      This practice form does not upload or permanently save
+                      the document yet.
+                    </p>
+                    <Button
+                      className="mt-4 rounded-none bg-navy font-black uppercase"
+                      nativeButton={false}
+                      render={<a href="/account/verification" />}
+                    >
+                      Continue to verification <ArrowRight />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
