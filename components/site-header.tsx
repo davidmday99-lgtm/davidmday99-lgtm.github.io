@@ -8,18 +8,10 @@ import {
   Menu,
   Settings,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   getSupabaseBrowserClient,
   hasSupabaseConfig,
@@ -44,6 +36,9 @@ function userInitials(user: User) {
 }
 
 function AccountMenu({ user }: { user: User }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const avatarUrl =
     typeof user.user_metadata.avatar_url === 'string'
       ? user.user_metadata.avatar_url
@@ -55,16 +50,46 @@ function AccountMenu({ user }: { user: User }) {
       ? user.user_metadata.full_name
       : 'Your account';
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function closeOnOutsideClick(event: PointerEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    }
+
+    document.addEventListener('pointerdown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isOpen]);
+
   async function signOut() {
     await getSupabaseBrowserClient().auth.signOut();
     window.location.assign('/');
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
+    <div className="relative" ref={menuRef}>
+      <button
         aria-label={`Open account menu for ${displayName}`}
-        className="rounded-full outline-none focus-visible:ring-4 focus-visible:ring-[#FFB81C]"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        className="block rounded-full outline-none focus-visible:ring-4 focus-visible:ring-[#FFB81C]"
+        onClick={() => setIsOpen((open) => !open)}
+        ref={triggerRef}
+        type="button"
       >
         <Avatar className="size-11 border-2 border-[#061C2B] bg-[#16C7BE] shadow-[3px_3px_0_#061C2B]">
           {avatarUrl ? (
@@ -78,52 +103,59 @@ function AccountMenu({ user }: { user: User }) {
             {userInitials(user)}
           </AvatarFallback>
         </Avatar>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-64 rounded-none border-2 border-[#061C2B] bg-[#FFF8EA] p-2 text-[#061C2B] shadow-[5px_5px_0_#061C2B]"
-        sideOffset={10}
-      >
-        <DropdownMenuLabel className="px-2 py-2">
-          <span className="block truncate text-sm font-black text-[#061C2B]">
-            {displayName}
-          </span>
-          <span className="mt-1 block truncate text-xs font-normal text-slate-600">
-            {user.email}
-          </span>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-[#061C2B]/20" />
-        <DropdownMenuItem
-          className="cursor-pointer rounded-none px-2 py-2 font-bold focus:bg-[#16C7BE]"
-          onClick={() => window.location.assign('/dashboard')}
+      </button>
+      {isOpen ? (
+        <div
+          aria-label="Account options"
+          className="absolute right-0 top-[calc(100%+10px)] z-50 w-64 border-2 border-[#061C2B] bg-[#FFF8EA] p-2 text-[#061C2B] shadow-[5px_5px_0_#061C2B]"
+          role="menu"
         >
-          <LayoutDashboard />
-          Dashboard
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer rounded-none px-2 py-2 font-bold focus:bg-[#16C7BE]"
-          onClick={() => window.location.assign('/account/verification')}
-        >
-          <BadgeCheck />
-          Verification
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer rounded-none px-2 py-2 font-bold focus:bg-[#16C7BE]"
-          onClick={() => window.location.assign('/settings')}
-        >
-          <Settings />
-          Privacy & settings
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-[#061C2B]/20" />
-        <DropdownMenuItem
-          className="cursor-pointer rounded-none px-2 py-2 font-bold text-red-700 focus:bg-red-100 focus:text-red-800"
-          onClick={() => void signOut()}
-        >
-          <LogOut />
-          Sign out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <div className="px-2 py-2">
+            <span className="block truncate text-sm font-black text-[#061C2B]">
+              {displayName}
+            </span>
+            <span className="mt-1 block truncate text-xs font-normal text-slate-600">
+              {user.email}
+            </span>
+          </div>
+          <div className="my-1 h-px bg-[#061C2B]/20" />
+          <a
+            className="flex items-center gap-2 px-2 py-2 text-sm font-bold hover:bg-[#16C7BE] focus:bg-[#16C7BE] focus:outline-none"
+            href="/dashboard"
+            role="menuitem"
+          >
+            <LayoutDashboard className="size-4" />
+            Dashboard
+          </a>
+          <a
+            className="flex items-center gap-2 px-2 py-2 text-sm font-bold hover:bg-[#16C7BE] focus:bg-[#16C7BE] focus:outline-none"
+            href="/account/verification"
+            role="menuitem"
+          >
+            <BadgeCheck className="size-4" />
+            Verification
+          </a>
+          <a
+            className="flex items-center gap-2 px-2 py-2 text-sm font-bold hover:bg-[#16C7BE] focus:bg-[#16C7BE] focus:outline-none"
+            href="/settings"
+            role="menuitem"
+          >
+            <Settings className="size-4" />
+            Privacy & settings
+          </a>
+          <div className="my-1 h-px bg-[#061C2B]/20" />
+          <button
+            className="flex w-full items-center gap-2 px-2 py-2 text-left text-sm font-bold text-red-700 hover:bg-red-100 focus:bg-red-100 focus:outline-none"
+            onClick={() => void signOut()}
+            role="menuitem"
+            type="button"
+          >
+            <LogOut className="size-4" />
+            Sign out
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
