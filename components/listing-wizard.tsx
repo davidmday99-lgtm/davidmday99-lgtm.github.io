@@ -2,6 +2,11 @@
 
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import {
+  FunctionsFetchError,
+  FunctionsHttpError,
+  FunctionsRelayError,
+} from '@supabase/supabase-js';
+import {
   ArrowLeft,
   ArrowRight,
   Camera,
@@ -62,6 +67,8 @@ const ownershipSubmissionErrors: Record<string, string> = {
     'The ownership document must be between 1 byte and 10 MB.',
   invalid_form_data:
     'The document upload was incomplete. Choose the file again and resubmit it.',
+  origin_not_allowed:
+    'The secure upload service does not recognize this site address. Please contact support.',
   private_upload_failed:
     'The secure document storage service could not save the file. Please try again.',
   review_queue_failed:
@@ -204,40 +211,63 @@ export function ListingWizard() {
         throw new Error('The secure document service is not configured yet.');
       }
       const supabase = getSupabaseBrowserClient();
-      const { data } = await supabase.auth.getSession();
-      const accessToken = data.session?.access_token;
-      if (!accessToken) {
-        throw new Error('Log in before submitting an ownership document.');
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+      if (userError || !userData.user) {
+        throw new Error(
+          'Your login expired. Log in again, then return and resubmit the document.',
+        );
       }
 
       const form = new FormData();
       form.set('document', ownershipDocument);
       form.set('vin', normalizedVin);
       form.set('automatedScreeningConsent', 'true');
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      if (!supabaseUrl)
-        throw new Error('The secure document service is not configured yet.');
 
-      const response = await fetch(
-        new URL('/functions/v1/submit-ownership-document', supabaseUrl),
-        {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${accessToken}` },
-          body: form,
-        },
-      );
-      const result = (await response.json().catch(() => ({}))) as {
+      const { data: result, error: invocationError } =
+        await supabase.functions.invoke<{
+          error?: string;
+          reviewId?: string;
+        }>('submit-ownership-document', { body: form });
+
+      if (invocationError) {
+        let errorCode: string | undefined;
+        if (invocationError instanceof FunctionsHttpError) {
+          const errorBody = (await invocationError.context
+            .clone()
+            .json()
+            .catch(() => ({}))) as { error?: string };
+          errorCode = errorBody.error;
+        }
+
+        if (errorCode && ownershipSubmissionErrors[errorCode]) {
+          throw new Error(ownershipSubmissionErrors[errorCode]);
+        }
+        if (
+          invocationError instanceof FunctionsFetchError ||
+          invocationError instanceof FunctionsRelayError
+        ) {
+          throw new Error(
+            'The secure upload service could not be reached. Please check your connection and try again.',
+          );
+        }
+        throw new Error(
+          'The secure upload service rejected the request. Please log in again and retry.',
+        );
+      }
+
+      const submission = result as {
         error?: string;
         reviewId?: string;
       };
-      if (!response.ok || !result.reviewId) {
+      if (!submission?.reviewId) {
         throw new Error(
-          (result.error && ownershipSubmissionErrors[result.error]) ??
+          (submission?.error && ownershipSubmissionErrors[submission.error]) ??
             'The document could not be submitted. Please try again.',
         );
       }
 
-      setReviewId(result.reviewId);
+      setReviewId(submission.reviewId);
       setReviewReady(true);
     } catch (caught) {
       setReviewError(
