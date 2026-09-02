@@ -1,11 +1,12 @@
 import type { MetadataRoute } from 'next';
 
-import { demoListings } from '@/lib/demo-data';
 import { stateAuctionGuides } from '@/lib/auction-data';
 import { blogPosts } from '@/lib/blog-data';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://owneronlycars.com';
+  const base = (
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://owneronlycars.com'
+  ).replace(/\/+$/, '');
   const publicRoutes = [
     '',
     '/search',
@@ -13,10 +14,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/trust-and-safety',
     '/seller-fees',
     '/about',
+    '/our-story',
     '/help',
     '/blog',
     '/terms',
     '/privacy',
+    '/private-seller-auctions',
     '/public-auto-auctions',
     '/public-auto-auctions/federal',
     '/public-auto-auctions/online',
@@ -26,23 +29,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...publicRoutes.map((route) => ({
       url: `${base}${route}`,
-      lastModified: new Date(),
+      lastModified: new Date('2026-09-02'),
       changeFrequency: route === '' ? ('daily' as const) : ('weekly' as const),
+      priority: route === '' ? 1 : route === '/search' ? 0.9 : 0.7,
     })),
     ...stateAuctionGuides.map((state) => ({
       url: `${base}/public-auto-auctions/${state.slug}`,
       lastModified: new Date('2026-09-01'),
       changeFrequency: 'monthly' as const,
+      priority: 0.6,
     })),
     ...blogPosts.map((post) => ({
       url: `${base}/blog/${post.slug}`,
       lastModified: new Date(post.publishedIso),
       changeFrequency: 'monthly' as const,
-    })),
-    ...demoListings.map((listing) => ({
-      url: `${base}/cars/${listing.slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
+      priority: 0.7,
     })),
   ];
 }

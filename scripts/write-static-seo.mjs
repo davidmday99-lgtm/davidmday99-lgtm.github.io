@@ -9,6 +9,7 @@ const siteUrl = (
 const excludedRoutes = [
   '/404',
   '/account',
+  '/cars',
   '/dashboard',
   '/favorites',
   '/login',
@@ -17,6 +18,12 @@ const excludedRoutes = [
   '/signup',
   '/sell/preview',
   '/private-seller-auctions/create',
+];
+
+const demonstrationAuctionRoutes = [
+  '/private-seller-auctions/2018-city-hatchback-auction',
+  '/private-seller-auctions/2019-everyday-pickup-auction',
+  '/private-seller-auctions/2021-touring-crossover-auction',
 ];
 
 async function collectHtmlFiles(directory) {
@@ -37,9 +44,11 @@ function toRoute(file) {
 }
 
 function isPublicRoute(route) {
-  return !excludedRoutes.some(
+  const isExcluded = excludedRoutes.some(
     (excluded) => route === excluded || route.startsWith(`${excluded}/`),
   );
+
+  return !isExcluded && !demonstrationAuctionRoutes.includes(route);
 }
 
 async function writeStaticSeoFiles() {
