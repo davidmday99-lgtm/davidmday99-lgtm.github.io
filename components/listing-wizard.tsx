@@ -37,6 +37,14 @@ const acceptedPhotoTypes = new Set([
 ]);
 const maxPhotoBytes = 10 * 1024 * 1024;
 const maxPhotos = 20;
+const acceptedOwnershipTypes = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+]);
+const acceptedOwnershipExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
+const maxOwnershipBytes = 10 * 1024 * 1024;
 
 type SelectedPhoto = {
   file: File;
@@ -49,6 +57,8 @@ export function ListingWizard() {
   const [carfaxUrl, setCarfaxUrl] = useState('');
   const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
   const [photoError, setPhotoError] = useState<string>();
+  const [ownershipDocument, setOwnershipDocument] = useState<File>();
+  const [ownershipError, setOwnershipError] = useState<string>();
   const photoUrls = useRef(new Set<string>());
   const carfaxValidation = validateSellerCarfaxUrl(carfaxUrl);
 
@@ -100,6 +110,31 @@ export function ListingWizard() {
     setPhotoError(undefined);
   }
 
+  function chooseOwnershipDocument(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) return;
+
+    const normalizedName = file.name.toLowerCase();
+    const hasAcceptedExtension = acceptedOwnershipExtensions.some((extension) =>
+      normalizedName.endsWith(extension),
+    );
+
+    if (!acceptedOwnershipTypes.has(file.type) && !hasAcceptedExtension) {
+      setOwnershipError('Choose a PDF, JPG, PNG, or WebP document.');
+      return;
+    }
+
+    if (file.size > maxOwnershipBytes) {
+      setOwnershipError('The ownership document must be 10 MB or smaller.');
+      return;
+    }
+
+    setOwnershipDocument(file);
+    setOwnershipError(undefined);
+  }
+
   const reviewItems = [
     { label: 'VIN decoded', ready: true },
     { label: 'Vehicle facts entered', ready: true },
@@ -119,7 +154,12 @@ export function ListingWizard() {
           : 'Photos still needed',
       ready: photos.length > 0,
     },
-    { label: 'Ownership document still needed', ready: false },
+    {
+      label: ownershipDocument
+        ? `Ownership document selected: ${ownershipDocument.name}`
+        : 'Ownership document still needed',
+      ready: Boolean(ownershipDocument),
+    },
     { label: 'Seller attestation required', ready: false },
   ];
 
@@ -352,18 +392,71 @@ export function ListingWizard() {
               name and VIN. Documents are automatically removed after a
               configurable retention period.
             </p>
-            <button
-              className="mt-7 flex min-h-48 w-full max-w-xl flex-col items-center justify-center border-2 border-dashed border-slate-400 bg-slate-50 p-8 text-center"
-              type="button"
+            <input
+              accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+              aria-describedby="ownership-document-help ownership-document-error"
+              className="sr-only"
+              id="ownership-document"
+              onChange={chooseOwnershipDocument}
+              type="file"
+            />
+            <label
+              className="mt-7 flex min-h-48 w-full max-w-xl cursor-pointer flex-col items-center justify-center border-2 border-dashed border-slate-400 bg-slate-50 p-8 text-center transition hover:border-teal-600 hover:bg-teal-50 focus-within:border-teal-700"
+              htmlFor="ownership-document"
             >
               <FileCheck2 className="size-10 text-teal-700" />
               <span className="mt-4 font-black uppercase text-navy">
-                Choose private document
+                {ownershipDocument
+                  ? 'Replace ownership document'
+                  : 'Choose private document'}
               </span>
               <span className="mt-2 text-sm text-slate-500">
-                Not stored in this demonstration
+                PDF, JPG, PNG, or WebP · maximum 10 MB
               </span>
-            </button>
+            </label>
+
+            {ownershipError && (
+              <p
+                className="mt-4 max-w-xl border-l-4 border-red-600 bg-red-50 p-3 text-sm font-bold text-red-800"
+                id="ownership-document-error"
+                role="alert"
+              >
+                {ownershipError}
+              </p>
+            )}
+
+            {ownershipDocument && (
+              <div className="mt-4 flex max-w-xl items-center justify-between gap-4 border-2 border-teal-600 bg-teal-50 p-4">
+                <div className="min-w-0">
+                  <p className="font-black text-navy">Document selected</p>
+                  <p className="mt-1 truncate text-sm text-slate-600">
+                    {ownershipDocument.name} ·{' '}
+                    {(ownershipDocument.size / (1024 * 1024)).toFixed(1)} MB
+                  </p>
+                </div>
+                <Button
+                  aria-label={`Remove ${ownershipDocument.name}`}
+                  className="shrink-0 rounded-none border-red-300 text-red-700 hover:bg-red-50"
+                  onClick={() => {
+                    setOwnershipDocument(undefined);
+                    setOwnershipError(undefined);
+                  }}
+                  type="button"
+                  variant="outline"
+                >
+                  <Trash2 /> Remove
+                </Button>
+              </div>
+            )}
+
+            <p
+              className="mt-4 max-w-2xl text-xs leading-5 text-slate-500"
+              id="ownership-document-help"
+            >
+              During this practice version, the selected document remains only
+              in this browser tab and is cleared when the page refreshes. It is
+              not uploaded until private document storage is connected.
+            </p>
           </div>
         )}
 
@@ -412,6 +505,7 @@ export function ListingWizard() {
           {step < 5 && (
             <Button
               className="rounded-none bg-navy"
+              disabled={step === 4 && !ownershipDocument}
               onClick={() => setStep((current) => Math.min(5, current + 1))}
             >
               Save & continue <ArrowRight />
