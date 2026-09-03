@@ -20,7 +20,8 @@ function jsonResponse(body: unknown, status: number, origin: string) {
   return new Response(status === 204 ? null : JSON.stringify(body), {
     status,
     headers: {
-      'Access-Control-Allow-Headers': 'authorization, apikey, content-type',
+      'Access-Control-Allow-Headers':
+        'authorization, x-client-info, apikey, content-type, x-retry-count, traceparent, tracestate, baggage',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Origin': origin,
       'Content-Type': 'application/json',
