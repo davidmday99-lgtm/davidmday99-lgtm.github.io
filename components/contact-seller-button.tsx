@@ -118,8 +118,9 @@ export function ContactSellerButton({
         </p>
       )}
       {!isSeller && (
-        <p className="mt-3 text-center text-xs text-slate-500">
-          Sign in and complete identity verification to message.
+        <p className="mt-3 border-l-4 border-[#f6b82b] bg-amber-50 px-3 py-2 text-center text-sm font-black text-navy">
+          Users must complete identity verification to send and receive
+          messages.
         </p>
       )}
     </div>
