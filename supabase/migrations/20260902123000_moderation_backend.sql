@@ -64,6 +64,11 @@ alter table public.moderation_actions enable row level security;
 
 revoke all on public.document_reviews from anon, authenticated;
 revoke all on public.moderation_actions from anon, authenticated;
+revoke all on public.document_reviews from service_role;
+revoke all on public.moderation_actions from service_role;
+
+grant select, insert, update, delete on public.document_reviews to service_role;
+grant select, insert, update, delete on public.moderation_actions to service_role;
 
 create or replace function public.touch_document_review_updated_at()
 returns trigger
@@ -81,4 +86,3 @@ drop trigger if exists document_reviews_touch_updated_at on public.document_revi
 create trigger document_reviews_touch_updated_at
 before update on public.document_reviews
 for each row execute function public.touch_document_review_updated_at();
-
