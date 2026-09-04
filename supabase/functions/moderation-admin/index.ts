@@ -140,6 +140,11 @@ Deno.serve(async (request) => {
     ]);
 
     if (usersResult.error || reviewsResult.error || actionsResult.error) {
+      console.error('dashboard_load_failed', {
+        users: usersResult.error?.message ?? null,
+        reviews: reviewsResult.error?.message ?? null,
+        actions: actionsResult.error?.message ?? null,
+      });
       return jsonResponse({ error: 'dashboard_load_failed' }, 502, origin);
     }
 

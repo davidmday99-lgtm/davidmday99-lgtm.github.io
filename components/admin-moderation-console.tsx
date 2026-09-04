@@ -128,14 +128,21 @@ export function AdminModerationConsole() {
     if (!accessToken)
       throw new Error('Sign in to an administrator account first.');
 
-    const response = await fetch(functionUrl('moderation-admin'), {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    let response: Response;
+    try {
+      response = await fetch(functionUrl('moderation-admin'), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      throw new Error(
+        'The secure moderation service could not be reached. Refresh the page and try again.',
+      );
+    }
     const body = (await response.json().catch(() => ({}))) as {
       error?: string;
       [key: string]: unknown;
@@ -144,6 +151,11 @@ export function AdminModerationConsole() {
       if (body.error === 'administrator_required') {
         throw new Error(
           'This account is signed in, but it is not an approved administrator.',
+        );
+      }
+      if (body.error === 'dashboard_load_failed') {
+        throw new Error(
+          'The moderation queue could not be loaded. Refresh the page and try again.',
         );
       }
       throw new Error(
