@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { compareVehicleValues, parseDollarInput } from '@/lib/value-checker';
+import { compareVehicleValue, parseDollarInput } from '@/lib/value-checker';
 
 describe('value comparison', () => {
   it('accepts common currency formatting', () => {
@@ -9,22 +9,17 @@ describe('value comparison', () => {
     expect(parseDollarInput('not a value')).toBeNull();
   });
 
-  it('calculates a two-guide range and midpoint', () => {
-    expect(compareVehicleValues('$22,400', '$23,100', '$22,900')).toEqual({
-      low: 22400,
-      high: 23100,
-      midpoint: 22750,
-      spread: 700,
-      spreadPercent: 3,
+  it('compares an asking price with the KBB guide value', () => {
+    expect(compareVehicleValue('$22,400', '$22,900')).toEqual({
+      guideValue: 22400,
       askingPrice: 22900,
-      askingDifference: 150,
-      askingDifferencePercent: 1,
-      askingPricePosition: 'within-range',
+      askingDifference: 500,
+      askingDifferencePercent: 2,
+      askingPricePosition: 'above-guide',
     });
   });
 
-  it('does not produce a comparison without both sources', () => {
-    expect(compareVehicleValues('$22,400', '')).toBeNull();
+  it('does not produce a comparison without a KBB value', () => {
+    expect(compareVehicleValue('', '$22,900')).toBeNull();
   });
 });
-

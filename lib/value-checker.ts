@@ -1,14 +1,10 @@
 export type AskingPricePosition =
-  | 'below-range'
-  | 'within-range'
-  | 'above-range';
+  | 'below-guide'
+  | 'matches-guide'
+  | 'above-guide';
 
 export type ValueComparison = {
-  low: number;
-  high: number;
-  midpoint: number;
-  spread: number;
-  spreadPercent: number;
+  guideValue: number;
   askingPrice: number | null;
   askingDifference: number | null;
   askingDifferencePercent: number | null;
@@ -20,47 +16,35 @@ export function parseDollarInput(value: string) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-export function compareVehicleValues(
+export function compareVehicleValue(
   kelleyBlueBookValue: string,
-  edmundsValue: string,
   askingPrice = '',
 ): ValueComparison | null {
   const kbb = parseDollarInput(kelleyBlueBookValue);
-  const edmunds = parseDollarInput(edmundsValue);
-  if (kbb === null || edmunds === null) return null;
-
-  const low = Math.min(kbb, edmunds);
-  const high = Math.max(kbb, edmunds);
-  const midpoint = (low + high) / 2;
-  const spread = high - low;
+  if (kbb === null) return null;
   const parsedAskingPrice = parseDollarInput(askingPrice);
 
   let askingPricePosition: AskingPricePosition | null = null;
   if (parsedAskingPrice !== null) {
     askingPricePosition =
-      parsedAskingPrice < low
-        ? 'below-range'
-        : parsedAskingPrice > high
-          ? 'above-range'
-          : 'within-range';
+      parsedAskingPrice < kbb
+        ? 'below-guide'
+        : parsedAskingPrice > kbb
+          ? 'above-guide'
+          : 'matches-guide';
   }
 
   return {
-    low: Math.round(low),
-    high: Math.round(high),
-    midpoint: Math.round(midpoint),
-    spread: Math.round(spread),
-    spreadPercent: Math.round((spread / midpoint) * 100),
+    guideValue: Math.round(kbb),
     askingPrice: parsedAskingPrice === null ? null : Math.round(parsedAskingPrice),
     askingDifference:
       parsedAskingPrice === null
         ? null
-        : Math.round(parsedAskingPrice - midpoint),
+        : Math.round(parsedAskingPrice - kbb),
     askingDifferencePercent:
       parsedAskingPrice === null
         ? null
-        : Math.round(((parsedAskingPrice - midpoint) / midpoint) * 100),
+        : Math.round(((parsedAskingPrice - kbb) / kbb) * 100),
     askingPricePosition,
   };
 }
-

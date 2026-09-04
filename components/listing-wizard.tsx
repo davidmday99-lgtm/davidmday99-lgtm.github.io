@@ -607,7 +607,7 @@ export function ListingWizard() {
               href="/value-checker"
               target="_blank"
             >
-              Compare Kelley Blue Book and Edmunds values
+              Check Kelley Blue Book value
               <ArrowRight className="size-4" />
             </a>
           </div>

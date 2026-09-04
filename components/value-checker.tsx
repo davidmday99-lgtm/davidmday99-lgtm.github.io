@@ -13,10 +13,9 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { compareVehicleValues } from '@/lib/value-checker';
+import { compareVehicleValue } from '@/lib/value-checker';
 
 const KBB_APPRAISAL_URL = 'https://www.kbb.com/whats-my-car-worth/';
-const EDMUNDS_APPRAISAL_URL = 'https://www.edmunds.com/appraisal/';
 
 const currency = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -52,19 +51,18 @@ export function ValueChecker() {
   const [mileage, setMileage] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [kbbValue, setKbbValue] = useState('');
-  const [edmundsValue, setEdmundsValue] = useState('');
   const [askingPrice, setAskingPrice] = useState('');
 
   const comparison = useMemo(
-    () => compareVehicleValues(kbbValue, edmundsValue, askingPrice),
-    [askingPrice, edmundsValue, kbbValue],
+    () => compareVehicleValue(kbbValue, askingPrice),
+    [askingPrice, kbbValue],
   );
 
   const positionCopy = comparison?.askingPricePosition
     ? {
-        'below-range': 'The asking price is below both guide values.',
-        'within-range': 'The asking price falls within the two-guide range.',
-        'above-range': 'The asking price is above both guide values.',
+        'below-guide': 'The asking price is below the Kelley Blue Book value.',
+        'matches-guide': 'The asking price matches the Kelley Blue Book value.',
+        'above-guide': 'The asking price is above the Kelley Blue Book value.',
       }[comparison.askingPricePosition]
     : null;
 
@@ -86,8 +84,9 @@ export function ValueChecker() {
         </div>
 
         <p className="mt-5 leading-7 text-slate-600">
-          Use the same trim, mileage, condition, options, and ZIP code on both
-          appraisal sites. Small differences can move the results considerably.
+          Use the correct trim, mileage, condition, options, and ZIP code when
+          checking Kelley Blue Book. Small differences can move the result
+          considerably.
         </p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -125,9 +124,9 @@ export function ValueChecker() {
           </label>
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="mt-6">
           <Button
-            className="h-12 rounded-none bg-navy font-black uppercase"
+            className="h-12 w-full rounded-none bg-navy font-black uppercase"
             nativeButton={false}
             render={
               <a href={KBB_APPRAISAL_URL} rel="noreferrer" target="_blank" />
@@ -135,26 +134,13 @@ export function ValueChecker() {
           >
             Open Kelley Blue Book <ExternalLink />
           </Button>
-          <Button
-            className="h-12 rounded-none border-2 border-navy bg-[#16C7BE] font-black uppercase text-navy hover:bg-[#FFB81C]"
-            nativeButton={false}
-            render={
-              <a
-                href={EDMUNDS_APPRAISAL_URL}
-                rel="noreferrer"
-                target="_blank"
-              />
-            }
-          >
-            Open Edmunds <ExternalLink />
-          </Button>
         </div>
 
         <div className="mt-6 flex gap-3 border-l-4 border-[#16C7BE] bg-teal-50 p-4 text-sm leading-6 text-slate-700">
           <Info className="mt-0.5 size-5 shrink-0 text-teal-800" />
           <p>
-            Choose <strong>private-party value</strong> on both sites. Do not
-            mix a dealer trade-in value with a private-sale value.
+            Choose <strong>private-party value</strong>. A dealer trade-in value
+            is not the same as a private-sale value.
           </p>
         </div>
       </section>
@@ -169,7 +155,7 @@ export function ValueChecker() {
               Step 2
             </p>
             <h2 className="text-2xl font-black uppercase text-navy">
-              Compare the two values
+              Check the asking price
             </h2>
           </div>
         </div>
@@ -194,16 +180,6 @@ export function ValueChecker() {
             />
           </label>
           <label className="text-sm font-bold text-navy">
-            Edmunds private-party value
-            <Input
-              className="mt-2 h-12 rounded-none bg-white"
-              inputMode="decimal"
-              onChange={(event) => setEdmundsValue(event.target.value)}
-              placeholder="$23,100"
-              value={edmundsValue}
-            />
-          </label>
-          <label className="text-sm font-bold text-navy sm:col-span-2">
             Asking price <span className="font-normal text-slate-500">(optional)</span>
             <Input
               className="mt-2 h-12 rounded-none bg-white"
@@ -218,9 +194,23 @@ export function ValueChecker() {
         {comparison ? (
           <div className="mt-7" aria-live="polite">
             <div className="grid gap-4 sm:grid-cols-3">
-              <ResultCard label="Guide range" value={`${currency.format(comparison.low)}–${currency.format(comparison.high)}`} />
-              <ResultCard label="Midpoint" value={currency.format(comparison.midpoint)} emphasis />
-              <ResultCard label="Guide spread" value={`${currency.format(comparison.spread)} · ${comparison.spreadPercent}%`} />
+              <ResultCard
+                label="KBB private-party value"
+                value={currency.format(comparison.guideValue)}
+                emphasis
+              />
+              {comparison.askingPrice !== null && (
+                <>
+                  <ResultCard
+                    label="Asking price"
+                    value={currency.format(comparison.askingPrice)}
+                  />
+                  <ResultCard
+                    label="Difference"
+                    value={`${currency.format(Math.abs(comparison.askingDifference ?? 0))} · ${Math.abs(comparison.askingDifferencePercent ?? 0)}%`}
+                  />
+                </>
+              )}
             </div>
 
             {comparison.askingPrice !== null && (
@@ -237,10 +227,10 @@ export function ValueChecker() {
                         It is {currency.format(Math.abs(comparison.askingDifference ?? 0))}{' '}
                         ({Math.abs(comparison.askingDifferencePercent ?? 0)}%)
                         {comparison.askingDifference === 0
-                          ? ' from the midpoint'
+                          ? ' from the KBB value'
                           : comparison.askingDifference && comparison.askingDifference > 0
-                            ? ' above the midpoint'
-                            : ' below the midpoint'}.
+                            ? ' above the KBB value'
+                            : ' below the KBB value'}.
                       </strong>
                     </p>
                   </div>
@@ -251,7 +241,7 @@ export function ValueChecker() {
             <div className="mt-5 flex gap-3 border-l-4 border-teal-600 bg-white p-4 text-sm leading-6 text-slate-700">
               <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-teal-700" />
               <p>
-                Use this comparison as a negotiation starting point. Vehicle
+                Use this guide as a negotiation starting point. Vehicle
                 condition, local demand, title history, options, and inspection
                 findings can justify a different price.
               </p>
@@ -261,10 +251,10 @@ export function ValueChecker() {
           <div className="mt-7 border-2 border-dashed border-navy/45 bg-white/70 p-8 text-center">
             <Calculator className="mx-auto size-9 text-teal-700" />
             <p className="mt-3 font-black uppercase text-navy">
-              Enter both private-party values
+              Enter the Kelley Blue Book value
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Your comparison will appear here automatically.
+              The asking-price check will appear here automatically.
             </p>
           </div>
         )}
@@ -278,9 +268,9 @@ export function ValueChecker() {
             </p>
             <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-300">
               OwnerOnly Cars is not affiliated with or endorsed by Kelley Blue
-              Book or Edmunds. Their names and valuation results belong to their
-              respective owners. OwnerOnly does not copy, store, or certify
-              their data; this page only calculates from numbers you enter.
+              Book. Its name and valuation results belong to its owner.
+              OwnerOnly does not copy, store, or certify Kelley Blue Book data;
+              this page only calculates from the number you enter.
             </p>
           </div>
           <Button
@@ -295,4 +285,3 @@ export function ValueChecker() {
     </div>
   );
 }
-
