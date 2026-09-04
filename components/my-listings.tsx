@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CarFront, Plus } from 'lucide-react';
+import { Check, CarFront, LoaderCircle, Pencil, Plus, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { formatMileage, formatPrice } from '@/lib/demo-data';
 import {
   getSupabaseBrowserClient,
@@ -14,6 +15,11 @@ import type { VehicleListingRow } from '@/lib/vehicle-listings';
 export function MyListings() {
   const [listings, setListings] = useState<VehicleListingRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState('');
+  const [priceDraft, setPriceDraft] = useState('');
+  const [savingId, setSavingId] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!hasSupabaseConfig()) {
@@ -38,6 +44,62 @@ export function MyListings() {
     });
   }, []);
 
+  function startPriceEdit(listing: VehicleListingRow) {
+    setEditingId(listing.id);
+    setPriceDraft(String(listing.price));
+    setMessage('');
+    setError('');
+  }
+
+  function cancelPriceEdit() {
+    setEditingId('');
+    setPriceDraft('');
+    setError('');
+  }
+
+  async function savePrice(listing: VehicleListingRow) {
+    const nextPrice = Number(priceDraft);
+    if (
+      !priceDraft.trim() ||
+      !Number.isInteger(nextPrice) ||
+      nextPrice < 0 ||
+      nextPrice > 10000000
+    ) {
+      setError('Enter a whole-dollar price between $0 and $10,000,000.');
+      return;
+    }
+
+    setSavingId(listing.id);
+    setError('');
+    setMessage('');
+    const { data, error: updateError } = await getSupabaseBrowserClient().rpc(
+      'update_my_listing_price',
+      {
+        target_listing_id: listing.id,
+        new_price: nextPrice,
+      },
+    );
+    setSavingId('');
+
+    if (updateError || typeof data !== 'number') {
+      setError('The price could not be updated. Please sign in and try again.');
+      return;
+    }
+
+    setListings((current) =>
+      current.map((item) =>
+        item.id === listing.id ? { ...item, price: data } : item,
+      ),
+    );
+    setEditingId('');
+    setPriceDraft('');
+    setMessage(
+      listing.status === 'published'
+        ? 'Price updated on the live listing.'
+        : 'Price updated successfully.',
+    );
+  }
+
   return (
     <section id="listings" className="mt-8 border-2 border-navy bg-white p-6">
       <div className="flex flex-col gap-4 border-b-2 border-navy pb-5 sm:flex-row sm:items-center sm:justify-between">
@@ -57,6 +119,17 @@ export function MyListings() {
           <Plus /> Create listing
         </Button>
       </div>
+
+      {message && (
+        <p className="mt-5 border-l-4 border-teal-600 bg-teal-50 p-3 text-sm font-bold text-teal-900">
+          {message}
+        </p>
+      )}
+      {error && (
+        <p className="mt-5 border-l-4 border-red-600 bg-red-50 p-3 text-sm font-bold text-red-800">
+          {error}
+        </p>
+      )}
 
       {loading ? (
         <p className="py-10 text-center font-bold text-slate-600">
@@ -90,15 +163,74 @@ export function MyListings() {
                   {formatMileage(listing.mileage)} miles ·{' '}
                   {formatPrice(listing.price)} · Near {listing.location_public}
                 </p>
+                {editingId === listing.id && (
+                  <div className="mt-4 max-w-sm border-2 border-navy bg-amber-50 p-3">
+                    <label
+                      className="text-xs font-black uppercase tracking-wide text-navy"
+                      htmlFor={`listing-price-${listing.id}`}
+                    >
+                      Asking price
+                    </label>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Input
+                        autoFocus
+                        className="h-11 min-w-0 flex-1 rounded-none border-2 border-navy bg-white"
+                        disabled={savingId === listing.id}
+                        id={`listing-price-${listing.id}`}
+                        inputMode="numeric"
+                        max={10000000}
+                        min={0}
+                        onChange={(event) => setPriceDraft(event.target.value)}
+                        step={1}
+                        type="number"
+                        value={priceDraft}
+                      />
+                      <Button
+                        className="h-11 rounded-none bg-teal-500 font-black uppercase text-navy"
+                        disabled={savingId === listing.id}
+                        onClick={() => void savePrice(listing)}
+                        type="button"
+                      >
+                        {savingId === listing.id ? (
+                          <LoaderCircle className="animate-spin" />
+                        ) : (
+                          <Check />
+                        )}
+                        Save
+                      </Button>
+                      <Button
+                        className="h-11 rounded-none font-black uppercase"
+                        disabled={savingId === listing.id}
+                        onClick={cancelPriceEdit}
+                        type="button"
+                        variant="outline"
+                      >
+                        <X /> Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-              {listing.status === 'published' && (
-                <a
-                  className="font-black uppercase text-teal-800 underline"
-                  href={`/listing?slug=${encodeURIComponent(listing.slug)}`}
-                >
-                  View live listing
-                </a>
-              )}
+              <div className="flex shrink-0 flex-wrap items-center gap-3 sm:flex-col sm:items-end">
+                {listing.status !== 'removed' && editingId !== listing.id && (
+                  <Button
+                    className="h-10 rounded-none border-2 border-navy bg-[#f6b82b] font-black uppercase text-navy"
+                    onClick={() => startPriceEdit(listing)}
+                    type="button"
+                    variant="outline"
+                  >
+                    <Pencil /> Edit price
+                  </Button>
+                )}
+                {listing.status === 'published' && (
+                  <a
+                    className="font-black uppercase text-teal-800 underline"
+                    href={`/listing?slug=${encodeURIComponent(listing.slug)}`}
+                  >
+                    View live listing
+                  </a>
+                )}
+              </div>
             </article>
           ))}
         </div>
