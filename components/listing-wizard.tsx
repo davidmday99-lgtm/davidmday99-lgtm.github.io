@@ -160,18 +160,42 @@ export function ListingWizard() {
   const numericYear = Number(listing.year);
   const numericMileage = Number(listing.mileage);
   const numericPrice = Number(listing.price);
-  const listingDetailsComplete = Boolean(
-    numericYear >= 1900 &&
-    numericYear <= new Date().getFullYear() + 1 &&
-    listing.make.trim() &&
-    listing.model.trim() &&
-    Number.isInteger(numericMileage) &&
-    numericMileage >= 0 &&
-    Number.isInteger(numericPrice) &&
-    numericPrice >= 0 &&
-    listing.location.trim().length >= 2 &&
-    listing.description.trim().length >= 10,
-  );
+  const vehicleFactChecks = [
+    {
+      complete:
+        listing.year.trim().length > 0 &&
+        numericYear >= 1900 &&
+        numericYear <= new Date().getFullYear() + 1,
+      label: 'year',
+    },
+    { complete: listing.make.trim().length > 0, label: 'make' },
+    { complete: listing.model.trim().length > 0, label: 'model' },
+    {
+      complete:
+        listing.mileage.trim().length > 0 &&
+        Number.isInteger(numericMileage) &&
+        numericMileage >= 0,
+      label: 'mileage',
+    },
+    {
+      complete:
+        listing.price.trim().length > 0 &&
+        Number.isInteger(numericPrice) &&
+        numericPrice >= 0,
+      label: 'asking price',
+    },
+    {
+      complete: listing.location.trim().length >= 2,
+      label: 'city and state',
+    },
+  ];
+  const missingVehicleFacts = vehicleFactChecks
+    .filter(({ complete }) => !complete)
+    .map(({ label }) => label);
+  const vehicleFactsComplete = missingVehicleFacts.length === 0;
+  const descriptionComplete = listing.description.trim().length >= 10;
+  const listingDetailsComplete =
+    vehicleFactsComplete && descriptionComplete;
   const completedConditionCount = conditionQuestionGroups.reduce(
     (total, group) =>
       total +
@@ -362,10 +386,10 @@ export function ListingWizard() {
       ready: validVin,
     },
     {
-      label: listingDetailsComplete
+      label: vehicleFactsComplete
         ? 'Vehicle facts entered'
-        : 'Vehicle details still need completion',
-      ready: listingDetailsComplete,
+        : `Vehicle facts needed: ${missingVehicleFacts.join(', ')}`,
+      ready: vehicleFactsComplete,
     },
     {
       label: conditionComplete
@@ -379,7 +403,12 @@ export function ListingWizard() {
         : 'Installed features still need review',
       ready: featuresReviewed,
     },
-    { label: 'Description complete', ready: true },
+    {
+      label: descriptionComplete
+        ? 'Description complete'
+        : 'Description needs at least 10 characters',
+      ready: descriptionComplete,
+    },
     {
       label: carfaxUrl.trim()
         ? carfaxValidation.valid
