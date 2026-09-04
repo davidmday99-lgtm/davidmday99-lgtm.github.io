@@ -1,5 +1,11 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
+import {
+  stripeVerificationSessionUrl,
+  verifiedLegalName,
+  type StripeVerifiedOutputs,
+} from './stripe-identity.ts';
+
 function secureEqual(left: string, right: string) {
   if (left.length !== right.length) return false;
   let result = 0;
@@ -61,7 +67,12 @@ Deno.serve(async (request) => {
   }
 
   const event = JSON.parse(rawBody);
-  const session = event.data?.object;
+  let session = event.data?.object as {
+    id?: string;
+    metadata?: { user_id?: string };
+    last_error?: { code?: string; reason?: string } | null;
+    verified_outputs?: StripeVerifiedOutputs;
+  };
   const userId = session?.metadata?.user_id;
   const statuses = {
     'identity.verification_session.processing': 'processing',
@@ -78,6 +89,7 @@ Deno.serve(async (request) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
   if (!supabaseUrl || !serviceRoleKey) {
     return new Response('Service not configured', { status: 503 });
   }
@@ -91,6 +103,28 @@ Deno.serve(async (request) => {
 
   if (!user) return new Response('User not found', { status: 404 });
 
+  if (status === 'verified' && stripeSecretKey && session.id) {
+    try {
+      const stripeResponse = await fetch(
+        stripeVerificationSessionUrl(session.id),
+        { headers: { Authorization: `Bearer ${stripeSecretKey}` } },
+      );
+      if (stripeResponse.ok) {
+        session = await stripeResponse.json();
+      } else {
+        console.error('stripe_verified_outputs_retrieve_failed', {
+          sessionId: session.id.slice(0, 12),
+          status: stripeResponse.status,
+        });
+      }
+    } catch (error) {
+      console.error('stripe_verified_outputs_retrieve_failed', {
+        message: error instanceof Error ? error.message : 'unknown_error',
+        sessionId: session.id.slice(0, 12),
+      });
+    }
+  }
+
   const { error } = await admin.auth.admin.updateUserById(userId, {
     app_metadata: {
       ...user.app_metadata,
@@ -100,12 +134,7 @@ Deno.serve(async (request) => {
         status,
         verified_name:
           status === 'verified'
-            ? [
-                session.verified_outputs?.first_name,
-                session.verified_outputs?.last_name,
-              ]
-                .filter(Boolean)
-                .join(' ') || null
+            ? verifiedLegalName(session.verified_outputs ?? null)
             : null,
         failure_category: session.last_error?.code ?? null,
         failure_reason:

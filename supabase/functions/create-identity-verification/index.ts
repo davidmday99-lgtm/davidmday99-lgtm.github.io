@@ -1,5 +1,11 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
+import {
+  stripeVerificationSessionUrl,
+  verifiedLegalName,
+  type StripeVerifiedOutputs,
+} from './stripe-identity.ts';
+
 const defaultSiteOrigin = 'https://owneronlycars.com';
 const previewSiteOrigin = 'https://owneronly-cars.lucky2551.chatgpt.site';
 
@@ -9,7 +15,7 @@ type StripeVerificationSession = {
   metadata?: { user_id?: string };
   status?: string;
   url?: string | null;
-  verified_outputs?: { first_name?: string; last_name?: string } | null;
+  verified_outputs?: StripeVerifiedOutputs;
 };
 
 function response(body: unknown, status: number, origin: string) {
@@ -40,10 +46,9 @@ function cleanStatus(value: unknown) {
 }
 
 async function retrieveStripeSession(secret: string, sessionId: string) {
-  const result = await fetch(
-    `https://api.stripe.com/v1/identity/verification_sessions/${encodeURIComponent(sessionId)}`,
-    { headers: { Authorization: `Bearer ${secret}` } },
-  );
+  const result = await fetch(stripeVerificationSessionUrl(sessionId), {
+    headers: { Authorization: `Bearer ${secret}` },
+  });
 
   if (result.status === 404) return null;
   if (!result.ok) throw new Error('stripe_retrieve_failed');
@@ -176,12 +181,7 @@ Deno.serve(async (request) => {
     const failureReason = cleanReason(session.last_error?.reason);
     const verifiedName =
       status === 'verified'
-        ? [
-            session.verified_outputs?.first_name,
-            session.verified_outputs?.last_name,
-          ]
-            .filter(Boolean)
-            .join(' ') || null
+        ? verifiedLegalName(session.verified_outputs ?? null)
         : null;
 
     await admin.auth.admin.updateUserById(user.id, {
