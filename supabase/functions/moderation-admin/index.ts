@@ -133,7 +133,7 @@ Deno.serve(async (request) => {
       admin
         .from('moderation_actions')
         .select(
-          'id, actor_user_id, target_user_id, document_review_id, action, reason, created_at',
+          'id, actor_user_id, target_user_id, document_review_id, subject_reference, action, reason, created_at',
         )
         .order('created_at', { ascending: false })
         .limit(50),
@@ -302,6 +302,46 @@ Deno.serve(async (request) => {
       action: auditAction,
       reason,
     });
+
+    return jsonResponse({ ok: true }, 200, origin);
+  }
+
+  if (payload.action === 'delete_document') {
+    const reviewId = String(payload.reviewId ?? '');
+    const reason = cleanReason(payload.reason);
+    if (reason.length < 3)
+      return jsonResponse({ error: 'deletion_reason_required' }, 400, origin);
+
+    const { data: review, error: reviewError } = await admin
+      .from('document_reviews')
+      .select('id, document_path')
+      .eq('id', reviewId)
+      .maybeSingle();
+    if (reviewError || !review)
+      return jsonResponse({ error: 'review_not_found' }, 404, origin);
+
+    const { error: storageError } = await admin.storage
+      .from('ownership-documents')
+      .remove([review.document_path]);
+    if (storageError)
+      return jsonResponse(
+        { error: 'document_storage_delete_failed' },
+        502,
+        origin,
+      );
+
+    const { data: deleted, error: deleteError } = await admin.rpc(
+      'delete_document_review_with_audit',
+      {
+        p_actor_user_id: user.id,
+        p_reason: reason,
+        p_review_id: review.id,
+      },
+    );
+    if (deleteError)
+      return jsonResponse({ error: 'review_delete_failed' }, 502, origin);
+    if (!deleted)
+      return jsonResponse({ error: 'review_not_found' }, 404, origin);
 
     return jsonResponse({ ok: true }, 200, origin);
   }

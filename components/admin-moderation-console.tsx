@@ -14,6 +14,7 @@ import {
   RotateCcw,
   Search,
   ShieldCheck,
+  Trash2,
   UserRound,
   Users,
   XCircle,
@@ -63,6 +64,7 @@ type AuditAction = {
   actor_user_id: string;
   target_user_id: string | null;
   document_review_id: string | null;
+  subject_reference: string | null;
   action: string;
   reason: string;
   created_at: string;
@@ -235,6 +237,44 @@ export function AdminModerationConsole() {
         caught instanceof Error
           ? caught.message
           : 'A private document link could not be created.',
+      );
+    } finally {
+      setBusy(undefined);
+    }
+  }
+
+  async function deleteDocument(review: Review) {
+    const reason = reviewNotes[review.id]?.trim() ?? '';
+    if (reason.length < 3) {
+      setError(
+        'Add a short review note explaining why this document is being deleted.',
+      );
+      return;
+    }
+    const confirmed = window.confirm(
+      `Permanently delete ${review.originalFilename}? The private file and review record will be removed. The audit entry will remain.`,
+    );
+    if (!confirmed) return;
+
+    setBusy(`delete-${review.id}`);
+    setError(undefined);
+    try {
+      await invokeAdmin({
+        action: 'delete_document',
+        reviewId: review.id,
+        reason,
+      });
+      setDocumentLinks((current) => {
+        const next = { ...current };
+        delete next[review.id];
+        return next;
+      });
+      await loadDashboard();
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : 'The document could not be deleted.',
       );
     } finally {
       setBusy(undefined);
@@ -480,6 +520,7 @@ export function AdminModerationConsole() {
                     className="rounded-none bg-teal-500 font-black uppercase text-navy"
                     disabled={
                       busy === `review-${review.id}` ||
+                      busy === `delete-${review.id}` ||
                       !data.users.find(
                         (candidate) => candidate.id === review.userId,
                       )?.verifiedLegalName
@@ -490,7 +531,10 @@ export function AdminModerationConsole() {
                   </Button>
                   <Button
                     className="rounded-none border-red-700 bg-white font-black uppercase text-red-700"
-                    disabled={busy === `review-${review.id}`}
+                    disabled={
+                      busy === `review-${review.id}` ||
+                      busy === `delete-${review.id}`
+                    }
                     onClick={() => void reviewDocument(review, 'rejected')}
                     variant="outline"
                   >
@@ -499,7 +543,10 @@ export function AdminModerationConsole() {
                   {review.status !== 'human_review' && (
                     <Button
                       className="rounded-none"
-                      disabled={busy === `review-${review.id}`}
+                      disabled={
+                        busy === `review-${review.id}` ||
+                        busy === `delete-${review.id}`
+                      }
                       onClick={() =>
                         void reviewDocument(review, 'human_review')
                       }
@@ -508,6 +555,19 @@ export function AdminModerationConsole() {
                       <RotateCcw /> Return to queue
                     </Button>
                   )}
+                  <Button
+                    className="rounded-none border-red-800 bg-red-800 font-black uppercase text-white hover:bg-red-900"
+                    disabled={
+                      busy === `review-${review.id}` ||
+                      busy === `delete-${review.id}`
+                    }
+                    onClick={() => void deleteDocument(review)}
+                  >
+                    <Trash2 />{' '}
+                    {busy === `delete-${review.id}`
+                      ? 'Deleting…'
+                      : 'Delete permanently'}
+                  </Button>
                 </div>
               </article>
             ))
@@ -631,7 +691,8 @@ export function AdminModerationConsole() {
                       {action.reason}
                     </td>
                     <td className="p-4 font-mono text-xs">
-                      {action.target_user_id?.slice(0, 8) ??
+                      {action.subject_reference ??
+                        action.target_user_id?.slice(0, 8) ??
                         action.document_review_id?.slice(0, 8) ??
                         '—'}
                     </td>
