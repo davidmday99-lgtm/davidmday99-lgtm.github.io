@@ -12,6 +12,8 @@ export type DemoListing = {
   fuel: string;
   drivetrain: string;
   titleStatus: string;
+  href?: string;
+  isDemo?: boolean;
 };
 
 export const demoListings: DemoListing[] = [
@@ -29,6 +31,7 @@ export const demoListings: DemoListing[] = [
     fuel: 'Gasoline',
     drivetrain: 'AWD',
     titleStatus: 'Clean',
+    isDemo: true,
   },
   {
     slug: '2018-city-hatchback',
@@ -44,6 +47,7 @@ export const demoListings: DemoListing[] = [
     fuel: 'Gasoline',
     drivetrain: 'FWD',
     titleStatus: 'Clean',
+    isDemo: true,
   },
   {
     slug: '2019-crew-cab-pickup',
@@ -59,6 +63,7 @@ export const demoListings: DemoListing[] = [
     fuel: 'Gasoline',
     drivetrain: '4WD',
     titleStatus: 'Clean',
+    isDemo: true,
   },
 ];
 

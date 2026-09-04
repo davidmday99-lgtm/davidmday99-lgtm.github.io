@@ -432,6 +432,14 @@ export function AdminModerationConsole() {
                       {(review.fileSizeBytes / 1048576).toFixed(1)} MB ·
                       submitted {formatDate(review.createdAt)}
                     </p>
+                    {!review.listingReference && (
+                      <p className="mt-3 border-l-4 border-amber-500 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-950">
+                        Legacy submission: no vehicle details or vehicle photos
+                        were saved with this document. Approval verifies the
+                        ownership document but cannot publish a listing. The
+                        seller must submit the listing again.
+                      </p>
+                    )}
                     <p className="mt-1 text-sm text-slate-600">
                       Seller:{' '}
                       {data.users.find(

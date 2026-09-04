@@ -1,10 +1,28 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-import {
-  stripeVerificationSessionUrl,
-  verifiedLegalName,
-  type StripeVerifiedOutputs,
-} from './stripe-identity.ts';
+type StripeVerifiedOutputs = {
+  first_name?: string | null;
+  last_name?: string | null;
+} | null;
+
+function stripeVerificationSessionUrl(sessionId: string) {
+  const url = new URL(
+    `https://api.stripe.com/v1/identity/verification_sessions/${encodeURIComponent(sessionId)}`,
+  );
+  url.searchParams.append('expand[]', 'verified_outputs');
+  return url.toString();
+}
+
+function verifiedLegalName(outputs: StripeVerifiedOutputs) {
+  const name = [outputs?.first_name, outputs?.last_name]
+    .filter(
+      (part): part is string =>
+        typeof part === 'string' && Boolean(part.trim()),
+    )
+    .map((part) => part.trim())
+    .join(' ');
+  return name || null;
+}
 
 const productionOrigin = 'https://owneronlycars.com';
 const previewOrigin = 'https://owneronly-cars.lucky2551.chatgpt.site';
@@ -275,7 +293,7 @@ Deno.serve(async (request) => {
 
     const { data: review, error: reviewError } = await admin
       .from('document_reviews')
-      .select('id, user_id')
+      .select('id, user_id, listing_reference')
       .eq('id', reviewId)
       .maybeSingle();
     if (reviewError || !review)
@@ -294,6 +312,39 @@ Deno.serve(async (request) => {
     if (updateError)
       return jsonResponse({ error: 'review_update_failed' }, 502, origin);
 
+    let listingPublished = false;
+    if (review.listing_reference) {
+      const listingStatus =
+        decision === 'approved'
+          ? 'published'
+          : decision === 'rejected'
+            ? 'rejected'
+            : 'pending_review';
+      const { data: listing, error: listingError } = await admin
+        .from('vehicle_listings')
+        .update({
+          status: listingStatus,
+          published_at: decision === 'approved' ? now : null,
+        })
+        .eq('id', review.listing_reference)
+        .eq('user_id', review.user_id)
+        .select('id')
+        .maybeSingle();
+      if (listingError) {
+        await admin
+          .from('document_reviews')
+          .update({
+            status: 'human_review',
+            reviewer_notes: null,
+            reviewed_by: null,
+            reviewed_at: null,
+          })
+          .eq('id', reviewId);
+        return jsonResponse({ error: 'listing_publish_failed' }, 502, origin);
+      }
+      listingPublished = decision === 'approved' && Boolean(listing);
+    }
+
     const auditAction =
       decision === 'approved'
         ? 'document_approved'
@@ -308,7 +359,7 @@ Deno.serve(async (request) => {
       reason,
     });
 
-    return jsonResponse({ ok: true }, 200, origin);
+    return jsonResponse({ ok: true, listingPublished }, 200, origin);
   }
 
   if (payload.action === 'delete_document') {

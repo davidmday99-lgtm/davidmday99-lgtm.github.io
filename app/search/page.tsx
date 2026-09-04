@@ -6,12 +6,11 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 
-import { ListingCard } from '@/components/listing-card';
+import { PublishedListingsGrid } from '@/components/published-listings-grid';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { demoListings } from '@/lib/demo-data';
 
 const filters = [
   ['Distance', '50 miles'],
@@ -233,7 +232,7 @@ export default function SearchPage() {
                   Recent owner listings
                 </p>
                 <p className="mt-1 text-xs font-bold text-slate-500">
-                  3 fictional demonstration vehicles
+                  Approved owner vehicles plus labeled demonstrations
                 </p>
               </div>
               <select
@@ -245,18 +244,15 @@ export default function SearchPage() {
                 <option>Newest first</option>
               </select>
             </div>
-            <div className="mt-7 grid gap-7 md:grid-cols-2 xl:grid-cols-3">
-              {demoListings.map((listing) => (
-                <ListingCard key={listing.slug} listing={listing} />
-              ))}
+            <div className="mt-7">
+              <PublishedListingsGrid />
             </div>
             <div className="mt-10 border-2 border-dashed border-slate-400 bg-white/60 p-10 text-center">
               <h2 className="text-xl font-black uppercase text-navy">
-                That’s all the demo inventory.
+                That’s all the current inventory.
               </h2>
               <p className="mt-2 text-slate-600">
-                Try expanding your distance or changing a filter when live
-                listings are connected.
+                New owner vehicles appear automatically after approval.
               </p>
             </div>
           </section>

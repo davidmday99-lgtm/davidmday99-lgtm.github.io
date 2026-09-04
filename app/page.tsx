@@ -8,12 +8,11 @@ import {
 } from 'lucide-react';
 
 import { CaramelCheckoutSection } from '@/components/caramel-checkout-section';
-import { ListingCard } from '@/components/listing-card';
+import { PublishedListingsGrid } from '@/components/published-listings-grid';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { demoListings } from '@/lib/demo-data';
 import { SUPPORT_URL } from '@/lib/support';
 
 const checks = [
@@ -290,7 +289,7 @@ export default function Home() {
             <div className="flex flex-col gap-5 border-b-2 border-navy pb-7 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.23em] text-teal-700">
-                  Demo marketplace
+                  Owner marketplace
                 </p>
                 <h2 className="mt-3 text-4xl font-black uppercase leading-none tracking-[-0.055em] text-navy sm:text-6xl">
                   Fresh from local owners.
@@ -304,13 +303,11 @@ export default function Home() {
               </a>
             </div>
             <p className="mt-5 text-sm text-slate-600">
-              These fictional listings use original demonstration imagery and
-              are clearly labeled as demo data.
+              Approved owner vehicles appear first. Fictional examples remain
+              clearly labeled as demo data.
             </p>
-            <div className="mt-10 grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-              {demoListings.map((listing) => (
-                <ListingCard key={listing.slug} listing={listing} />
-              ))}
+            <div className="mt-10">
+              <PublishedListingsGrid />
             </div>
           </div>
         </section>

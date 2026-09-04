@@ -67,6 +67,14 @@ const ownershipSubmissionErrors: Record<string, string> = {
     'The ownership document must be between 1 byte and 10 MB.',
   invalid_form_data:
     'The document upload was incomplete. Choose the file again and resubmit it.',
+  invalid_vehicle_photo:
+    'One of the vehicle photos is not a valid JPG, PNG, or WebP image.',
+  invalid_vehicle_photo_size:
+    'The selected vehicle photos are too large together. Remove some photos or use smaller images.',
+  listing_details_required:
+    'Complete the vehicle year, make, model, price, mileage, location, and description.',
+  listing_save_failed:
+    'The vehicle listing could not be saved. Please try again.',
   origin_not_allowed:
     'The secure upload service does not recognize this site address. Please contact support.',
   private_upload_failed:
@@ -75,9 +83,11 @@ const ownershipSubmissionErrors: Record<string, string> = {
     'The document was received but could not be added to the review queue. Please try again.',
   screening_consent_required:
     'Accept the automated-screening disclosure before submitting.',
-  unsupported_document_type:
-    'Choose a valid PDF, JPG, PNG, or WebP document.',
+  unsupported_document_type: 'Choose a valid PDF, JPG, PNG, or WebP document.',
   valid_vin_required: 'Enter a valid 17-character VIN before submitting.',
+  vehicle_photo_upload_failed:
+    'The vehicle photos could not be saved. Please try again.',
+  vehicle_photos_required: 'Add at least one valid vehicle photo.',
 };
 
 type SelectedPhoto = {
@@ -86,9 +96,46 @@ type SelectedPhoto = {
   previewUrl: string;
 };
 
+type ListingDraft = {
+  year: string;
+  make: string;
+  model: string;
+  trim: string;
+  mileage: string;
+  price: string;
+  location: string;
+  bodyStyle: string;
+  vehicleCondition: string;
+  titleStatus: string;
+  lienStatus: string;
+  drivetrain: string;
+  fuelType: string;
+  transmission: string;
+  description: string;
+};
+
+const initialListingDraft: ListingDraft = {
+  year: '',
+  make: '',
+  model: '',
+  trim: '',
+  mileage: '',
+  price: '',
+  location: '',
+  bodyStyle: 'SUV',
+  vehicleCondition: 'Good',
+  titleStatus: 'Clean',
+  lienStatus: 'No lien',
+  drivetrain: 'AWD',
+  fuelType: 'Gasoline',
+  transmission: 'Automatic',
+  description: '',
+};
+
 export function ListingWizard() {
   const [step, setStep] = useState(0);
   const [vin, setVin] = useState('');
+  const [listing, setListing] = useState<ListingDraft>(initialListingDraft);
   const [carfaxUrl, setCarfaxUrl] = useState('');
   const [conditionAnswers, setConditionAnswers] = useState<
     Record<string, string>
@@ -110,6 +157,21 @@ export function ListingWizard() {
   const carfaxValidation = validateSellerCarfaxUrl(carfaxUrl);
   const normalizedVin = vin.trim().toUpperCase();
   const validVin = /^[A-HJ-NPR-Z0-9]{17}$/.test(normalizedVin);
+  const numericYear = Number(listing.year);
+  const numericMileage = Number(listing.mileage);
+  const numericPrice = Number(listing.price);
+  const listingDetailsComplete = Boolean(
+    numericYear >= 1900 &&
+    numericYear <= new Date().getFullYear() + 1 &&
+    listing.make.trim() &&
+    listing.model.trim() &&
+    Number.isInteger(numericMileage) &&
+    numericMileage >= 0 &&
+    Number.isInteger(numericPrice) &&
+    numericPrice >= 0 &&
+    listing.location.trim().length >= 2 &&
+    listing.description.trim().length >= 10,
+  );
   const completedConditionCount = conditionQuestionGroups.reduce(
     (total, group) =>
       total +
@@ -120,6 +182,7 @@ export function ListingWizard() {
   const conditionComplete = completedConditionCount === conditionQuestionCount;
   const canSubmitForReview = Boolean(
     validVin &&
+    listingDetailsComplete &&
     conditionComplete &&
     featuresReviewed &&
     photos.length > 0 &&
@@ -223,6 +286,19 @@ export function ListingWizard() {
       form.set('document', ownershipDocument);
       form.set('vin', normalizedVin);
       form.set('automatedScreeningConsent', 'true');
+      form.set(
+        'listing',
+        JSON.stringify({
+          ...listing,
+          year: numericYear,
+          mileage: numericMileage,
+          price: numericPrice,
+          conditionAnswers,
+          features: selectedFeatures,
+          carfaxUrl: carfaxUrl.trim() || null,
+        }),
+      );
+      photos.forEach(({ file }) => form.append('photos', file));
 
       const { data: result, error: invocationError } =
         await supabase.functions.invoke<{
@@ -285,7 +361,12 @@ export function ListingWizard() {
       label: validVin ? 'VIN ready for review' : 'Valid VIN still needed',
       ready: validVin,
     },
-    { label: 'Vehicle facts entered', ready: true },
+    {
+      label: listingDetailsComplete
+        ? 'Vehicle facts entered'
+        : 'Vehicle details still need completion',
+      ready: listingDetailsComplete,
+    },
     {
       label: conditionComplete
         ? 'Condition disclosure complete'
@@ -376,6 +457,37 @@ export function ListingWizard() {
                 value={vin}
               />
             </label>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <DraftField
+                label="Year"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, year: value }))
+                }
+                type="number"
+                value={listing.year}
+              />
+              <DraftField
+                label="Make"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, make: value }))
+                }
+                value={listing.make}
+              />
+              <DraftField
+                label="Model"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, model: value }))
+                }
+                value={listing.model}
+              />
+              <DraftField
+                label="Trim (optional)"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, trim: value }))
+                }
+                value={listing.trim}
+              />
+            </div>
           </div>
         )}
 
@@ -385,11 +497,75 @@ export function ListingWizard() {
               Set the facts and price.
             </h2>
             <div className="mt-7 grid gap-5 sm:grid-cols-2">
-              <Field label="Mileage" value="38240" />
-              <Field label="Asking price" value="24800" />
-              <SelectField label="Condition" value="Good" />
-              <SelectField label="Title status" value="Clean" />
-              <SelectField label="Lien status" value="No lien" />
+              <DraftField
+                label="Mileage"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, mileage: value }))
+                }
+                type="number"
+                value={listing.mileage}
+              />
+              <DraftField
+                label="Asking price"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, price: value }))
+                }
+                type="number"
+                value={listing.price}
+              />
+              <DraftField
+                label="Public location (city, state)"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, location: value }))
+                }
+                placeholder="Knoxville, TN"
+                value={listing.location}
+              />
+              <DraftSelect
+                label="Body style"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, bodyStyle: value }))
+                }
+                options={[
+                  'SUV',
+                  'Sedan',
+                  'Hatchback',
+                  'Pickup',
+                  'Coupe',
+                  'Convertible',
+                  'Wagon',
+                  'Van',
+                  'Other',
+                ]}
+                value={listing.bodyStyle}
+              />
+              <DraftSelect
+                label="Condition"
+                onChange={(value) =>
+                  setListing((current) => ({
+                    ...current,
+                    vehicleCondition: value,
+                  }))
+                }
+                options={['Excellent', 'Good', 'Fair', 'Needs work']}
+                value={listing.vehicleCondition}
+              />
+              <DraftSelect
+                label="Title status"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, titleStatus: value }))
+                }
+                options={['Clean', 'Rebuilt', 'Salvage', 'Other']}
+                value={listing.titleStatus}
+              />
+              <DraftSelect
+                label="Lien status"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, lienStatus: value }))
+                }
+                options={['No lien', 'Lien disclosed']}
+                value={listing.lienStatus}
+              />
             </div>
             <VehicleConditionFields
               answers={conditionAnswers}
@@ -414,15 +590,50 @@ export function ListingWizard() {
               Tell the owner’s story.
             </h2>
             <div className="mt-7 grid gap-5 sm:grid-cols-2">
-              <SelectField label="Drivetrain" value="AWD" />
-              <SelectField label="Fuel type" value="Gasoline" />
-              <SelectField label="Transmission" value="Automatic" />
+              <DraftSelect
+                label="Drivetrain"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, drivetrain: value }))
+                }
+                options={['AWD', 'FWD', 'RWD', '4WD', 'Other']}
+                value={listing.drivetrain}
+              />
+              <DraftSelect
+                label="Fuel type"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, fuelType: value }))
+                }
+                options={[
+                  'Gasoline',
+                  'Diesel',
+                  'Hybrid',
+                  'Plug-in hybrid',
+                  'Electric',
+                  'Other',
+                ]}
+                value={listing.fuelType}
+              />
+              <DraftSelect
+                label="Transmission"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, transmission: value }))
+                }
+                options={['Automatic', 'Manual', 'CVT', 'Other']}
+                value={listing.transmission}
+              />
             </div>
             <label className="mt-5 block text-sm font-bold text-navy">
               Seller description
               <Textarea
                 className="mt-2 min-h-36 rounded-none"
-                defaultValue="Well-kept everyday vehicle with regular maintenance. Selling because our household needs changed."
+                onChange={(event) =>
+                  setListing((current) => ({
+                    ...current,
+                    description: event.target.value,
+                  }))
+                }
+                placeholder="Describe the vehicle's history, maintenance, and reason for selling."
+                value={listing.description}
               />
             </label>
             <VehicleFeatureFields
@@ -760,9 +971,9 @@ export function ListingWizard() {
                     <Button
                       className="mt-4 rounded-none bg-navy font-black uppercase"
                       nativeButton={false}
-                      render={<a href="/account/verification" />}
+                      render={<a href="/dashboard#listings" />}
                     >
-                      Continue to verification <ArrowRight />
+                      View listing status <ArrowRight />
                     </Button>
                   </div>
                 </div>
@@ -795,25 +1006,56 @@ export function ListingWizard() {
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function DraftField({
+  label,
+  onChange,
+  placeholder,
+  type = 'text',
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?: 'text' | 'number';
+  value: string;
+}) {
   return (
     <label className="text-sm font-bold text-navy">
       {label}
-      <Input className="mt-2 h-11 rounded-none" defaultValue={value} />
+      <Input
+        className="mt-2 h-11 rounded-none"
+        min={type === 'number' ? 0 : undefined}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        type={type}
+        value={value}
+      />
     </label>
   );
 }
 
-function SelectField({ label, value }: { label: string; value: string }) {
+function DraftSelect({
+  label,
+  onChange,
+  options,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  options: string[];
+  value: string;
+}) {
   return (
     <label className="text-sm font-bold text-navy">
       {label}
       <select
         className="mt-2 h-11 w-full border border-slate-300 bg-white px-3 text-sm"
-        defaultValue={value}
+        onChange={(event) => onChange(event.target.value)}
+        value={value}
       >
-        <option>{value}</option>
-        <option>Other</option>
+        {options.map((option) => (
+          <option key={option}>{option}</option>
+        ))}
       </select>
     </label>
   );
