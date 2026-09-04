@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { ContactSellerButton } from '@/components/contact-seller-button';
+import { PublishedListingDisclosures } from '@/components/published-listing-disclosures';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Badge } from '@/components/ui/badge';
@@ -131,12 +132,15 @@ export default function PublishedVehiclePage() {
                 </h2>
                 <div className="mt-5 grid border-2 border-navy bg-white sm:grid-cols-2">
                   {[
+                    ['VIN', listing.vin, ShieldCheck],
                     ['Mileage', `${formatMileage(listing.mileage)} mi`, Gauge],
                     ['Body style', listing.body_style, Car],
                     ['Drivetrain', listing.drivetrain, Car],
                     ['Transmission', listing.transmission, Car],
                     ['Fuel', listing.fuel_type, Car],
                     ['Title', listing.title_status, ShieldCheck],
+                    ['Lien status', listing.lien_status, ShieldCheck],
+                    ['Overall condition', listing.vehicle_condition, Car],
                   ].map(([label, value, Icon], index) => (
                     <div
                       className={`flex gap-4 border-slate-300 p-5 ${index > 1 ? 'border-t' : ''} ${index % 2 ? 'sm:border-l' : ''}`}
@@ -160,20 +164,10 @@ export default function PublishedVehiclePage() {
                 <p className="mt-4 whitespace-pre-line leading-8 text-slate-700">
                   {listing.description}
                 </p>
-                {listing.features.length > 0 && (
-                  <div className="mt-9 border-2 border-navy bg-white p-6">
-                    <h2 className="text-2xl font-black uppercase text-navy">
-                      Installed features
-                    </h2>
-                    <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                      {listing.features.map((feature) => (
-                        <li className="font-bold text-slate-700" key={feature}>
-                          • {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <PublishedListingDisclosures
+                  answers={listing.condition_answers}
+                  features={listing.features}
+                />
                 {listing.carfax_url && (
                   <a
                     className="mt-7 inline-flex items-center gap-2 border-2 border-navy bg-white px-4 py-3 font-black uppercase text-navy"

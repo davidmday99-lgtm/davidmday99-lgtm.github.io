@@ -4,6 +4,7 @@ export type VehicleListingRow = {
   id: string;
   user_id: string;
   slug: string;
+  vin: string;
   year: number;
   make: string;
   model: string;
