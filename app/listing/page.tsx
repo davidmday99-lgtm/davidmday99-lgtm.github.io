@@ -7,14 +7,13 @@ import {
   ExternalLink,
   Gauge,
   MapPin,
-  MessageSquare,
   ShieldCheck,
 } from 'lucide-react';
 
+import { ContactSellerButton } from '@/components/contact-seller-button';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { formatMileage, formatPrice } from '@/lib/demo-data';
 import {
   getSupabaseBrowserClient,
@@ -117,9 +116,11 @@ export default function PublishedVehiclePage() {
                 <p className="mt-3 flex items-center gap-2 text-sm text-slate-600">
                   <MapPin className="size-4" /> Near {listing.location_public}
                 </p>
-                <Button className="mt-7 h-12 w-full rounded-none bg-teal-500 font-black uppercase text-navy">
-                  <MessageSquare /> Contact verified seller
-                </Button>
+                <ContactSellerButton
+                  listingId={listing.id}
+                  listingSlug={listing.slug}
+                  sellerId={listing.user_id}
+                />
               </aside>
             </div>
 

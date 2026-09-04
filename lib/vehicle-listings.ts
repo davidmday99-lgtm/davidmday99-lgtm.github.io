@@ -2,6 +2,7 @@ import type { DemoListing } from '@/lib/demo-data';
 
 export type VehicleListingRow = {
   id: string;
+  user_id: string;
   slug: string;
   year: number;
   make: string;
