@@ -231,7 +231,7 @@ export function SiteHeader() {
             >
               Sell Your
               <br />
-              Car
+              Vehicle
             </a>
             <a
               className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
