@@ -487,39 +487,30 @@ export function ListingWizard() {
               Choose a category first. We will tailor the listing details and
               ownership check to that type of vehicle.
             </p>
-            <fieldset className="mt-7">
-              <legend className="text-sm font-bold text-navy">
-                Vehicle category
-              </legend>
-              <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <label className="mt-7 block max-w-lg text-sm font-bold text-navy">
+              Vehicle type
+              <select
+                className="mt-2 h-12 w-full rounded-none border border-slate-300 bg-white px-3 text-base text-navy focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-200"
+                name="vehicle-type"
+                onChange={(event) => {
+                  const selectedType = getVehicleType(event.target.value);
+                  setListing((current) => ({
+                    ...current,
+                    vehicleType: selectedType.value,
+                    bodyStyle: selectedType.styles[0],
+                    ...selectedType.defaults,
+                  }));
+                  setVin('');
+                }}
+                value={listing.vehicleType}
+              >
                 {vehicleTypes.map((type) => (
-                  <label
-                    className={`cursor-pointer border-2 p-4 transition ${listing.vehicleType === type.value ? 'border-navy bg-teal-100 shadow-[4px_4px_0_#071c2c]' : 'border-slate-300 bg-white hover:border-teal-500'}`}
-                    key={type.value}
-                  >
-                    <input
-                      checked={listing.vehicleType === type.value}
-                      className="mr-2"
-                      name="vehicle-type"
-                      onChange={() => {
-                        setListing((current) => ({
-                          ...current,
-                          vehicleType: type.value,
-                          bodyStyle: type.styles[0],
-                          ...type.defaults,
-                        }));
-                        setVin('');
-                      }}
-                      type="radio"
-                      value={type.value}
-                    />
-                    <span className="font-black uppercase text-navy">
-                      {type.label}
-                    </span>
-                  </label>
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
                 ))}
-              </div>
-            </fieldset>
+              </select>
+            </label>
             <label className="mt-7 block max-w-lg text-sm font-bold text-navy">
               {vehicleType.identifierLabel}
               <Input
