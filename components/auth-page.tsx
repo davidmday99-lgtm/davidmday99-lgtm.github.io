@@ -86,8 +86,8 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
     <>
       <SiteHeader />
       <main className="grid min-h-[calc(100vh-5rem)] bg-[#f8f4e9] lg:grid-cols-2">
-        <section className="flex items-center px-5 py-14 sm:px-10 lg:px-[max(3rem,calc((100vw-80rem)/2))]">
-          <div className="w-full max-w-md">
+        <section className="flex min-w-0 items-center justify-center px-5 py-14 sm:px-10 lg:px-12 xl:px-16">
+          <div className="w-full min-w-0 max-w-md">
             <p className="block-label">
               {signup ? 'Join the marketplace' : 'Welcome back'}
             </p>
