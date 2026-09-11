@@ -19,13 +19,14 @@ export function PublishedListingDisclosures({
   answers: Record<string, string>;
   features: string[];
 }) {
-  const categorizedFeatures = featureGroups
-    .map((group) => ({
-      category: group.category,
-      items: group.features.filter((feature) => features.includes(feature)),
-    }))
-    .filter((group) => group.items.length > 0);
-  const knownFeatures = new Set(
+  const categorizedFeatures: Array<{ category: string; items: string[] }> =
+    featureGroups
+      .map((group) => ({
+        category: group.category,
+        items: group.features.filter((feature) => features.includes(feature)),
+      }))
+      .filter((group) => group.items.length > 0);
+  const knownFeatures = new Set<string>(
     featureGroups.flatMap((group) => [...group.features]),
   );
   const uncategorizedFeatures = features.filter(
@@ -137,7 +138,8 @@ export function PublishedListingDisclosures({
             <p className="mt-2 text-sm leading-6 text-slate-600">
               OwnerOnly reviewed the seller’s identity and ownership document
               before publication. Buyers must still inspect the vehicle, verify
-              the VIN, and review the original title before completing a sale.
+              the vehicle identifier, and review the original ownership document
+              before completing a sale.
             </p>
           </div>
         </div>

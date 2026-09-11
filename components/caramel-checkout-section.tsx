@@ -27,7 +27,7 @@ export function CaramelCheckoutSection() {
     <section className="border-y-[3px] border-navy bg-[#f6b82b] px-5 py-20 text-navy sm:px-8 lg:py-24">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_.95fr] lg:items-start">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.23em] text-navy/65">
+          <p className="text-lg font-black uppercase tracking-[0.12em] text-navy/75 sm:text-xl">
             Optional third-party checkout
           </p>
           <h2 className="mt-4 max-w-3xl text-4xl font-black uppercase leading-[.95] tracking-[-0.055em] sm:text-6xl">

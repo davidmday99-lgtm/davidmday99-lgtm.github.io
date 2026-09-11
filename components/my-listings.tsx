@@ -11,6 +11,7 @@ import {
   hasSupabaseConfig,
 } from '@/lib/supabase-browser';
 import type { VehicleListingRow } from '@/lib/vehicle-listings';
+import { getVehicleType } from '@/lib/vehicle-types';
 
 export function MyListings() {
   const [listings, setListings] = useState<VehicleListingRow[]>([]);
@@ -154,13 +155,17 @@ export function MyListings() {
                   >
                     {listing.status.replaceAll('_', ' ')}
                   </span>
+                  <span className="border border-navy/30 bg-slate-100 px-2 py-1 text-xs font-black uppercase text-navy">
+                    {getVehicleType(listing.vehicle_type).label}
+                  </span>
                 </div>
                 <h3 className="mt-3 text-xl font-black uppercase text-navy">
                   {listing.year} {listing.make} {listing.model}
                   {listing.trim ? ` ${listing.trim}` : ''}
                 </h3>
                 <p className="mt-1 text-sm text-slate-600">
-                  {formatMileage(listing.mileage)} miles ·{' '}
+                  {formatMileage(listing.mileage)}{' '}
+                  {getVehicleType(listing.vehicle_type).usageUnit} ·{' '}
                   {formatPrice(listing.price)} · Near {listing.location_public}
                 </p>
                 {editingId === listing.id && (

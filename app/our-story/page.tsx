@@ -59,7 +59,7 @@ export default function OurStoryPage() {
                   nativeButton={false}
                   render={<a href="/sell" />}
                 >
-                  Sell your car <ArrowRight />
+                  Sell your vehicle <ArrowRight />
                 </Button>
                 <Button
                   className="h-12 rounded-none border-2 border-[#16C7BE] bg-transparent px-6 font-black uppercase text-white hover:bg-[#16C7BE] hover:text-[#061C2B]"

@@ -3,9 +3,11 @@ import { Heart, MapPin, ShieldCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DemoListing, formatMileage, formatPrice } from '@/lib/demo-data';
+import { getVehicleType } from '@/lib/vehicle-types';
 
 export function ListingCard({ listing }: { listing: DemoListing }) {
   const href = listing.href ?? `/cars/${listing.slug}`;
+  const vehicleType = getVehicleType(listing.vehicleType);
   return (
     <article className="chunky-card group overflow-hidden bg-white transition hover:-translate-y-1 hover:shadow-[10px_10px_0_#16b9ad]">
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
@@ -18,6 +20,9 @@ export function ListingCard({ listing }: { listing: DemoListing }) {
         </a>
         <Badge className="absolute left-3 top-3 rounded-none border border-navy bg-white text-navy shadow-sm">
           <ShieldCheck /> Owner verified
+        </Badge>
+        <Badge className="absolute bottom-3 right-3 rounded-none border border-navy bg-[#f6b82b] text-navy">
+          {vehicleType.label}
         </Badge>
         <Button
           aria-label="Save listing"
@@ -37,7 +42,8 @@ export function ListingCard({ listing }: { listing: DemoListing }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-sm text-slate-500">
-              {listing.year} · {formatMileage(listing.mileage)} miles
+              {listing.year} · {formatMileage(listing.mileage)}{' '}
+              {vehicleType.usageUnit}
             </p>
             <h2 className="mt-1 font-bold tracking-tight text-navy">
               <a href={href}>{listing.name}</a>

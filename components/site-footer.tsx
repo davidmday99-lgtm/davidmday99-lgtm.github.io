@@ -24,7 +24,7 @@ export function SiteFooter() {
             ['Buy from owners', '/search'],
             ['Private seller auctions', '/private-seller-auctions'],
             ['Public auto auctions', '/public-auto-auctions'],
-            ['Sell your car', '/sell'],
+            ['Sell your vehicle', '/sell'],
             ['Value checker', '/value-checker'],
             ['How it works', '/how-it-works'],
             ['Financing guide', '/blog/credit-union-auto-loans-and-financing'],

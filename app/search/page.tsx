@@ -11,8 +11,11 @@ import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { VehicleCategoryLinks } from '@/components/vehicle-category-links';
+import { vehicleTypes } from '@/lib/vehicle-types';
 
 const filters = [
+  ['Vehicle category', 'All vehicles'],
   ['Distance', '50 miles'],
   ['Price', 'Any price'],
   ['Year', 'Any year'],
@@ -35,7 +38,7 @@ const trustSignals = [
   {
     icon: FileCheck2,
     title: 'Ownership reviewed',
-    detail: 'Name and VIN compared',
+    detail: 'Name and identifier compared',
   },
   {
     icon: MessageCircle,
@@ -75,7 +78,7 @@ export default function SearchPage() {
               nativeButton={false}
               render={<a href="/sell" />}
             >
-              List your car <ArrowRight />
+              List your vehicle <ArrowRight />
             </Button>
           </div>
         </aside>
@@ -90,7 +93,7 @@ export default function SearchPage() {
                   src="/owneronly-hero-logo.png"
                 />
                 <h1 className="owner-hero-title mt-6 max-w-2xl text-5xl leading-[0.92] sm:text-7xl lg:text-[5.7rem]">
-                  Find your next car—
+                  Find your next vehicle—
                   <span className="block text-[#f6b82b]">
                     from a real owner.
                   </span>
@@ -136,9 +139,24 @@ export default function SearchPage() {
               </nav>
               <form
                 action="/search"
-                className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_180px_200px_160px] lg:p-5"
+                className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[170px_1fr_160px_190px_170px] lg:p-5"
                 aria-label="Search owner listings"
               >
+                <label>
+                  <span className="sr-only">Vehicle category</span>
+                  <select
+                    className="h-12 w-full rounded-[2px] border border-slate-300 bg-white px-3 text-sm text-slate-700"
+                    defaultValue=""
+                    name="type"
+                  >
+                    <option value="">All vehicles</option>
+                    {vehicleTypes.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <label>
                   <span className="sr-only">Make, model or keyword</span>
                   <Input
@@ -173,7 +191,7 @@ export default function SearchPage() {
                   className="h-12 rounded-[2px] bg-[#f6b82b] font-black uppercase text-navy hover:bg-[#ffd263]"
                   type="submit"
                 >
-                  Find cars
+                  Find vehicles
                 </Button>
               </form>
             </div>
@@ -196,6 +214,11 @@ export default function SearchPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+        <section className="border-b-2 border-navy bg-[#f6b82b] px-5 py-8 sm:px-8">
+          <div className="mx-auto max-w-7xl">
+            <VehicleCategoryLinks compact />
           </div>
         </section>
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[250px_1fr]">

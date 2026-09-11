@@ -13,7 +13,9 @@ import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { VehicleCategoryLinks } from '@/components/vehicle-category-links';
 import { SUPPORT_URL } from '@/lib/support';
+import { vehicleTypes } from '@/lib/vehicle-types';
 
 const checks = [
   {
@@ -28,7 +30,7 @@ const checks = [
     number: '02',
     icon: FileCheck2,
     title: 'Ownership reviewed',
-    body: 'Seller legal name and VIN are compared with current title or registration documents.',
+    body: 'Seller legal name and vehicle identifier are compared with current ownership or registration documents.',
     limit: 'Does not confirm mechanical condition.',
     color: 'bg-[#96d9ed]',
   },
@@ -51,7 +53,7 @@ const trustSignals = [
   {
     icon: FileCheck2,
     title: 'Ownership reviewed',
-    detail: 'Name and VIN compared',
+    detail: 'Name and identifier compared',
   },
   {
     icon: MessageCircle,
@@ -92,7 +94,7 @@ export default function Home() {
                 nativeButton={false}
                 render={<a href="/sell" />}
               >
-                List your car <ArrowRight />
+                List your vehicle <ArrowRight />
               </Button>
               <Button
                 className="h-12 w-fit rounded-none border-2 border-[#061C2B] bg-transparent px-5 text-xs font-black uppercase text-[#061C2B] hover:bg-[#FFF8EA]"
@@ -123,7 +125,7 @@ export default function Home() {
                   src="/owneronly-hero-logo.png"
                 />
                 <h1 className="owner-hero-title mt-6 max-w-2xl text-5xl leading-[0.92] sm:text-7xl lg:text-[5.7rem]">
-                  Find your next car—
+                  Find your next vehicle—
                   <span className="block text-[#f6b82b]">
                     from a real owner.
                   </span>
@@ -168,9 +170,24 @@ export default function Home() {
               </nav>
               <form
                 action="/search"
-                className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_180px_200px_160px] lg:p-5"
+                className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[170px_1fr_160px_190px_170px] lg:p-5"
                 aria-label="Search owner listings"
               >
+                <label>
+                  <span className="sr-only">Vehicle category</span>
+                  <select
+                    className="h-12 w-full rounded-[2px] border border-slate-300 bg-white px-3 text-sm text-slate-700"
+                    defaultValue=""
+                    name="type"
+                  >
+                    <option value="">All vehicles</option>
+                    {vehicleTypes.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <label>
                   <span className="sr-only">Make, model or keyword</span>
                   <Input
@@ -205,7 +222,7 @@ export default function Home() {
                   className="h-12 rounded-[2px] bg-[#f6b82b] font-black uppercase text-navy hover:bg-[#ffd263]"
                   type="submit"
                 >
-                  Find cars
+                  Find vehicles
                 </Button>
               </form>
             </div>
@@ -227,6 +244,27 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b-2 border-navy bg-[#f6b82b] px-5 py-12 sm:px-8 lg:py-16">
+          <div className="mx-auto max-w-7xl">
+            <p className="text-xs font-black uppercase tracking-[0.23em] text-teal-800">
+              More than cars
+            </p>
+            <div className="mt-3 grid gap-5 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
+              <h2 className="text-4xl font-black uppercase leading-[.95] tracking-[-0.055em] text-navy sm:text-5xl">
+                Private-owner vehicles of every kind.
+              </h2>
+              <p className="max-w-2xl text-base font-bold leading-7 text-navy/75">
+                Browse or list cars, motorcycles, boats, ATVs and UTVs, RVs and
+                campers, and trailers—all under the same identity and ownership
+                review standards.
+              </p>
+            </div>
+            <div className="mt-8">
+              <VehicleCategoryLinks compact />
             </div>
           </div>
         </section>
@@ -299,7 +337,7 @@ export default function Home() {
                 className="flex items-center gap-2 font-black uppercase tracking-wide text-navy"
                 href="/search"
               >
-                View all cars <ArrowRight className="size-5" />
+                View all vehicles <ArrowRight className="size-5" />
               </a>
             </div>
             <p className="mt-5 text-sm text-slate-600">

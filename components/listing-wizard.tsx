@@ -32,9 +32,15 @@ import {
   getSupabaseBrowserClient,
   hasSupabaseConfig,
 } from '@/lib/supabase-browser';
+import {
+  getVehicleType,
+  isValidVehicleIdentifier,
+  type VehicleType,
+  vehicleTypes,
+} from '@/lib/vehicle-types';
 
 const steps = [
-  'VIN & vehicle',
+  'Type & ID',
   'Price & condition',
   'Features & story',
   'Photos',
@@ -84,7 +90,8 @@ const ownershipSubmissionErrors: Record<string, string> = {
   screening_consent_required:
     'Accept the automated-screening disclosure before submitting.',
   unsupported_document_type: 'Choose a valid PDF, JPG, PNG, or WebP document.',
-  valid_vin_required: 'Enter a valid 17-character VIN before submitting.',
+  valid_vin_required:
+    'Enter a valid VIN, HIN, or manufacturer serial number before submitting.',
   vehicle_photo_upload_failed:
     'The vehicle photos could not be saved. Please try again.',
   vehicle_photos_required: 'Add at least one valid vehicle photo.',
@@ -97,6 +104,7 @@ type SelectedPhoto = {
 };
 
 type ListingDraft = {
+  vehicleType: VehicleType;
   year: string;
   make: string;
   model: string;
@@ -115,6 +123,7 @@ type ListingDraft = {
 };
 
 const initialListingDraft: ListingDraft = {
+  vehicleType: 'car',
   year: '',
   make: '',
   model: '',
@@ -156,7 +165,8 @@ export function ListingWizard() {
   const photoUrls = useRef(new Set<string>());
   const carfaxValidation = validateSellerCarfaxUrl(carfaxUrl);
   const normalizedVin = vin.trim().toUpperCase();
-  const validVin = /^[A-HJ-NPR-Z0-9]{17}$/.test(normalizedVin);
+  const vehicleType = getVehicleType(listing.vehicleType);
+  const validVin = isValidVehicleIdentifier(listing.vehicleType, normalizedVin);
   const numericYear = Number(listing.year);
   const numericMileage = Number(listing.mileage);
   const numericPrice = Number(listing.price);
@@ -175,7 +185,7 @@ export function ListingWizard() {
         listing.mileage.trim().length > 0 &&
         Number.isInteger(numericMileage) &&
         numericMileage >= 0,
-      label: 'mileage',
+      label: vehicleType.usageLabel.toLowerCase(),
     },
     {
       complete:
@@ -194,8 +204,7 @@ export function ListingWizard() {
     .map(({ label }) => label);
   const vehicleFactsComplete = missingVehicleFacts.length === 0;
   const descriptionComplete = listing.description.trim().length >= 10;
-  const listingDetailsComplete =
-    vehicleFactsComplete && descriptionComplete;
+  const listingDetailsComplete = vehicleFactsComplete && descriptionComplete;
   const completedConditionCount = conditionQuestionGroups.reduce(
     (total, group) =>
       total +
@@ -382,7 +391,9 @@ export function ListingWizard() {
 
   const reviewItems = [
     {
-      label: validVin ? 'VIN ready for review' : 'Valid VIN still needed',
+      label: validVin
+        ? `${vehicleType.identifierLabel} ready for review`
+        : `Valid ${vehicleType.identifierLabel.toLowerCase()} still needed`,
       ready: validVin,
     },
     {
@@ -470,22 +481,60 @@ export function ListingWizard() {
         {step === 0 && (
           <div>
             <h2 className="mt-3 text-3xl font-black uppercase tracking-tight text-navy">
-              Start with the VIN.
+              What are you selling?
             </h2>
             <p className="mt-2 text-slate-600">
-              NHTSA vPIC will decode basic vehicle information. You can correct
-              non-authoritative descriptive fields later.
+              Choose a category first. We will tailor the listing details and
+              ownership check to that type of vehicle.
             </p>
+            <fieldset className="mt-7">
+              <legend className="text-sm font-bold text-navy">
+                Vehicle category
+              </legend>
+              <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {vehicleTypes.map((type) => (
+                  <label
+                    className={`cursor-pointer border-2 p-4 transition ${listing.vehicleType === type.value ? 'border-navy bg-teal-100 shadow-[4px_4px_0_#071c2c]' : 'border-slate-300 bg-white hover:border-teal-500'}`}
+                    key={type.value}
+                  >
+                    <input
+                      checked={listing.vehicleType === type.value}
+                      className="mr-2"
+                      name="vehicle-type"
+                      onChange={() => {
+                        setListing((current) => ({
+                          ...current,
+                          vehicleType: type.value,
+                          bodyStyle: type.styles[0],
+                          ...type.defaults,
+                        }));
+                        setVin('');
+                      }}
+                      type="radio"
+                      value={type.value}
+                    />
+                    <span className="font-black uppercase text-navy">
+                      {type.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
             <label className="mt-7 block max-w-lg text-sm font-bold text-navy">
-              17-character VIN
+              {vehicleType.identifierLabel}
               <Input
                 className="mt-2 h-12 rounded-none font-mono uppercase"
-                maxLength={17}
+                maxLength={20}
                 onChange={(event) => setVin(event.target.value)}
-                placeholder="Enter the vehicle VIN"
+                placeholder={vehicleType.identifierPlaceholder}
                 value={vin}
               />
             </label>
+            <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-500">
+              This identifier is compared with the private ownership document
+              before publication. Cars and most road vehicles use a VIN; boats
+              use a hull identification number (HIN).
+            </p>
             <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <DraftField
                 label="Year"
@@ -527,7 +576,7 @@ export function ListingWizard() {
             </h2>
             <div className="mt-7 grid gap-5 sm:grid-cols-2">
               <DraftField
-                label="Mileage"
+                label={vehicleType.usageLabel}
                 onChange={(value) =>
                   setListing((current) => ({ ...current, mileage: value }))
                 }
@@ -551,21 +600,11 @@ export function ListingWizard() {
                 value={listing.location}
               />
               <DraftSelect
-                label="Body style"
+                label="Type / style"
                 onChange={(value) =>
                   setListing((current) => ({ ...current, bodyStyle: value }))
                 }
-                options={[
-                  'SUV',
-                  'Sedan',
-                  'Hatchback',
-                  'Pickup',
-                  'Coupe',
-                  'Convertible',
-                  'Wagon',
-                  'Van',
-                  'Other',
-                ]}
+                options={[...vehicleType.styles]}
                 value={listing.bodyStyle}
               />
               <DraftSelect
@@ -624,7 +663,17 @@ export function ListingWizard() {
                 onChange={(value) =>
                   setListing((current) => ({ ...current, drivetrain: value }))
                 }
-                options={['AWD', 'FWD', 'RWD', '4WD', 'Other']}
+                options={[
+                  'AWD',
+                  'FWD',
+                  'RWD',
+                  '4WD',
+                  'Chain',
+                  'Belt',
+                  'Shaft',
+                  'Other',
+                  'Not applicable',
+                ]}
                 value={listing.drivetrain}
               />
               <DraftSelect
@@ -639,6 +688,7 @@ export function ListingWizard() {
                   'Plug-in hybrid',
                   'Electric',
                   'Other',
+                  'Not applicable',
                 ]}
                 value={listing.fuelType}
               />
@@ -647,7 +697,13 @@ export function ListingWizard() {
                 onChange={(value) =>
                   setListing((current) => ({ ...current, transmission: value }))
                 }
-                options={['Automatic', 'Manual', 'CVT', 'Other']}
+                options={[
+                  'Automatic',
+                  'Manual',
+                  'CVT',
+                  'Other',
+                  'Not applicable',
+                ]}
                 value={listing.transmission}
               />
             </div>
@@ -828,8 +884,8 @@ export function ListingWizard() {
             <p className="mt-2 max-w-2xl leading-7 text-slate-600">
               Upload a current title or registration to a private,
               access-controlled bucket. Review compares only the verified legal
-              name and VIN. Documents are automatically removed after a
-              configurable retention period.
+              name and {vehicleType.identifierLabel.toLowerCase()}. Documents
+              are automatically removed after a configurable retention period.
             </p>
             <input
               accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"

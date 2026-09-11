@@ -1,8 +1,10 @@
 import type { DemoListing } from '@/lib/demo-data';
+import type { VehicleType } from '@/lib/vehicle-types';
 
 export type VehicleListingRow = {
   id: string;
   user_id: string;
+  vehicle_type?: VehicleType;
   slug: string;
   vin: string;
   year: number;
@@ -31,6 +33,7 @@ export type VehicleListingRow = {
 
 export function toListingCard(row: VehicleListingRow): DemoListing {
   return {
+    vehicleType: row.vehicle_type ?? 'car',
     slug: row.slug,
     year: row.year,
     name: `${row.make} ${row.model}${row.trim ? ` ${row.trim}` : ''}`,

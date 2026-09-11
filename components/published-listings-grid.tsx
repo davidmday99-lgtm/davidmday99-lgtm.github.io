@@ -9,6 +9,7 @@ import {
   hasSupabaseConfig,
 } from '@/lib/supabase-browser';
 import { toListingCard, type VehicleListingRow } from '@/lib/vehicle-listings';
+import { getVehicleType, isVehicleType } from '@/lib/vehicle-types';
 
 export function PublishedListingsGrid({
   includeDemos = true,
@@ -17,8 +18,15 @@ export function PublishedListingsGrid({
 }) {
   const [liveListings, setLiveListings] = useState<DemoListing[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [selectedType, setSelectedType] = useState<string>();
 
   useEffect(() => {
+    const requestedType = new URLSearchParams(window.location.search).get(
+      'type',
+    );
+    queueMicrotask(() =>
+      setSelectedType(isVehicleType(requestedType) ? requestedType : undefined),
+    );
     if (!hasSupabaseConfig()) {
       queueMicrotask(() => setLoaded(true));
       return;
@@ -37,15 +45,24 @@ export function PublishedListingsGrid({
       });
   }, []);
 
-  const listings = includeDemos
+  const allListings = includeDemos
     ? [...liveListings, ...demoListings]
     : liveListings;
+  const listings = selectedType
+    ? allListings.filter(
+        (listing) => (listing.vehicleType ?? 'car') === selectedType,
+      )
+    : allListings;
 
   if (loaded && listings.length === 0) {
     return (
       <div className="border-2 border-dashed border-slate-400 bg-white/60 p-10 text-center">
         <h2 className="text-xl font-black uppercase text-navy">
-          No approved owner listings yet
+          No approved{' '}
+          {selectedType
+            ? getVehicleType(selectedType).label.toLowerCase()
+            : 'owner listings'}{' '}
+          yet
         </h2>
         <p className="mt-2 text-slate-600">
           Approved vehicles appear here automatically after human review.

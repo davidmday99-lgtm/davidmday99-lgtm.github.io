@@ -1,4 +1,5 @@
 export type DemoListing = {
+  vehicleType?: string;
   slug: string;
   year: number;
   name: string;
@@ -18,6 +19,7 @@ export type DemoListing = {
 
 export const demoListings: DemoListing[] = [
   {
+    vehicleType: 'car',
     slug: '2021-midsize-touring-crossover',
     year: 2021,
     name: 'Midsize Touring Crossover',
@@ -34,6 +36,7 @@ export const demoListings: DemoListing[] = [
     isDemo: true,
   },
   {
+    vehicleType: 'car',
     slug: '2018-city-hatchback',
     year: 2018,
     name: 'City Five-Door Hatchback',
@@ -50,6 +53,7 @@ export const demoListings: DemoListing[] = [
     isDemo: true,
   },
   {
+    vehicleType: 'car',
     slug: '2019-crew-cab-pickup',
     year: 2019,
     name: 'Crew Cab Everyday Pickup',

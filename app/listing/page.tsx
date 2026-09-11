@@ -21,6 +21,7 @@ import {
   hasSupabaseConfig,
 } from '@/lib/supabase-browser';
 import type { VehicleListingRow } from '@/lib/vehicle-listings';
+import { getVehicleType } from '@/lib/vehicle-types';
 
 export default function PublishedVehiclePage() {
   const [listing, setListing] = useState<VehicleListingRow>();
@@ -47,6 +48,7 @@ export default function PublishedVehiclePage() {
   const name = listing
     ? `${listing.make} ${listing.model}${listing.trim ? ` ${listing.trim}` : ''}`
     : '';
+  const vehicleType = getVehicleType(listing?.vehicle_type);
 
   return (
     <>
@@ -68,7 +70,7 @@ export default function PublishedVehiclePage() {
               className="mt-6 inline-block font-black text-teal-800 underline"
               href="/search"
             >
-              Browse approved cars
+              Browse approved vehicles
             </a>
           </div>
         ) : (
@@ -77,7 +79,7 @@ export default function PublishedVehiclePage() {
               className="text-sm font-bold text-slate-600 hover:underline"
               href="/search"
             >
-              ← Browse cars
+              ← Browse vehicles
             </a>
             <div className="mt-6 grid gap-7 lg:grid-cols-[1.5fr_.8fr]">
               <section>
@@ -105,8 +107,12 @@ export default function PublishedVehiclePage() {
                 <Badge className="rounded-none bg-teal-100 text-teal-800">
                   <ShieldCheck /> Identity and ownership reviewed
                 </Badge>
+                <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-teal-800">
+                  {vehicleType.label}
+                </p>
                 <p className="mt-6 text-sm font-bold text-slate-500">
-                  {listing.year} · {formatMileage(listing.mileage)} miles
+                  {listing.year} · {formatMileage(listing.mileage)}{' '}
+                  {vehicleType.usageUnit}
                 </p>
                 <h1 className="mt-1 text-3xl font-black uppercase leading-none text-navy">
                   {name}
@@ -132,9 +138,13 @@ export default function PublishedVehiclePage() {
                 </h2>
                 <div className="mt-5 grid border-2 border-navy bg-white sm:grid-cols-2">
                   {[
-                    ['VIN', listing.vin, ShieldCheck],
-                    ['Mileage', `${formatMileage(listing.mileage)} mi`, Gauge],
-                    ['Body style', listing.body_style, Car],
+                    [vehicleType.identifierLabel, listing.vin, ShieldCheck],
+                    [
+                      vehicleType.usageLabel,
+                      `${formatMileage(listing.mileage)} ${vehicleType.usageUnit}`,
+                      Gauge,
+                    ],
+                    ['Type / style', listing.body_style, Car],
                     ['Drivetrain', listing.drivetrain, Car],
                     ['Transmission', listing.transmission, Car],
                     ['Fuel', listing.fuel_type, Car],
@@ -186,9 +196,11 @@ export default function PublishedVehiclePage() {
                   Meet safely.
                 </h2>
                 <ul className="mt-5 space-y-3 text-sm leading-6 text-navy/85">
-                  <li>• Independently inspect the vehicle and title.</li>
                   <li>
-                    • Confirm the VIN on the vehicle matches the paperwork.
+                    • Independently inspect the vehicle and ownership document.
+                  </li>
+                  <li>
+                    • Confirm the vehicle identifier matches the paperwork.
                   </li>
                   <li>• Never use gift cards, crypto, or wire transfers.</li>
                 </ul>
