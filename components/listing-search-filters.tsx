@@ -230,7 +230,7 @@ export function ListingSearchFilters() {
         <h2 className="font-black uppercase text-navy">Filters</h2>
         <SlidersHorizontal className="size-5" />
       </div>
-      <form action="/search" className="mt-5 space-y-4">
+      <form action="/search#vehicle-results" className="mt-5 space-y-4">
         <FilterSelect
           label="Vehicle category"
           name="type"

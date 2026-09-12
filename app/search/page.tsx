@@ -124,7 +124,7 @@ export default function SearchPage() {
                 </a>
               </nav>
               <form
-                action="/search"
+                action="/search#vehicle-results"
                 className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[170px_1fr_160px_190px_170px] lg:p-5"
                 aria-label="Search owner listings"
               >
@@ -233,7 +233,7 @@ export default function SearchPage() {
         </section>
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[250px_1fr]">
           <ListingSearchFilters />
-          <section>
+          <section className="scroll-mt-28" id="vehicle-results">
             <div className="flex items-center justify-between border-b-[3px] border-navy pb-4">
               <div>
                 <p className="font-black uppercase tracking-wide text-navy">

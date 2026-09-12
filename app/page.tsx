@@ -169,7 +169,7 @@ export default function Home() {
                 </a>
               </nav>
               <form
-                action="/search"
+                action="/search#vehicle-results"
                 className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[170px_1fr_160px_190px_170px] lg:p-5"
                 aria-label="Search owner listings"
               >
