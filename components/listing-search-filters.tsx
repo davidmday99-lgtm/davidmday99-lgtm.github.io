@@ -6,6 +6,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { demoListings, type DemoListing } from '@/lib/demo-data';
 import {
+  catalogMakes,
+  catalogModels,
+  modelYearOptions,
+} from '@/lib/vehicle-catalog';
+import {
   emptyListingFilters,
   listingFiltersFromSearch,
   uniqueListingValues,
@@ -15,7 +20,7 @@ import {
   hasSupabaseConfig,
 } from '@/lib/supabase-browser';
 import { toListingCard, type VehicleListingRow } from '@/lib/vehicle-listings';
-import { vehicleTypes } from '@/lib/vehicle-types';
+import { getVehicleType, vehicleTypes } from '@/lib/vehicle-types';
 
 const priceOptions = [
   ['', 'Any price'],
@@ -37,18 +42,64 @@ const mileageOptions = [
   ['200000', '200,000 or less'],
 ];
 
+const hoursOptions = [
+  ['', 'Any hours'],
+  ['100', '100 hours or less'],
+  ['250', '250 hours or less'],
+  ['500', '500 hours or less'],
+  ['750', '750 hours or less'],
+  ['1000', '1,000 hours or less'],
+  ['2000', '2,000 hours or less'],
+];
+
+const transmissionOptions = [
+  '',
+  'Automatic',
+  'Manual',
+  'CVT',
+  'Dual-clutch',
+  'Other',
+  'Not applicable',
+];
+const fuelOptions = [
+  '',
+  'Gasoline',
+  'Diesel',
+  'Electric',
+  'Hybrid',
+  'Plug-in hybrid',
+  'Flex fuel',
+  'Other',
+  'Not applicable',
+];
+const drivetrainOptions = [
+  '',
+  'FWD',
+  'RWD',
+  'AWD',
+  '4WD',
+  'Shaft drive',
+  'Chain drive',
+  'Belt drive',
+  'Other',
+  'Not applicable',
+];
+const titleStatusOptions = ['', 'Clean', 'Rebuilt', 'Salvage', 'Other'];
+
 function FilterSelect({
   label,
   name,
   options,
   value,
   onChange,
+  disabled = false,
 }: {
   label: string;
   name: string;
   options: string[][];
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }) {
   return (
     <label className="block">
@@ -57,7 +108,8 @@ function FilterSelect({
       </span>
       <select
         aria-label={label}
-        className="mt-1 h-10 w-full border border-slate-300 bg-white px-3 text-sm"
+        className="mt-1 h-10 w-full border border-slate-300 bg-white px-3 text-sm disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+        disabled={disabled}
         name={name}
         onChange={(event) => onChange(event.target.value)}
         value={value}
@@ -74,6 +126,12 @@ function FilterSelect({
 
 function valueOptions(values: string[], allLabel: string) {
   return [['', allLabel], ...values.map((value) => [value, value])];
+}
+
+function mergedValues(...groups: string[][]) {
+  return [...new Set(groups.flat().filter(Boolean))].sort((left, right) =>
+    left.localeCompare(right),
+  );
 }
 
 export function ListingSearchFilters() {
@@ -107,15 +165,32 @@ export function ListingSearchFilters() {
   const modelListings = filters.make
     ? relevantListings.filter((listing) => listing.make === filters.make)
     : relevantListings;
-  const years = [...new Set(relevantListings.map((listing) => listing.year))]
-    .sort((left, right) => right - left)
-    .map(String);
+  const selectedType = filters.type ? getVehicleType(filters.type) : undefined;
+  const usesHours =
+    filters.type === 'boat' || filters.type === 'personal_watercraft';
+  const makes = mergedValues(
+    catalogMakes(filters.type),
+    uniqueListingValues(relevantListings, 'make'),
+  );
+  const models = filters.make
+    ? mergedValues(
+        catalogModels(filters.type, filters.make),
+        uniqueListingValues(modelListings, 'model'),
+      )
+    : [];
+  const styles = mergedValues(
+    selectedType
+      ? [...selectedType.styles]
+      : vehicleTypes.flatMap((type) => [...type.styles]),
+    uniqueListingValues(relevantListings, 'bodyStyle'),
+  );
 
   function updateFilter(name: keyof typeof filters, value: string) {
     setFilters((current) => ({
       ...current,
       [name]: value,
       ...(name === 'make' ? { model: '' } : {}),
+      ...(name === 'type' ? { make: '', model: '', bodyStyle: '' } : {}),
     }));
   }
 
@@ -159,33 +234,31 @@ export function ListingSearchFilters() {
           label="Year"
           name="year"
           onChange={(value) => updateFilter('year', value)}
-          options={valueOptions(years, 'Any year')}
+          options={valueOptions(modelYearOptions(), 'Any year')}
           value={filters.year}
         />
         <FilterSelect
-          label="Mileage / hours"
+          label={usesHours ? 'Engine hours' : 'Mileage'}
           name="mileage"
           onChange={(value) => updateFilter('mileage', value)}
-          options={mileageOptions}
+          options={usesHours ? hoursOptions : mileageOptions}
           value={filters.mileage}
         />
         <FilterSelect
           label="Make"
           name="make"
           onChange={(value) => updateFilter('make', value)}
-          options={valueOptions(
-            uniqueListingValues(relevantListings, 'make'),
-            'All makes',
-          )}
+          options={valueOptions(makes, 'All makes')}
           value={filters.make}
         />
         <FilterSelect
+          disabled={!filters.make}
           label="Model"
           name="model"
           onChange={(value) => updateFilter('model', value)}
           options={valueOptions(
-            uniqueListingValues(modelListings, 'model'),
-            'All models',
+            models,
+            filters.make ? 'All models' : 'Choose a make first',
           )}
           value={filters.model}
         />
@@ -193,50 +266,35 @@ export function ListingSearchFilters() {
           label="Body style"
           name="bodyStyle"
           onChange={(value) => updateFilter('bodyStyle', value)}
-          options={valueOptions(
-            uniqueListingValues(relevantListings, 'bodyStyle'),
-            'All styles',
-          )}
+          options={valueOptions(styles, 'All styles')}
           value={filters.bodyStyle}
         />
         <FilterSelect
           label="Transmission"
           name="transmission"
           onChange={(value) => updateFilter('transmission', value)}
-          options={valueOptions(
-            uniqueListingValues(relevantListings, 'transmission'),
-            'Any transmission',
-          )}
+          options={valueOptions(transmissionOptions.slice(1), 'Any transmission')}
           value={filters.transmission}
         />
         <FilterSelect
           label="Fuel type"
           name="fuel"
           onChange={(value) => updateFilter('fuel', value)}
-          options={valueOptions(
-            uniqueListingValues(relevantListings, 'fuel'),
-            'Any fuel',
-          )}
+          options={valueOptions(fuelOptions.slice(1), 'Any fuel')}
           value={filters.fuel}
         />
         <FilterSelect
           label="Drivetrain"
           name="drivetrain"
           onChange={(value) => updateFilter('drivetrain', value)}
-          options={valueOptions(
-            uniqueListingValues(relevantListings, 'drivetrain'),
-            'Any drivetrain',
-          )}
+          options={valueOptions(drivetrainOptions.slice(1), 'Any drivetrain')}
           value={filters.drivetrain}
         />
         <FilterSelect
           label="Title status"
           name="titleStatus"
           onChange={(value) => updateFilter('titleStatus', value)}
-          options={valueOptions(
-            uniqueListingValues(relevantListings, 'titleStatus'),
-            'Any title status',
-          )}
+          options={valueOptions(titleStatusOptions.slice(1), 'Any title status')}
           value={filters.titleStatus}
         />
         <Button

@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CARFAX_REPORTS_URL, validateSellerCarfaxUrl } from '@/lib/carfax';
+import { catalogMakes, catalogModels } from '@/lib/vehicle-catalog';
 import {
   conditionQuestionCount,
   conditionQuestionGroups,
@@ -166,6 +167,8 @@ export function ListingWizard() {
   const carfaxValidation = validateSellerCarfaxUrl(carfaxUrl);
   const normalizedVin = vin.trim().toUpperCase();
   const vehicleType = getVehicleType(listing.vehicleType);
+  const makeSuggestions = catalogMakes(listing.vehicleType);
+  const modelSuggestions = catalogModels(listing.vehicleType, listing.make);
   const validVin = isValidVehicleIdentifier(listing.vehicleType, normalizedVin);
   const numericYear = Number(listing.year);
   const numericMileage = Number(listing.mileage);
@@ -497,6 +500,8 @@ export function ListingWizard() {
                   setListing((current) => ({
                     ...current,
                     vehicleType: selectedType.value,
+                    make: '',
+                    model: '',
                     bodyStyle: selectedType.styles[0],
                     ...selectedType.defaults,
                   }));
@@ -536,18 +541,29 @@ export function ListingWizard() {
                 type="number"
                 value={listing.year}
               />
-              <DraftField
+              <DraftSuggestionField
+                id="listing-make"
                 label="Make"
                 onChange={(value) =>
-                  setListing((current) => ({ ...current, make: value }))
+                  setListing((current) => ({
+                    ...current,
+                    make: value,
+                    model: '',
+                  }))
                 }
+                suggestions={makeSuggestions}
                 value={listing.make}
               />
-              <DraftField
+              <DraftSuggestionField
+                id="listing-model"
                 label="Model"
                 onChange={(value) =>
                   setListing((current) => ({ ...current, model: value }))
                 }
+                placeholder={
+                  listing.make ? 'Choose or type a model' : 'Enter a make first'
+                }
+                suggestions={modelSuggestions}
                 value={listing.model}
               />
               <DraftField
@@ -1134,6 +1150,42 @@ function DraftSelect({
           <option key={option}>{option}</option>
         ))}
       </select>
+    </label>
+  );
+}
+
+function DraftSuggestionField({
+  id,
+  label,
+  onChange,
+  placeholder,
+  suggestions,
+  value,
+}: {
+  id: string;
+  label: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  suggestions: string[];
+  value: string;
+}) {
+  const listId = `${id}-suggestions`;
+  return (
+    <label className="text-sm font-bold text-navy" htmlFor={id}>
+      {label}
+      <Input
+        className="mt-2 h-11 rounded-none"
+        id={id}
+        list={listId}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder ?? `Choose or type a ${label.toLowerCase()}`}
+        value={value}
+      />
+      <datalist id={listId}>
+        {suggestions.map((suggestion) => (
+          <option key={suggestion} value={suggestion} />
+        ))}
+      </datalist>
     </label>
   );
 }
