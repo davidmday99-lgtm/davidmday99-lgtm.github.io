@@ -208,6 +208,14 @@ export function SiteHeader() {
           >
             <a
               className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
+              href="/sell"
+            >
+              Sell Your
+              <br />
+              Vehicle
+            </a>
+            <a
+              className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
               href="/search"
             >
               Buy From
@@ -237,14 +245,6 @@ export function SiteHeader() {
               Public Auto
               <br />
               Auctions
-            </a>
-            <a
-              className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
-              href="/sell"
-            >
-              Sell Your
-              <br />
-              Vehicle
             </a>
             <a
               className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
@@ -322,11 +322,11 @@ export function SiteHeader() {
           >
             <div className="mx-auto grid max-w-7xl gap-2 sm:grid-cols-2">
               {[
+                ['Sell your vehicle', '/sell'],
                 ['Buy from owners', '/search'],
                 ['Wanted vehicle ads', '/wanted'],
                 ['Private seller auctions', '/private-seller-auctions'],
                 ['Public auto auctions', '/public-auto-auctions'],
-                ['Sell your vehicle', '/sell'],
                 ['Value checker', '/value-checker'],
                 ['Trust & safety', '/trust-and-safety'],
                 ['Our story', '/our-story'],
