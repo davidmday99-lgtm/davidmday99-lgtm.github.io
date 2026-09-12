@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import {
   ArrowRight,
   BadgeCheck,
@@ -11,6 +12,13 @@ import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
 import { SUPPORT_URL } from '@/lib/support';
+
+export const metadata: Metadata = {
+  title: 'Our Story',
+  description:
+    'Why OwnerOnly Cars is building a direct vehicle marketplace for verified private owners and buyers—without dealer inventory or dealer markups.',
+  alternates: { canonical: '/our-story' },
+};
 
 const principles = [
   {
@@ -183,8 +191,9 @@ export default function OurStoryPage() {
               We are at the beginning.
             </p>
             <p className="mt-2 text-slate-700">
-              There are no live owner listings yet. Vehicles marked as demos are
-              fictional examples showing how the marketplace will work.
+              The marketplace is now open for verified private-owner listings.
+              Vehicles clearly marked as demos remain fictional examples that
+              show how additional marketplace features will work.
             </p>
           </div>
         </section>
