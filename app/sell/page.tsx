@@ -17,7 +17,7 @@ const listingSteps = [
     icon: BadgeCheck,
     title: 'Verify your identity',
     detail:
-      'Complete the secure identity check before entering vehicle details.',
+      'Complete the secure government-ID check through Stripe Identity before entering vehicle details.',
   },
   {
     icon: FileCheck2,
@@ -44,9 +44,10 @@ export default function Page() {
           Create a verified private-owner listing.
         </h2>
         <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-          Sell your vehicle directly to buyers without dealer inventory or an
-          unnecessary dealer markup. Identity verification and ownership review
-          help buyers understand who is selling and what was checked.
+          Posting is free. Sell your vehicle directly to buyers without dealer
+          inventory or an unnecessary dealer markup. Stripe Identity handles the
+          government-ID check, and Owner Only Cars separately reviews ownership
+          documents before publication.
         </p>
         <ol className="mt-6 grid gap-4 lg:grid-cols-3">
           {listingSteps.map(({ icon: Icon, title, detail }, index) => (

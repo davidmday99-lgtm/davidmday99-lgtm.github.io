@@ -1,7 +1,7 @@
 'use client';
 
 import type { User } from '@supabase/supabase-js';
-import { BadgeCheck, LoaderCircle, LockKeyhole } from 'lucide-react';
+import { BadgeCheck, ChevronDown, LoaderCircle, LockKeyhole } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -93,7 +93,7 @@ export function SellerIdentityGate({
             ? 'Stripe is still reviewing your government ID. Check the current result before entering vehicle information.'
             : needsAttention
               ? 'Stripe needs another ID submission. Finish that secure step before entering vehicle information.'
-              : 'Complete the secure government-ID check before entering vehicle information or uploading ownership documents.'
+              : 'Posting is free. Complete the secure government-ID check through Stripe Identity before entering vehicle information or uploading ownership documents.'
         }
         buttonHref="/account/verification"
         buttonLabel={
@@ -105,7 +105,7 @@ export function SellerIdentityGate({
         }
         eyebrow={processing ? 'Verification processing' : 'Required first step'}
         icon={BadgeCheck}
-        title="Verify your identity before listing a car."
+        title="Verify your identity before listing a vehicle."
       />
     );
   }
@@ -146,6 +146,35 @@ function GateCard({
             Your vehicle details remain hidden until the identity requirement is
             complete.
           </p>
+          <details className="group mt-5 border border-slate-300 bg-slate-50">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-black uppercase tracking-wide text-navy marker:content-none">
+              How identity and ownership verification work
+              <ChevronDown
+                aria-hidden="true"
+                className="size-5 shrink-0 transition-transform group-open:rotate-180"
+              />
+            </summary>
+            <div className="border-t border-slate-300 px-4 py-4 text-sm leading-6 text-slate-600">
+              <p>
+                Stripe Identity securely handles the government-ID verification
+                step. Owner Only Cars separately reviews proof of vehicle ownership
+                before a listing can be published.
+              </p>
+              <p className="mt-3">
+                These checks help reduce fraud, but they do not guarantee a person,
+                vehicle, or transaction. Keep payments and communication secure and
+                never send sensitive documents through messages.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 font-bold">
+                <a className="text-teal-800 underline underline-offset-4" href="/trust-and-safety">
+                  Trust &amp; safety
+                </a>
+                <a className="text-teal-800 underline underline-offset-4" href="/privacy">
+                  Privacy details
+                </a>
+              </div>
+            </div>
+          </details>
           <Button
             className="mt-6 h-12 rounded-none bg-[#16c7be] px-6 font-black uppercase text-navy shadow-[4px_4px_0_#061c2b] hover:bg-[#f6b82b]"
             nativeButton={false}
