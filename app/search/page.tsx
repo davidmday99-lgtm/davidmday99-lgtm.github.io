@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   FileCheck2,
+  Megaphone,
   MessageCircle,
   ShieldCheck,
 } from 'lucide-react';
@@ -204,6 +205,30 @@ export default function SearchPage() {
         <section className="border-b-2 border-navy bg-[#f6b82b] px-5 py-8 sm:px-8">
           <div className="mx-auto max-w-7xl">
             <VehicleCategoryLinks compact />
+          </div>
+        </section>
+        <section className="border-b-2 border-navy bg-teal-100 px-5 py-7 sm:px-8">
+          <div className="mx-auto flex max-w-7xl flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-4">
+              <span className="grid size-12 shrink-0 place-items-center border-2 border-navy bg-[#f6b82b]">
+                <Megaphone aria-hidden="true" className="size-6 text-navy" />
+              </span>
+              <div>
+                <h2 className="text-xl font-black uppercase text-navy">
+                  Looking for something specific?
+                </h2>
+                <p className="mt-1 text-base leading-6 text-slate-700">
+                  Post a free wanted ad so private owners can see what you want.
+                </p>
+              </div>
+            </div>
+            <Button
+              className="h-12 shrink-0 rounded-none bg-navy px-6 font-black uppercase text-white hover:bg-teal-700"
+              nativeButton={false}
+              render={<a href="/wanted#post-wanted" />}
+            >
+              Post a wanted ad <ArrowRight />
+            </Button>
           </div>
         </section>
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[250px_1fr]">

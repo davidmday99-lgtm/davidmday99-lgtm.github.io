@@ -132,24 +132,32 @@ export function PublishedListingsGrid({
                 verification and ownership review.
               </p>
             </div>
-            <DialogFooter className="m-0 rounded-none border-t-2 border-navy bg-white p-5 sm:justify-between">
-              <DialogClose
-                render={
-                  <Button
-                    className="rounded-none border-2 border-navy font-black uppercase"
-                    variant="outline"
-                  />
-                }
+            <DialogFooter className="m-0 flex-col rounded-none border-t-2 border-navy bg-white p-5 sm:flex-col sm:items-stretch">
+              <a
+                className="mb-2 text-center text-sm font-black uppercase text-teal-800 underline decoration-2 underline-offset-4 hover:text-navy"
+                href="/wanted#post-wanted"
               >
-                Keep browsing
-              </DialogClose>
-              <Button
-                className="rounded-none bg-teal-500 font-black uppercase text-navy hover:bg-teal-400"
-                nativeButton={false}
-                render={<a href={broadenHref} />}
-              >
-                {broadenLabel}
-              </Button>
+                Looking for something specific? Post a wanted ad
+              </a>
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+                <DialogClose
+                  render={
+                    <Button
+                      className="rounded-none border-2 border-navy font-black uppercase"
+                      variant="outline"
+                    />
+                  }
+                >
+                  Keep browsing
+                </DialogClose>
+                <Button
+                  className="rounded-none bg-teal-500 font-black uppercase text-navy hover:bg-teal-400"
+                  nativeButton={false}
+                  render={<a href={broadenHref} />}
+                >
+                  {broadenLabel}
+                </Button>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -189,6 +197,14 @@ export function PublishedListingsGrid({
                   variant="outline"
                 >
                   Clear all filters
+                </Button>
+                <Button
+                  className="rounded-none font-black uppercase text-teal-800"
+                  nativeButton={false}
+                  render={<a href="/wanted#post-wanted" />}
+                  variant="ghost"
+                >
+                  Post a wanted ad
                 </Button>
               </div>
             </div>

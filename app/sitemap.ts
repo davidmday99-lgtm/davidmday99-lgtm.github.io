@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const publicRoutes = [
     '',
     '/search',
+    '/wanted',
     '/value-checker',
     '/how-it-works',
     '/trust-and-safety',

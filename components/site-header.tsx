@@ -216,6 +216,14 @@ export function SiteHeader() {
             </a>
             <a
               className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
+              href="/wanted"
+            >
+              Wanted
+              <br />
+              Ads
+            </a>
+            <a
+              className="border-b-2 border-transparent py-3 hover:border-[#16C7BE] hover:text-[#0B8F89]"
               href="/private-seller-auctions"
             >
               Private Seller
@@ -315,6 +323,7 @@ export function SiteHeader() {
             <div className="mx-auto grid max-w-7xl gap-2 sm:grid-cols-2">
               {[
                 ['Buy from owners', '/search'],
+                ['Wanted vehicle ads', '/wanted'],
                 ['Private seller auctions', '/private-seller-auctions'],
                 ['Public auto auctions', '/public-auto-auctions'],
                 ['Sell your vehicle', '/sell'],

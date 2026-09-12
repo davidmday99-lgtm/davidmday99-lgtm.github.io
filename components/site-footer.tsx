@@ -22,6 +22,7 @@ export function SiteFooter() {
           title="Marketplace"
           links={[
             ['Buy from owners', '/search'],
+            ['Wanted vehicle ads', '/wanted'],
             ['Private seller auctions', '/private-seller-auctions'],
             ['Public auto auctions', '/public-auto-auctions'],
             ['Sell your vehicle', '/sell'],
