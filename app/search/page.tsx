@@ -227,26 +227,45 @@ export default function SearchPage() {
               <h2 className="font-black uppercase text-navy">Filters</h2>
               <SlidersHorizontal className="size-5" />
             </div>
-            <div className="mt-5 space-y-4">
+            <form action="/search" className="mt-5 space-y-4">
               {filters.map(([label, value]) => (
                 <label className="block" key={label}>
                   <span className="text-xs font-black uppercase tracking-wide text-slate-600">
                     {label}
                   </span>
-                  <select
-                    className="mt-1 h-10 w-full border border-slate-300 bg-white px-3 text-sm"
-                    defaultValue={value}
-                    aria-label={label}
-                  >
-                    <option>{value}</option>
-                    <option>All options</option>
-                  </select>
+                  {label === 'Vehicle category' ? (
+                    <select
+                      aria-label={label}
+                      className="mt-1 h-10 w-full border border-slate-300 bg-white px-3 text-sm"
+                      defaultValue=""
+                      name="type"
+                    >
+                      <option value="">All vehicles</option>
+                      {vehicleTypes.map((type) => (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <select
+                      aria-label={label}
+                      className="mt-1 h-10 w-full border border-slate-300 bg-white px-3 text-sm"
+                      defaultValue={value}
+                    >
+                      <option>{value}</option>
+                      <option>All options</option>
+                    </select>
+                  )}
                 </label>
               ))}
-            </div>
-            <Button className="mt-6 h-11 w-full rounded-none bg-teal-500 font-black uppercase text-navy hover:bg-teal-400">
-              Apply filters
-            </Button>
+              <Button
+                className="mt-6 h-11 w-full rounded-none bg-teal-500 font-black uppercase text-navy hover:bg-teal-400"
+                type="submit"
+              >
+                Apply filters
+              </Button>
+            </form>
           </aside>
           <section>
             <div className="flex items-center justify-between border-b-[3px] border-navy pb-4">
