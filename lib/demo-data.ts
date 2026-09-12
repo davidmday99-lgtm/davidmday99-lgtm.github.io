@@ -7,6 +7,7 @@ export type DemoListing = {
   model?: string;
   price: number;
   mileage: number;
+  engineSize?: string;
   location: string;
   distance: number;
   image: string;
@@ -27,6 +28,7 @@ export const demoListings: DemoListing[] = [
     name: 'Midsize Touring Crossover',
     price: 24800,
     mileage: 38240,
+    engineSize: '2.5L',
     location: 'Near Madison, WI',
     distance: 12,
     image: '/owner-car-driveway.png',
@@ -44,6 +46,7 @@ export const demoListings: DemoListing[] = [
     name: 'City Five-Door Hatchback',
     price: 11200,
     mileage: 68410,
+    engineSize: '1.5L',
     location: 'Near Milwaukee, WI',
     distance: 47,
     image: '/demo-hatchback.png',
@@ -61,6 +64,7 @@ export const demoListings: DemoListing[] = [
     name: 'Crew Cab Everyday Pickup',
     price: 21900,
     mileage: 59220,
+    engineSize: '3.5L',
     location: 'Near Rockford, IL',
     distance: 55,
     image: '/demo-pickup.png',

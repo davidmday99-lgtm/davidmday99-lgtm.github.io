@@ -10,14 +10,22 @@ describe('listing filters', () => {
   it('reads supported search parameters', () => {
     expect(
       listingFiltersFromSearch(
-        '?type=car&price=20000-30000&year=2021&bodyStyle=SUV',
+        '?type=car&price=20000-30000&year=2021&bodyStyle=SUV&engineSize=2.5L',
       ),
     ).toMatchObject({
       type: 'car',
       price: '20000-30000',
       year: '2021',
       bodyStyle: 'SUV',
+      engineSize: '2.5L',
     });
+  });
+
+  it('filters listings by seller-reported engine size', () => {
+    const filters = listingFiltersFromSearch('?engineSize=2.5L');
+    expect(filterListings(demoListings, filters).map(({ slug }) => slug)).toEqual([
+      '2021-midsize-touring-crossover',
+    ]);
   });
 
   it('filters by category, year, price, mileage, and style', () => {

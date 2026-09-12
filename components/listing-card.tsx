@@ -54,6 +54,11 @@ export function ListingCard({ listing }: { listing: DemoListing }) {
           </p>
         </div>
         <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
+          {listing.engineSize && (
+            <span className="border border-navy/30 bg-slate-100 px-2.5 py-1 font-bold">
+              {listing.engineSize} engine
+            </span>
+          )}
           <span className="border border-navy/30 bg-slate-100 px-2.5 py-1 font-bold">
             {listing.drivetrain}
           </span>

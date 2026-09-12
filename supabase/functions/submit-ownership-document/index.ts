@@ -77,6 +77,7 @@ type ListingDraft = {
   make: string;
   model: string;
   trim: string | null;
+  engineSize: string;
   mileage: number;
   price: number;
   location: string;
@@ -163,6 +164,7 @@ function parseListingDraft(value: FormDataEntryValue | null) {
       make: cleanText(candidate.make, 80),
       model: cleanText(candidate.model, 80),
       trim: cleanText(candidate.trim, 80) || null,
+      engineSize: cleanText(candidate.engineSize, 60),
       mileage,
       price,
       location: cleanText(candidate.location, 120),
@@ -201,6 +203,7 @@ function parseListingDraft(value: FormDataEntryValue | null) {
       price > 10000000 ||
       !draft.make ||
       !draft.model ||
+      !draft.engineSize ||
       draft.location.length < 2 ||
       draft.description.length < 10 ||
       !draft.bodyStyle ||
@@ -615,6 +618,7 @@ Deno.serve(async (request) => {
         make: listing.make,
         model: listing.model,
         trim: listing.trim,
+        engine_size: listing.engineSize,
         price: listing.price,
         mileage: listing.mileage,
         location_public: listing.location,

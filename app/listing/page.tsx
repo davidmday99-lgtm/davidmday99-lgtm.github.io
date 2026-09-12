@@ -146,6 +146,11 @@ export default function PublishedVehiclePage() {
                     ],
                     ['Type / style', listing.body_style, Car],
                     ['Drivetrain', listing.drivetrain, Car],
+                    [
+                      'Engine size',
+                      listing.engine_size ?? 'Not provided (legacy listing)',
+                      Gauge,
+                    ],
                     ['Transmission', listing.transmission, Car],
                     ['Fuel', listing.fuel_type, Car],
                     ['Title', listing.title_status, ShieldCheck],

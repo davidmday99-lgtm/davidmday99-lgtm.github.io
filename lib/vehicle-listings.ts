@@ -13,6 +13,7 @@ export type VehicleListingRow = {
   trim: string | null;
   price: number;
   mileage: number;
+  engine_size: string | null;
   location_public: string;
   body_style: string;
   transmission: string;
@@ -41,6 +42,7 @@ export function toListingCard(row: VehicleListingRow): DemoListing {
     model: row.model,
     price: row.price,
     mileage: row.mileage,
+    engineSize: row.engine_size ?? undefined,
     location: `Near ${row.location_public}`,
     distance: 0,
     image: row.photo_urls[0] ?? '/owner-car-driveway.png',

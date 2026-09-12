@@ -8,6 +8,7 @@ export type ListingFilters = {
   price: string;
   year: string;
   mileage: string;
+  engineSize: string;
   make: string;
   model: string;
   bodyStyle: string;
@@ -23,6 +24,7 @@ export const emptyListingFilters: ListingFilters = {
   price: '',
   year: '',
   mileage: '',
+  engineSize: '',
   make: '',
   model: '',
   bodyStyle: '',
@@ -43,6 +45,7 @@ export function listingFiltersFromSearch(search: string) {
     price: params.get('price') ?? '',
     year: params.get('year') ?? '',
     mileage: params.get('mileage') ?? '',
+    engineSize: params.get('engineSize')?.trim() ?? '',
     make: params.get('make') ?? '',
     model: params.get('model') ?? '',
     bodyStyle: params.get('bodyStyle') ?? '',
@@ -89,6 +92,7 @@ export function filterListings(
         listing.make,
         listing.model,
         listing.bodyStyle,
+        listing.engineSize,
       ]
         .filter(Boolean)
         .join(' ')
@@ -99,6 +103,11 @@ export function filterListings(
     if (!matchesPrice(listing.price, filters.price)) return false;
     if (filters.year && String(listing.year) !== filters.year) return false;
     if (maximumMileage > 0 && listing.mileage > maximumMileage) return false;
+    if (
+      filters.engineSize &&
+      !equalText(listing.engineSize, filters.engineSize)
+    )
+      return false;
     if (filters.make && !equalText(listing.make, filters.make)) return false;
     if (filters.model && !equalText(listing.model, filters.model)) return false;
     if (filters.bodyStyle && !equalText(listing.bodyStyle, filters.bodyStyle))
@@ -139,7 +148,8 @@ export function uniqueListingValues(
     | 'transmission'
     | 'fuel'
     | 'drivetrain'
-    | 'titleStatus',
+    | 'titleStatus'
+    | 'engineSize',
 ) {
   return [...new Set(listings.map((listing) => listing[field]).filter(Boolean))]
     .map(String)

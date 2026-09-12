@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CARFAX_REPORTS_URL, validateSellerCarfaxUrl } from '@/lib/carfax';
+import { engineSizeSuggestions } from '@/lib/engine-sizes';
 import { catalogMakes, catalogModels } from '@/lib/vehicle-catalog';
 import {
   conditionQuestionCount,
@@ -79,7 +80,7 @@ const ownershipSubmissionErrors: Record<string, string> = {
   invalid_vehicle_photo_size:
     'The selected vehicle photos are too large together. Remove some photos or use smaller images.',
   listing_details_required:
-    'Complete the vehicle year, make, model, price, mileage, location, and description.',
+    'Complete the vehicle year, make, model, engine size, price, mileage, location, and description.',
   listing_save_failed:
     'The vehicle listing could not be saved. Please try again.',
   origin_not_allowed:
@@ -110,6 +111,7 @@ type ListingDraft = {
   make: string;
   model: string;
   trim: string;
+  engineSize: string;
   mileage: string;
   price: string;
   location: string;
@@ -129,6 +131,7 @@ const initialListingDraft: ListingDraft = {
   make: '',
   model: '',
   trim: '',
+  engineSize: '',
   mileage: '',
   price: '',
   location: '',
@@ -169,6 +172,7 @@ export function ListingWizard() {
   const vehicleType = getVehicleType(listing.vehicleType);
   const makeSuggestions = catalogMakes(listing.vehicleType);
   const modelSuggestions = catalogModels(listing.vehicleType, listing.make);
+  const engineSuggestions = engineSizeSuggestions(listing.vehicleType);
   const validVin = isValidVehicleIdentifier(listing.vehicleType, normalizedVin);
   const numericYear = Number(listing.year);
   const numericMileage = Number(listing.mileage);
@@ -183,6 +187,7 @@ export function ListingWizard() {
     },
     { complete: listing.make.trim().length > 0, label: 'make' },
     { complete: listing.model.trim().length > 0, label: 'model' },
+    { complete: listing.engineSize.trim().length > 0, label: 'engine size' },
     {
       complete:
         listing.mileage.trim().length > 0 &&
@@ -502,6 +507,7 @@ export function ListingWizard() {
                     vehicleType: selectedType.value,
                     make: '',
                     model: '',
+                    engineSize: '',
                     bodyStyle: selectedType.styles[0],
                     ...selectedType.defaults,
                   }));
@@ -572,6 +578,16 @@ export function ListingWizard() {
                   setListing((current) => ({ ...current, trim: value }))
                 }
                 value={listing.trim}
+              />
+              <DraftSuggestionField
+                id="listing-engine-size"
+                label="Engine size (required)"
+                onChange={(value) =>
+                  setListing((current) => ({ ...current, engineSize: value }))
+                }
+                placeholder="3.6L, 999cc, 150 hp, or Electric"
+                suggestions={engineSuggestions}
+                value={listing.engineSize}
               />
             </div>
           </div>

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { demoListings, type DemoListing } from '@/lib/demo-data';
+import { engineSizeSuggestions } from '@/lib/engine-sizes';
 import {
   catalogMakes,
   catalogModels,
@@ -184,13 +185,19 @@ export function ListingSearchFilters() {
       : vehicleTypes.flatMap((type) => [...type.styles]),
     uniqueListingValues(relevantListings, 'bodyStyle'),
   );
+  const engineSizes = mergedValues(
+    engineSizeSuggestions(filters.type),
+    uniqueListingValues(relevantListings, 'engineSize'),
+  );
 
   function updateFilter(name: keyof typeof filters, value: string) {
     setFilters((current) => ({
       ...current,
       [name]: value,
       ...(name === 'make' ? { model: '' } : {}),
-      ...(name === 'type' ? { make: '', model: '', bodyStyle: '' } : {}),
+      ...(name === 'type'
+        ? { make: '', model: '', bodyStyle: '', engineSize: '' }
+        : {}),
     }));
   }
 
@@ -243,6 +250,13 @@ export function ListingSearchFilters() {
           onChange={(value) => updateFilter('mileage', value)}
           options={usesHours ? hoursOptions : mileageOptions}
           value={filters.mileage}
+        />
+        <FilterSelect
+          label="Engine size"
+          name="engineSize"
+          onChange={(value) => updateFilter('engineSize', value)}
+          options={valueOptions(engineSizes, 'Any engine size')}
+          value={filters.engineSize}
         />
         <FilterSelect
           label="Make"

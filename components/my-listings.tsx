@@ -166,6 +166,9 @@ export function MyListings() {
                 <p className="mt-1 text-sm text-slate-600">
                   {formatMileage(listing.mileage)}{' '}
                   {getVehicleType(listing.vehicle_type).usageUnit} ·{' '}
+                  {listing.engine_size
+                    ? `${listing.engine_size} engine · `
+                    : ''}
                   {formatPrice(listing.price)} · Near {listing.location_public}
                 </p>
                 {editingId === listing.id && (
