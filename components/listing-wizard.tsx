@@ -524,7 +524,8 @@ export function ListingWizard() {
             <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-500">
               This identifier is compared with the private ownership document
               before publication. Cars and most road vehicles use a VIN; boats
-              use a hull identification number (HIN).
+              and personal watercraft use a hull identification number (HIN).
+              Some snowmobiles and trailers use a manufacturer serial number.
             </p>
             <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <DraftField

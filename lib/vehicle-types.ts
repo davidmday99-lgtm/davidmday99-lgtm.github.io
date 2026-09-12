@@ -137,6 +137,53 @@ export const vehicleTypes = [
       'Other',
     ],
   },
+  {
+    value: 'snowmobile',
+    label: 'Snowmobiles',
+    singular: 'snowmobile',
+    identifierLabel: 'VIN or manufacturer serial number',
+    identifierPlaceholder: 'Enter the snowmobile VIN or serial number',
+    usageLabel: 'Mileage',
+    usageUnit: 'miles',
+    defaults: {
+      drivetrain: 'Other',
+      fuelType: 'Gasoline',
+      transmission: 'Automatic',
+    },
+    styles: [
+      'Trail',
+      'Touring',
+      'Mountain',
+      'Utility',
+      'Performance',
+      'Youth',
+      'Vintage',
+      'Other',
+    ],
+  },
+  {
+    value: 'personal_watercraft',
+    label: 'Personal watercraft / jet skis',
+    singular: 'personal watercraft',
+    identifierLabel: '12-character HIN',
+    identifierPlaceholder: 'Enter the hull identification number',
+    usageLabel: 'Engine hours',
+    usageUnit: 'hours',
+    defaults: {
+      drivetrain: 'Other',
+      fuelType: 'Gasoline',
+      transmission: 'Other',
+    },
+    styles: [
+      'Stand-up',
+      'Sit-down',
+      'Touring',
+      'Performance',
+      'Recreation',
+      'Fishing',
+      'Other',
+    ],
+  },
 ] as const;
 
 export type VehicleType = (typeof vehicleTypes)[number]['value'];
@@ -158,8 +205,10 @@ export function isValidVehicleIdentifier(
   identifier: string,
 ) {
   const normalized = identifier.trim().toUpperCase();
-  if (vehicleType === 'boat') return /^[A-HJ-NPR-Z0-9]{12}$/.test(normalized);
-  if (vehicleType === 'trailer') return /^[A-Z0-9-]{6,20}$/.test(normalized);
+  if (vehicleType === 'boat' || vehicleType === 'personal_watercraft')
+    return /^[A-HJ-NPR-Z0-9]{12}$/.test(normalized);
+  if (vehicleType === 'trailer' || vehicleType === 'snowmobile')
+    return /^[A-Z0-9-]{6,20}$/.test(normalized);
   return /^[A-HJ-NPR-Z0-9]{17}$/.test(normalized);
 }
 

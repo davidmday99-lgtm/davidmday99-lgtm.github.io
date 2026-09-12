@@ -87,14 +87,19 @@ function AccountMenu({ user }: { user: User }) {
         aria-label={`Open account menu for ${displayName}`}
         aria-expanded={isOpen}
         aria-haspopup="menu"
-        className="block rounded-full outline-none focus-visible:ring-4 focus-visible:ring-[#FFB81C]"
+        className="inline-flex size-11 items-center justify-center rounded-full align-middle leading-none outline-none focus-visible:ring-4 focus-visible:ring-[#FFB81C]"
         onClick={() => setIsOpen((open) => !open)}
         ref={triggerRef}
         type="button"
       >
-        <Avatar className="size-11 border-2 border-[#061C2B] bg-[#16C7BE] shadow-[3px_3px_0_#061C2B]">
+        <Avatar className="size-11 overflow-hidden border-2 border-[#061C2B] bg-[#16C7BE] shadow-[3px_3px_0_#061C2B]">
           {avatarUrl ? (
-            <AvatarImage alt="" referrerPolicy="no-referrer" src={avatarUrl} />
+            <AvatarImage
+              alt=""
+              className="block object-center"
+              referrerPolicy="no-referrer"
+              src={avatarUrl}
+            />
           ) : null}
           <AvatarFallback className="bg-[#16C7BE] font-black text-[#061C2B]">
             {userInitials(user)}

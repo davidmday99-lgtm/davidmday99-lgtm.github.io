@@ -70,7 +70,9 @@ type ListingDraft = {
     | 'boat'
     | 'atv_utv'
     | 'rv_camper'
-    | 'trailer';
+    | 'trailer'
+    | 'snowmobile'
+    | 'personal_watercraft';
   year: number;
   make: string;
   model: string;
@@ -150,6 +152,8 @@ function parseListingDraft(value: FormDataEntryValue | null) {
       'atv_utv',
       'rv_camper',
       'trailer',
+      'snowmobile',
+      'personal_watercraft',
     ]);
     const draft: ListingDraft = {
       vehicleType: allowedVehicleTypes.has(vehicleType)
@@ -223,14 +227,18 @@ function validIdentifier(
   vehicleType: ListingDraft['vehicleType'],
   value: string,
 ) {
-  if (vehicleType === 'boat') return /^[A-HJ-NPR-Z0-9]{12}$/.test(value);
-  if (vehicleType === 'trailer') return /^[A-Z0-9-]{6,20}$/.test(value);
+  if (vehicleType === 'boat' || vehicleType === 'personal_watercraft')
+    return /^[A-HJ-NPR-Z0-9]{12}$/.test(value);
+  if (vehicleType === 'trailer' || vehicleType === 'snowmobile')
+    return /^[A-Z0-9-]{6,20}$/.test(value);
   return /^[A-HJ-NPR-Z0-9]{17}$/.test(value);
 }
 
 function identifierName(vehicleType: ListingDraft['vehicleType']) {
-  if (vehicleType === 'boat') return 'HIN';
-  if (vehicleType === 'trailer') return 'VIN or manufacturer serial number';
+  if (vehicleType === 'boat' || vehicleType === 'personal_watercraft')
+    return 'HIN';
+  if (vehicleType === 'trailer' || vehicleType === 'snowmobile')
+    return 'VIN or manufacturer serial number';
   return 'VIN';
 }
 

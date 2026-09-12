@@ -15,6 +15,8 @@ describe('vehicle categories', () => {
       'atv_utv',
       'rv_camper',
       'trailer',
+      'snowmobile',
+      'personal_watercraft',
     ]);
   });
 
@@ -23,12 +25,18 @@ describe('vehicle categories', () => {
     expect(getVehicleType('boat').styles).toContain('Pontoon');
     expect(getVehicleType('rv_camper').styles).toContain('Class A');
     expect(getVehicleType('trailer').styles).toContain('Car hauler');
+    expect(getVehicleType('snowmobile').styles).toContain('Vintage');
+    expect(getVehicleType('personal_watercraft').usageUnit).toBe('hours');
   });
 
   it('validates road VINs, boat HINs, and trailer serials separately', () => {
     expect(isValidVehicleIdentifier('car', '1HGCM82633A004352')).toBe(true);
     expect(isValidVehicleIdentifier('boat', 'ABC12345D404')).toBe(true);
     expect(isValidVehicleIdentifier('trailer', 'TR-123456')).toBe(true);
+    expect(isValidVehicleIdentifier('snowmobile', 'SNOW-123456')).toBe(true);
+    expect(
+      isValidVehicleIdentifier('personal_watercraft', 'ABC12345D404'),
+    ).toBe(true);
     expect(isValidVehicleIdentifier('boat', 'TOO-SHORT')).toBe(false);
   });
 
