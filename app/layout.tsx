@@ -72,6 +72,16 @@ export default function RootLayout({
           content="sjBftnbPyOOYDa-wfVSNZ5YOU0TkEsQM788zlIoaRHw"
           name="google-site-verification"
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(c,l,a,r,i,t,y){
+  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window, document, "clarity", "script", "ygynwzxq9r");`,
+          }}
+          type="text/javascript"
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
