@@ -4,6 +4,7 @@ import { isVehicleType, type VehicleType } from '@/lib/vehicle-types';
 export type ListingFilters = {
   type?: VehicleType;
   query: string;
+  zip: string;
   distance: string;
   price: string;
   year: string;
@@ -20,6 +21,7 @@ export type ListingFilters = {
 
 export const emptyListingFilters: ListingFilters = {
   query: '',
+  zip: '',
   distance: '50',
   price: '',
   year: '',
@@ -41,6 +43,7 @@ export function listingFiltersFromSearch(search: string) {
   return {
     type: isVehicleType(requestedType) ? requestedType : undefined,
     query: params.get('q')?.trim() ?? '',
+    zip: params.get('zip')?.trim() ?? '',
     distance: params.get('distance') ?? '50',
     price: params.get('price') ?? '',
     year: params.get('year') ?? '',
@@ -57,9 +60,11 @@ export function listingFiltersFromSearch(search: string) {
 }
 
 function equalText(left: string | undefined, right: string) {
-  return (left ?? '').localeCompare(right, undefined, {
-    sensitivity: 'accent',
-  }) === 0;
+  return (
+    (left ?? '').localeCompare(right, undefined, {
+      sensitivity: 'accent',
+    }) === 0
+  );
 }
 
 function matchesPrice(price: number, range: string) {

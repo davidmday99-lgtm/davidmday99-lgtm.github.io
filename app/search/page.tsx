@@ -230,14 +230,6 @@ export default function SearchPage() {
             <div className="mt-7">
               <PublishedListingsGrid />
             </div>
-            <div className="mt-10 border-2 border-dashed border-slate-400 bg-white/60 p-10 text-center">
-              <h2 className="text-xl font-black uppercase text-navy">
-                That’s all the current inventory.
-              </h2>
-              <p className="mt-2 text-slate-600">
-                New owner vehicles appear automatically after approval.
-              </p>
-            </div>
           </section>
         </div>
       </main>
