@@ -135,6 +135,15 @@ function mergedValues(...groups: string[][]) {
   );
 }
 
+function matchesSelection(value: string | undefined, selected: string) {
+  return (
+    !selected ||
+    (value ?? '').localeCompare(selected, undefined, {
+      sensitivity: 'accent',
+    }) === 0
+  );
+}
+
 export function ListingSearchFilters() {
   const [listings, setListings] = useState<DemoListing[]>(demoListings);
   const [filters, setFilters] = useState(emptyListingFilters);
@@ -163,9 +172,16 @@ export function ListingSearchFilters() {
         : listings,
     [filters.type, listings],
   );
-  const modelListings = filters.make
-    ? relevantListings.filter((listing) => listing.make === filters.make)
+  const makeListings = filters.make
+    ? relevantListings.filter((listing) =>
+        matchesSelection(listing.make, filters.make),
+      )
     : relevantListings;
+  const modelListings = filters.model
+    ? makeListings.filter((listing) =>
+        matchesSelection(listing.model, filters.model),
+      )
+    : makeListings;
   const selectedType = filters.type ? getVehicleType(filters.type) : undefined;
   const usesHours =
     filters.type === 'boat' || filters.type === 'personal_watercraft';
@@ -176,25 +192,32 @@ export function ListingSearchFilters() {
   const models = filters.make
     ? mergedValues(
         catalogModels(filters.type, filters.make),
-        uniqueListingValues(modelListings, 'model'),
+        uniqueListingValues(makeListings, 'model'),
       )
     : [];
-  const styles = mergedValues(
-    selectedType
-      ? [...selectedType.styles]
-      : vehicleTypes.flatMap((type) => [...type.styles]),
-    uniqueListingValues(relevantListings, 'bodyStyle'),
-  );
-  const engineSizes = mergedValues(
-    engineSizeSuggestions(filters.type),
-    uniqueListingValues(relevantListings, 'engineSize'),
-  );
+  const styles = filters.make
+    ? uniqueListingValues(modelListings, 'bodyStyle')
+    : mergedValues(
+        selectedType
+          ? [...selectedType.styles]
+          : vehicleTypes.flatMap((type) => [...type.styles]),
+        uniqueListingValues(relevantListings, 'bodyStyle'),
+      );
+  const engineSizes = filters.make
+    ? uniqueListingValues(modelListings, 'engineSize')
+    : mergedValues(
+        engineSizeSuggestions(filters.type),
+        uniqueListingValues(relevantListings, 'engineSize'),
+      );
 
   function updateFilter(name: keyof typeof filters, value: string) {
     setFilters((current) => ({
       ...current,
       [name]: value,
-      ...(name === 'make' ? { model: '' } : {}),
+      ...(name === 'make'
+        ? { model: '', bodyStyle: '', engineSize: '' }
+        : {}),
+      ...(name === 'model' ? { bodyStyle: '', engineSize: '' } : {}),
       ...(name === 'type'
         ? { make: '', model: '', bodyStyle: '', engineSize: '' }
         : {}),
@@ -252,10 +275,16 @@ export function ListingSearchFilters() {
           value={filters.mileage}
         />
         <FilterSelect
+          disabled={Boolean(filters.make) && engineSizes.length === 0}
           label="Engine size"
           name="engineSize"
           onChange={(value) => updateFilter('engineSize', value)}
-          options={valueOptions(engineSizes, 'Any engine size')}
+          options={valueOptions(
+            engineSizes,
+            filters.make && engineSizes.length === 0
+              ? 'No matching engine sizes'
+              : 'Any engine size',
+          )}
           value={filters.engineSize}
         />
         <FilterSelect
@@ -277,10 +306,16 @@ export function ListingSearchFilters() {
           value={filters.model}
         />
         <FilterSelect
+          disabled={Boolean(filters.make) && styles.length === 0}
           label="Body style"
           name="bodyStyle"
           onChange={(value) => updateFilter('bodyStyle', value)}
-          options={valueOptions(styles, 'All styles')}
+          options={valueOptions(
+            styles,
+            filters.make && styles.length === 0
+              ? 'No matching body styles'
+              : 'All styles',
+          )}
           value={filters.bodyStyle}
         />
         <FilterSelect
