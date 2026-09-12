@@ -3,6 +3,8 @@ export type DemoListing = {
   slug: string;
   year: number;
   name: string;
+  make?: string;
+  model?: string;
   price: number;
   mileage: number;
   location: string;

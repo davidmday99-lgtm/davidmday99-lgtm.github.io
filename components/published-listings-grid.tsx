@@ -5,11 +5,16 @@ import { useEffect, useState } from 'react';
 import { ListingCard } from '@/components/listing-card';
 import { demoListings, type DemoListing } from '@/lib/demo-data';
 import {
+  emptyListingFilters,
+  filterListings,
+  listingFiltersFromSearch,
+} from '@/lib/listing-filters';
+import {
   getSupabaseBrowserClient,
   hasSupabaseConfig,
 } from '@/lib/supabase-browser';
 import { toListingCard, type VehicleListingRow } from '@/lib/vehicle-listings';
-import { getVehicleType, isVehicleType } from '@/lib/vehicle-types';
+import { getVehicleType } from '@/lib/vehicle-types';
 
 export function PublishedListingsGrid({
   includeDemos = true,
@@ -18,15 +23,10 @@ export function PublishedListingsGrid({
 }) {
   const [liveListings, setLiveListings] = useState<DemoListing[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [selectedType, setSelectedType] = useState<string>();
+  const [filters, setFilters] = useState(emptyListingFilters);
 
   useEffect(() => {
-    const requestedType = new URLSearchParams(window.location.search).get(
-      'type',
-    );
-    queueMicrotask(() =>
-      setSelectedType(isVehicleType(requestedType) ? requestedType : undefined),
-    );
+    queueMicrotask(() => setFilters(listingFiltersFromSearch(window.location.search)));
     if (!hasSupabaseConfig()) {
       queueMicrotask(() => setLoaded(true));
       return;
@@ -48,19 +48,15 @@ export function PublishedListingsGrid({
   const allListings = includeDemos
     ? [...liveListings, ...demoListings]
     : liveListings;
-  const listings = selectedType
-    ? allListings.filter(
-        (listing) => (listing.vehicleType ?? 'car') === selectedType,
-      )
-    : allListings;
+  const listings = filterListings(allListings, filters);
 
   if (loaded && listings.length === 0) {
     return (
       <div className="border-2 border-dashed border-slate-400 bg-white/60 p-10 text-center">
         <h2 className="text-xl font-black uppercase text-navy">
           No approved{' '}
-          {selectedType
-            ? getVehicleType(selectedType).label.toLowerCase()
+          {filters.type
+            ? getVehicleType(filters.type).label.toLowerCase()
             : 'owner listings'}{' '}
           yet
         </h2>

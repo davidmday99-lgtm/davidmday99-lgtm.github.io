@@ -37,6 +37,8 @@ export function toListingCard(row: VehicleListingRow): DemoListing {
     slug: row.slug,
     year: row.year,
     name: `${row.make} ${row.model}${row.trim ? ` ${row.trim}` : ''}`,
+    make: row.make,
+    model: row.model,
     price: row.price,
     mileage: row.mileage,
     location: `Near ${row.location_public}`,

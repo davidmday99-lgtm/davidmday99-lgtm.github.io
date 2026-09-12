@@ -3,9 +3,9 @@ import {
   FileCheck2,
   MessageCircle,
   ShieldCheck,
-  SlidersHorizontal,
 } from 'lucide-react';
 
+import { ListingSearchFilters } from '@/components/listing-search-filters';
 import { PublishedListingsGrid } from '@/components/published-listings-grid';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -13,21 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { VehicleCategoryLinks } from '@/components/vehicle-category-links';
 import { vehicleTypes } from '@/lib/vehicle-types';
-
-const filters = [
-  ['Vehicle category', 'All vehicles'],
-  ['Distance', '50 miles'],
-  ['Price', 'Any price'],
-  ['Year', 'Any year'],
-  ['Mileage', 'Any mileage'],
-  ['Make', 'All makes'],
-  ['Model', 'All models'],
-  ['Body style', 'All styles'],
-  ['Transmission', 'Any'],
-  ['Fuel type', 'Any fuel'],
-  ['Drivetrain', 'Any'],
-  ['Title status', 'Clean title'],
-];
 
 const trustSignals = [
   {
@@ -222,51 +207,7 @@ export default function SearchPage() {
           </div>
         </section>
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[250px_1fr]">
-          <aside className="chunky-card h-fit bg-white p-5">
-            <div className="flex items-center justify-between border-b-2 border-navy pb-4">
-              <h2 className="font-black uppercase text-navy">Filters</h2>
-              <SlidersHorizontal className="size-5" />
-            </div>
-            <form action="/search" className="mt-5 space-y-4">
-              {filters.map(([label, value]) => (
-                <label className="block" key={label}>
-                  <span className="text-xs font-black uppercase tracking-wide text-slate-600">
-                    {label}
-                  </span>
-                  {label === 'Vehicle category' ? (
-                    <select
-                      aria-label={label}
-                      className="mt-1 h-10 w-full border border-slate-300 bg-white px-3 text-sm"
-                      defaultValue=""
-                      name="type"
-                    >
-                      <option value="">All vehicles</option>
-                      {vehicleTypes.map((type) => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <select
-                      aria-label={label}
-                      className="mt-1 h-10 w-full border border-slate-300 bg-white px-3 text-sm"
-                      defaultValue={value}
-                    >
-                      <option>{value}</option>
-                      <option>All options</option>
-                    </select>
-                  )}
-                </label>
-              ))}
-              <Button
-                className="mt-6 h-11 w-full rounded-none bg-teal-500 font-black uppercase text-navy hover:bg-teal-400"
-                type="submit"
-              >
-                Apply filters
-              </Button>
-            </form>
-          </aside>
+          <ListingSearchFilters />
           <section>
             <div className="flex items-center justify-between border-b-[3px] border-navy pb-4">
               <div>
