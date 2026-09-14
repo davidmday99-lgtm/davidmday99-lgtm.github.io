@@ -12,7 +12,7 @@ export type WantedVehicleAdRow = {
   location_public: string;
   search_distance: '25' | '50' | '100' | 'nationwide';
   description: string;
-  status: 'published' | 'removed';
+  status: 'published' | 'paused' | 'removed';
   expires_at: string;
   created_at: string;
 };
@@ -40,6 +40,20 @@ export const emptyWantedVehicleDraft: WantedVehicleDraft = {
   searchDistance: '50',
   description: '',
 };
+
+export function wantedDraftFromAd(ad: WantedVehicleAdRow): WantedVehicleDraft {
+  return {
+    vehicleType: ad.vehicle_type,
+    make: ad.make ?? '',
+    model: ad.model ?? '',
+    yearMin: ad.year_min?.toString() ?? '',
+    yearMax: ad.year_max?.toString() ?? '',
+    maxBudget: ad.max_budget?.toString() ?? '',
+    locationPublic: ad.location_public,
+    searchDistance: ad.search_distance,
+    description: ad.description,
+  };
+}
 
 export function wantedVehicleDraftError(draft: WantedVehicleDraft) {
   const yearMin = draft.yearMin ? Number(draft.yearMin) : undefined;

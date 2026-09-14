@@ -5,9 +5,16 @@ import {
   BadgeCheck,
   CirclePlus,
   DollarSign,
+  MessageSquare,
   LoaderCircle,
   MapPin,
+  Pause,
+  Pencil,
+  Play,
+  RefreshCw,
   Search,
+  Trash2,
+  X,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -25,6 +32,7 @@ import { getVehicleType, vehicleTypes } from '@/lib/vehicle-types';
 import {
   emptyWantedVehicleDraft,
   wantedBudgetLabel,
+  wantedDraftFromAd,
   wantedVehicleDraftError,
   wantedYearLabel,
   type WantedVehicleAdRow,
@@ -118,7 +126,9 @@ export function WantedVehicleMarketplace() {
     hasSupabaseConfig() ? undefined : null,
   );
   const [ads, setAds] = useState<WantedVehicleAdRow[]>([]);
+  const [myAds, setMyAds] = useState<WantedVehicleAdRow[]>([]);
   const [adsLoading, setAdsLoading] = useState(() => hasSupabaseConfig());
+  const [myAdsLoading, setMyAdsLoading] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [draft, setDraft] = useState<WantedVehicleDraft>(
     emptyWantedVehicleDraft,
@@ -127,6 +137,11 @@ export function WantedVehicleMarketplace() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [success, setSuccess] = useState('');
+  const [editingId, setEditingId] = useState('');
+  const [busyAdId, setBusyAdId] = useState('');
+  const [contactingId, setContactingId] = useState('');
+  const [managementError, setManagementError] = useState('');
+  const [managementMessage, setManagementMessage] = useState('');
 
   async function loadAds() {
     const { data, error } = await getSupabaseBrowserClient()
@@ -146,6 +161,24 @@ export function WantedVehicleMarketplace() {
     setAdsLoading(false);
   }
 
+  async function loadMyAds(currentUser: User) {
+    setMyAdsLoading(true);
+    const { data, error } = await getSupabaseBrowserClient()
+      .from('wanted_vehicle_ads')
+      .select(wantedAdColumns)
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      setManagementError(
+        'Your wanted ads could not be loaded. Please refresh.',
+      );
+    } else {
+      setMyAds((data ?? []) as WantedVehicleAdRow[]);
+    }
+    setMyAdsLoading(false);
+  }
+
   useEffect(() => {
     if (!hasSupabaseConfig()) return;
 
@@ -153,12 +186,17 @@ export function WantedVehicleMarketplace() {
     const supabase = getSupabaseBrowserClient();
     let active = true;
     void supabase.auth.getUser().then(({ data }) => {
-      if (active) setUser(data.user);
+      if (!active) return;
+      setUser(data.user);
+      if (data.user) void loadMyAds(data.user);
     });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) setUser(session?.user ?? null);
+      if (!active) return;
+      setUser(session?.user ?? null);
+      if (session?.user) void loadMyAds(session.user);
+      else setMyAds([]);
     });
     return () => {
       active = false;
@@ -185,6 +223,24 @@ export function WantedVehicleMarketplace() {
       ...(key === 'vehicleType' ? { make: '', model: '' } : {}),
       ...(key === 'make' ? { model: '' } : {}),
     }));
+  }
+
+  function beginEdit(ad: WantedVehicleAdRow) {
+    setEditingId(ad.id);
+    setDraft(wantedDraftFromAd(ad));
+    setSafeAttestation(true);
+    setSubmitError('');
+    setSuccess('');
+    document
+      .getElementById('post-wanted')
+      ?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function cancelEdit() {
+    setEditingId('');
+    setDraft(emptyWantedVehicleDraft);
+    setSafeAttestation(false);
+    setSubmitError('');
   }
 
   async function submitWantedAd(event: React.SubmitEvent<HTMLFormElement>) {
@@ -214,20 +270,26 @@ export function WantedVehicleMarketplace() {
     }
 
     setSubmitting(true);
-    const { error } = await getSupabaseBrowserClient().rpc(
-      'create_wanted_vehicle_ad',
-      {
-        p_vehicle_type: draft.vehicleType,
-        p_make: draft.make.trim(),
-        p_model: draft.model.trim(),
-        p_year_min: draft.yearMin ? Number(draft.yearMin) : null,
-        p_year_max: draft.yearMax ? Number(draft.yearMax) : null,
-        p_max_budget: draft.maxBudget ? Number(draft.maxBudget) : null,
-        p_location_public: draft.locationPublic.trim(),
-        p_search_distance: draft.searchDistance,
-        p_description: draft.description.trim(),
-      },
-    );
+    const payload = {
+      p_vehicle_type: draft.vehicleType,
+      p_make: draft.make.trim(),
+      p_model: draft.model.trim(),
+      p_year_min: draft.yearMin ? Number(draft.yearMin) : null,
+      p_year_max: draft.yearMax ? Number(draft.yearMax) : null,
+      p_max_budget: draft.maxBudget ? Number(draft.maxBudget) : null,
+      p_location_public: draft.locationPublic.trim(),
+      p_search_distance: draft.searchDistance,
+      p_description: draft.description.trim(),
+    };
+    const { error } = editingId
+      ? await getSupabaseBrowserClient().rpc('update_my_wanted_vehicle_ad', {
+          target_ad_id: editingId,
+          ...payload,
+        })
+      : await getSupabaseBrowserClient().rpc(
+          'create_wanted_vehicle_ad',
+          payload,
+        );
     setSubmitting(false);
 
     if (error) {
@@ -238,17 +300,124 @@ export function WantedVehicleMarketplace() {
       }
       setSubmitError(
         message.includes('active_ad_limit_reached')
-          ? 'You already have 10 active wanted ads. Contact support if an old ad should be removed.'
-          : 'Your wanted ad could not be posted. Please try again.',
+          ? 'You already have 10 active wanted ads. Pause or delete one before posting another.'
+          : `Your wanted ad could not be ${editingId ? 'updated' : 'posted'}. Please try again.`,
       );
       return;
     }
 
     setDraft(emptyWantedVehicleDraft);
     setSafeAttestation(false);
-    setSuccess('Your wanted ad is live for 90 days.');
+    setSuccess(
+      editingId
+        ? 'Your wanted ad was updated.'
+        : 'Your wanted ad is live for 90 days.',
+    );
+    setEditingId('');
     setAdsLoading(true);
-    await loadAds();
+    await Promise.all([loadAds(), loadMyAds(user)]);
+  }
+
+  async function changeStatus(ad: WantedVehicleAdRow) {
+    if (!user) return;
+    const nextStatus = ad.status === 'published' ? 'paused' : 'published';
+    setBusyAdId(ad.id);
+    setManagementError('');
+    setManagementMessage('');
+    const { error } = await getSupabaseBrowserClient().rpc(
+      'set_my_wanted_vehicle_ad_status',
+      { target_ad_id: ad.id, new_status: nextStatus },
+    );
+    setBusyAdId('');
+    if (error) {
+      setManagementError(
+        error.message?.includes('wanted_ad_expired')
+          ? 'This ad has expired. Renew it to publish it again.'
+          : 'The wanted ad status could not be changed. Please try again.',
+      );
+      return;
+    }
+    setManagementMessage(
+      nextStatus === 'published' ? 'Wanted ad published.' : 'Wanted ad paused.',
+    );
+    await Promise.all([loadAds(), loadMyAds(user)]);
+  }
+
+  async function renewAd(ad: WantedVehicleAdRow) {
+    if (!user) return;
+    setBusyAdId(ad.id);
+    setManagementError('');
+    setManagementMessage('');
+    const { error } = await getSupabaseBrowserClient().rpc(
+      'renew_my_wanted_vehicle_ad',
+      { target_ad_id: ad.id },
+    );
+    setBusyAdId('');
+    if (error) {
+      setManagementError(
+        'The wanted ad could not be renewed. Please try again.',
+      );
+      return;
+    }
+    setManagementMessage('Wanted ad renewed and published for 90 days.');
+    await Promise.all([loadAds(), loadMyAds(user)]);
+  }
+
+  async function deleteAd(ad: WantedVehicleAdRow) {
+    if (!user) return;
+    const title =
+      [ad.make, ad.model].filter(Boolean).join(' ') || 'this wanted ad';
+    if (
+      !window.confirm(
+        `Delete ${title}? This also deletes its conversations and cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setBusyAdId(ad.id);
+    setManagementError('');
+    setManagementMessage('');
+    const { error } = await getSupabaseBrowserClient().rpc(
+      'delete_my_wanted_vehicle_ad',
+      { target_ad_id: ad.id },
+    );
+    setBusyAdId('');
+    if (error) {
+      setManagementError(
+        'The wanted ad could not be deleted. Please try again.',
+      );
+      return;
+    }
+    if (editingId === ad.id) cancelEdit();
+    setManagementMessage('Wanted ad deleted.');
+    await Promise.all([loadAds(), loadMyAds(user)]);
+  }
+
+  async function contactBuyer(ad: WantedVehicleAdRow) {
+    if (!user) {
+      window.location.assign(loginPath('/wanted'));
+      return;
+    }
+    if (identityStatusFor(user) !== 'verified') {
+      window.location.assign('/account/verification');
+      return;
+    }
+    setContactingId(ad.id);
+    setLoadError('');
+    const { data, error } = await getSupabaseBrowserClient().rpc(
+      'start_wanted_ad_conversation',
+      { target_wanted_ad_id: ad.id },
+    );
+    setContactingId('');
+    if (error || typeof data !== 'string') {
+      setLoadError(
+        'A private conversation could not be started. Please try again.',
+      );
+      return;
+    }
+    window.location.assign(
+      `/messages?wantedConversation=${encodeURIComponent(data)}`,
+    );
   }
 
   return (
@@ -280,6 +449,28 @@ export function WantedVehicleMarketplace() {
               className="border-[3px] border-navy bg-white p-6 shadow-[8px_8px_0_#16C7BE] sm:p-8"
               onSubmit={(event) => void submitWantedAd(event)}
             >
+              {editingId ? (
+                <div className="mb-6 flex items-center justify-between gap-4 border-l-4 border-[#f6b82b] bg-amber-50 p-4">
+                  <div>
+                    <p className="font-black uppercase text-navy">
+                      Editing your wanted ad
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Save your changes or cancel to post a new request.
+                    </p>
+                  </div>
+                  <Button
+                    aria-label="Cancel editing"
+                    className="rounded-none"
+                    onClick={cancelEdit}
+                    size="icon"
+                    type="button"
+                    variant="outline"
+                  >
+                    <X />
+                  </Button>
+                </div>
+              ) : null}
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="text-sm font-black text-navy">
                   Vehicle category
@@ -451,12 +642,168 @@ export function WantedVehicleMarketplace() {
                 ) : (
                   <CirclePlus />
                 )}
-                {submitting ? 'Posting…' : 'Post wanted ad'}
+                {submitting
+                  ? editingId
+                    ? 'Saving…'
+                    : 'Posting…'
+                  : editingId
+                    ? 'Save changes'
+                    : 'Post wanted ad'}
               </Button>
+              {editingId ? (
+                <Button
+                  className="mt-6 ml-3 h-12 rounded-none font-black uppercase"
+                  onClick={cancelEdit}
+                  type="button"
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
+              ) : null}
             </form>
           </WantedFormGate>
         </div>
       </section>
+
+      {user ? (
+        <section
+          className="border-b-[3px] border-navy bg-[#dff8f5] px-5 py-12 sm:px-8"
+          id="my-wanted-ads"
+        >
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col gap-3 border-b-2 border-navy pb-5 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-teal-800">
+                  Your requests
+                </p>
+                <h2 className="mt-2 text-3xl font-black uppercase text-navy">
+                  My wanted ads
+                </h2>
+              </div>
+              <p className="max-w-xl text-sm leading-6 text-slate-600">
+                Edit the details, pause an ad, renew it for 90 days, or delete
+                it.
+              </p>
+            </div>
+
+            {managementError ? (
+              <p className="mt-5 border-l-4 border-red-600 bg-red-50 p-4 text-sm font-bold text-red-800">
+                {managementError}
+              </p>
+            ) : null}
+            {managementMessage ? (
+              <p className="mt-5 border-l-4 border-teal-600 bg-white p-4 text-sm font-bold text-teal-900">
+                {managementMessage}
+              </p>
+            ) : null}
+
+            {myAdsLoading ? (
+              <div className="grid min-h-32 place-items-center">
+                <LoaderCircle
+                  aria-label="Loading your wanted ads"
+                  className="size-7 animate-spin text-teal-700"
+                />
+              </div>
+            ) : myAds.length === 0 ? (
+              <div className="mt-6 border-2 border-dashed border-navy/40 bg-white p-6 text-center">
+                <p className="font-black uppercase text-navy">
+                  You have not posted a wanted ad yet.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-6 grid gap-5 lg:grid-cols-2">
+                {myAds.map((ad) => {
+                  const expired =
+                    new Date(ad.expires_at).getTime() <= Date.now();
+                  const title =
+                    [ad.make, ad.model].filter(Boolean).join(' ') ||
+                    getVehicleType(ad.vehicle_type).label;
+                  const busy = busyAdId === ad.id;
+                  return (
+                    <article
+                      className="border-2 border-navy bg-white p-5 shadow-[5px_5px_0_rgba(7,28,44,.16)]"
+                      key={ad.id}
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-xl font-black uppercase text-navy">
+                            {title}
+                          </h3>
+                          <p className="mt-1 text-sm font-bold text-slate-600">
+                            {wantedYearLabel(ad)} ·{' '}
+                            {wantedBudgetLabel(ad.max_budget)}
+                          </p>
+                        </div>
+                        <span
+                          className={`px-3 py-1 text-xs font-black uppercase ${
+                            expired
+                              ? 'bg-slate-200 text-slate-700'
+                              : ad.status === 'published'
+                                ? 'bg-teal-100 text-teal-900'
+                                : 'bg-amber-100 text-amber-900'
+                          }`}
+                        >
+                          {expired ? 'Expired' : ad.status}
+                        </span>
+                      </div>
+                      <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600">
+                        {ad.description}
+                      </p>
+                      <p className="mt-3 text-xs font-bold text-slate-500">
+                        {expired
+                          ? `Expired ${new Date(ad.expires_at).toLocaleDateString()}`
+                          : `Active through ${new Date(ad.expires_at).toLocaleDateString()}`}
+                      </p>
+                      <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-200 pt-4">
+                        <Button
+                          className="rounded-none font-black uppercase"
+                          disabled={busy}
+                          onClick={() => beginEdit(ad)}
+                          type="button"
+                          variant="outline"
+                        >
+                          <Pencil /> Edit
+                        </Button>
+                        {!expired ? (
+                          <Button
+                            className="rounded-none font-black uppercase"
+                            disabled={busy}
+                            onClick={() => void changeStatus(ad)}
+                            type="button"
+                            variant="outline"
+                          >
+                            {ad.status === 'published' ? <Pause /> : <Play />}
+                            {ad.status === 'published' ? 'Pause' : 'Publish'}
+                          </Button>
+                        ) : null}
+                        <Button
+                          className="rounded-none font-black uppercase"
+                          disabled={busy}
+                          onClick={() => void renewAd(ad)}
+                          type="button"
+                          variant="outline"
+                        >
+                          <RefreshCw className={busy ? 'animate-spin' : ''} />{' '}
+                          Renew
+                        </Button>
+                        <Button
+                          className="rounded-none border-red-300 font-black uppercase text-red-700 hover:bg-red-50 hover:text-red-800"
+                          disabled={busy}
+                          onClick={() => void deleteAd(ad)}
+                          type="button"
+                          variant="outline"
+                        >
+                          <Trash2 /> Delete
+                        </Button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       <section className="bg-navy px-5 py-14 text-white sm:px-8 lg:py-20">
         <div className="mx-auto max-w-7xl">
@@ -548,6 +895,27 @@ export function WantedVehicleMarketplace() {
                           : `Within ${ad.search_distance} miles of ${ad.location_public}`}
                       </span>
                     </div>
+                    {user?.id === ad.user_id ? (
+                      <p className="mt-5 border-2 border-teal-700 bg-teal-50 px-4 py-3 text-center text-sm font-black uppercase text-teal-900">
+                        This is your wanted ad
+                      </p>
+                    ) : (
+                      <Button
+                        className="mt-5 h-12 w-full rounded-none bg-teal-500 font-black uppercase text-navy hover:bg-[#f6b82b]"
+                        disabled={contactingId === ad.id}
+                        onClick={() => void contactBuyer(ad)}
+                        type="button"
+                      >
+                        {contactingId === ad.id ? (
+                          <LoaderCircle className="animate-spin" />
+                        ) : (
+                          <MessageSquare />
+                        )}
+                        {contactingId === ad.id
+                          ? 'Opening conversation…'
+                          : 'I have this vehicle'}
+                      </Button>
+                    )}
                   </article>
                 );
               })}

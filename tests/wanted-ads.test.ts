@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   emptyWantedVehicleDraft,
   wantedBudgetLabel,
+  wantedDraftFromAd,
   wantedVehicleDraftError,
   wantedYearLabel,
   type WantedVehicleAdRow,
@@ -54,5 +55,18 @@ describe('wanted vehicle ads', () => {
   it('formats the public search summary', () => {
     expect(wantedYearLabel(ad)).toBe('2018–2022');
     expect(wantedBudgetLabel(ad.max_budget)).toBe('Up to $25,000');
+  });
+
+  it('loads an existing ad into the edit form without losing values', () => {
+    expect(wantedDraftFromAd(ad)).toMatchObject({
+      vehicleType: 'car',
+      make: 'Jeep',
+      model: 'Grand Cherokee',
+      yearMin: '2018',
+      yearMax: '2022',
+      maxBudget: '25000',
+      locationPublic: 'St. Louis, MO',
+      searchDistance: '100',
+    });
   });
 });

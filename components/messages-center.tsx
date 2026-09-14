@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   LoaderCircle,
   MessageSquare,
+  Search,
   Send,
   ShieldCheck,
 } from 'lucide-react';
@@ -29,7 +30,20 @@ type ListingSummary = {
   status: string;
 };
 
-type Conversation = {
+type WantedAdSummary = {
+  id: string;
+  user_id: string;
+  vehicle_type: string;
+  make: string | null;
+  model: string | null;
+  year_min: number | null;
+  year_max: number | null;
+  status: string;
+};
+
+type ListingConversation = {
+  key: string;
+  kind: 'listing';
   id: string;
   listing_id: string;
   buyer_user_id: string;
@@ -39,6 +53,20 @@ type Conversation = {
   listing?: ListingSummary;
 };
 
+type WantedConversation = {
+  key: string;
+  kind: 'wanted';
+  id: string;
+  wanted_ad_id: string;
+  owner_user_id: string;
+  responder_user_id: string;
+  created_at: string;
+  updated_at: string;
+  wantedAd?: WantedAdSummary;
+};
+
+type Conversation = ListingConversation | WantedConversation;
+
 type Message = {
   id: string;
   conversation_id: string;
@@ -47,12 +75,17 @@ type Message = {
   created_at: string;
 };
 
-function normalizeConversation(value: unknown): Conversation | undefined {
+function relatedRow(value: unknown, key: string) {
+  if (!value || typeof value !== 'object') return undefined;
+  const relation = (value as Record<string, unknown>)[key];
+  return Array.isArray(relation) ? relation[0] : relation;
+}
+
+function normalizeListingConversation(
+  value: unknown,
+): ListingConversation | undefined {
   if (!value || typeof value !== 'object') return undefined;
   const row = value as Record<string, unknown>;
-  const related = Array.isArray(row.vehicle_listings)
-    ? row.vehicle_listings[0]
-    : row.vehicle_listings;
   if (
     typeof row.id !== 'string' ||
     typeof row.listing_id !== 'string' ||
@@ -63,7 +96,10 @@ function normalizeConversation(value: unknown): Conversation | undefined {
   ) {
     return undefined;
   }
+  const listing = relatedRow(row, 'vehicle_listings');
   return {
+    key: `listing:${row.id}`,
+    kind: 'listing',
     id: row.id,
     listing_id: row.listing_id,
     buyer_user_id: row.buyer_user_id,
@@ -71,8 +107,40 @@ function normalizeConversation(value: unknown): Conversation | undefined {
     created_at: row.created_at,
     updated_at: row.updated_at,
     listing:
-      related && typeof related === 'object'
-        ? (related as ListingSummary)
+      listing && typeof listing === 'object'
+        ? (listing as ListingSummary)
+        : undefined,
+  };
+}
+
+function normalizeWantedConversation(
+  value: unknown,
+): WantedConversation | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const row = value as Record<string, unknown>;
+  if (
+    typeof row.id !== 'string' ||
+    typeof row.wanted_ad_id !== 'string' ||
+    typeof row.owner_user_id !== 'string' ||
+    typeof row.responder_user_id !== 'string' ||
+    typeof row.created_at !== 'string' ||
+    typeof row.updated_at !== 'string'
+  ) {
+    return undefined;
+  }
+  const wantedAd = relatedRow(row, 'wanted_vehicle_ads');
+  return {
+    key: `wanted:${row.id}`,
+    kind: 'wanted',
+    id: row.id,
+    wanted_ad_id: row.wanted_ad_id,
+    owner_user_id: row.owner_user_id,
+    responder_user_id: row.responder_user_id,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    wantedAd:
+      wantedAd && typeof wantedAd === 'object'
+        ? (wantedAd as WantedAdSummary)
         : undefined,
   };
 }
@@ -82,10 +150,32 @@ function listingName(listing?: ListingSummary) {
   return `${listing.year} ${listing.make} ${listing.model}${listing.trim ? ` ${listing.trim}` : ''}`;
 }
 
+function wantedAdName(ad?: WantedAdSummary) {
+  if (!ad) return 'Wanted vehicle';
+  const name = [ad.make, ad.model].filter(Boolean).join(' ');
+  const years =
+    ad.year_min && ad.year_max
+      ? ad.year_min === ad.year_max
+        ? `${ad.year_min}`
+        : `${ad.year_min}–${ad.year_max}`
+      : ad.year_min
+        ? `${ad.year_min} or newer`
+        : ad.year_max
+          ? `${ad.year_max} or older`
+          : '';
+  return `Wanted: ${[years, name || 'Any vehicle'].filter(Boolean).join(' ')}`;
+}
+
+function conversationName(conversation: Conversation) {
+  return conversation.kind === 'listing'
+    ? listingName(conversation.listing)
+    : wantedAdName(conversation.wantedAd);
+}
+
 export function MessagesCenter() {
   const [user, setUser] = useState<User | null>();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeId, setActiveId] = useState('');
+  const [activeKey, setActiveKey] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(true);
@@ -93,40 +183,65 @@ export function MessagesCenter() {
   const [error, setError] = useState('');
 
   const loadConversations = useCallback(async (currentUser: User) => {
-    const requested = new URLSearchParams(window.location.search).get(
-      'conversation',
-    );
-    const { data, error: queryError } = await getSupabaseBrowserClient()
-      .from('listing_conversations')
-      .select(
-        'id, listing_id, buyer_user_id, seller_user_id, created_at, updated_at, vehicle_listings(id, slug, year, make, model, trim, photo_urls, status)',
-      )
-      .order('updated_at', { ascending: false });
+    const searchParams = new URLSearchParams(window.location.search);
+    const requestedListing = searchParams.get('conversation');
+    const requestedWanted = searchParams.get('wantedConversation');
+    const supabase = getSupabaseBrowserClient();
+    const [listingResult, wantedResult] = await Promise.all([
+      supabase
+        .from('listing_conversations')
+        .select(
+          'id, listing_id, buyer_user_id, seller_user_id, created_at, updated_at, vehicle_listings(id, slug, year, make, model, trim, photo_urls, status)',
+        )
+        .order('updated_at', { ascending: false }),
+      supabase
+        .from('wanted_ad_conversations')
+        .select(
+          'id, wanted_ad_id, owner_user_id, responder_user_id, created_at, updated_at, wanted_vehicle_ads(id, user_id, vehicle_type, make, model, year_min, year_max, status)',
+        )
+        .order('updated_at', { ascending: false }),
+    ]);
 
-    if (queryError) {
+    if (listingResult.error || wantedResult.error) {
       setError('Messages could not be loaded. Please refresh and try again.');
       setLoading(false);
       return;
     }
 
-    const rows = (data ?? [])
-      .map(normalizeConversation)
-      .filter((row): row is Conversation => Boolean(row));
+    const listingRows = (listingResult.data ?? [])
+      .map(normalizeListingConversation)
+      .filter((row): row is ListingConversation => Boolean(row));
+    const wantedRows = (wantedResult.data ?? [])
+      .map(normalizeWantedConversation)
+      .filter((row): row is WantedConversation => Boolean(row));
+    const rows: Conversation[] = [...listingRows, ...wantedRows].sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    );
+    const requestedKey = requestedWanted
+      ? `wanted:${requestedWanted}`
+      : requestedListing
+        ? `listing:${requestedListing}`
+        : '';
     setUser(currentUser);
     setConversations(rows);
-    setActiveId(
-      requested && rows.some((row) => row.id === requested)
-        ? requested
-        : (rows[0]?.id ?? ''),
+    setActiveKey(
+      requestedKey && rows.some((row) => row.key === requestedKey)
+        ? requestedKey
+        : (rows[0]?.key ?? ''),
     );
     setLoading(false);
   }, []);
 
-  const loadMessages = useCallback(async (conversationId: string) => {
+  const loadMessages = useCallback(async (conversation: Conversation) => {
+    const table =
+      conversation.kind === 'listing'
+        ? 'listing_messages'
+        : 'wanted_ad_messages';
     const { data, error: queryError } = await getSupabaseBrowserClient()
-      .from('listing_messages')
+      .from(table)
       .select('id, conversation_id, sender_user_id, body, created_at')
-      .eq('conversation_id', conversationId)
+      .eq('conversation_id', conversation.id)
       .order('created_at', { ascending: true });
     if (queryError) {
       setError('This conversation could not be loaded. Please try again.');
@@ -156,26 +271,33 @@ export function MessagesCenter() {
     };
   }, [loadConversations]);
 
+  const activeConversation = useMemo(
+    () => conversations.find((row) => row.key === activeKey),
+    [activeKey, conversations],
+  );
+
   useEffect(() => {
     setMessages([]);
     setError('');
-    if (activeId) void loadMessages(activeId);
-  }, [activeId, loadMessages]);
-
-  const activeConversation = useMemo(
-    () => conversations.find((row) => row.id === activeId),
-    [activeId, conversations],
-  );
+    if (activeConversation) void loadMessages(activeConversation);
+  }, [activeConversation, loadMessages]);
 
   async function sendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const body = draft.trim();
-    if (!activeId || !body || sending) return;
+    if (!activeConversation || !body || sending) return;
     setSending(true);
     setError('');
+    const functionName =
+      activeConversation.kind === 'listing'
+        ? 'send_listing_message'
+        : 'send_wanted_ad_message';
     const { error: sendError } = await getSupabaseBrowserClient().rpc(
-      'send_listing_message',
-      { target_conversation_id: activeId, message_body: body },
+      functionName,
+      {
+        target_conversation_id: activeConversation.id,
+        message_body: body,
+      },
     );
     setSending(false);
     if (sendError) {
@@ -183,7 +305,7 @@ export function MessagesCenter() {
       return;
     }
     setDraft('');
-    await loadMessages(activeId);
+    await loadMessages(activeConversation);
   }
 
   if (loading || user === undefined) {
@@ -203,7 +325,7 @@ export function MessagesCenter() {
           Sign in to see messages
         </h2>
         <p className="mt-3 text-slate-600">
-          Conversations are private to the buyer and verified seller.
+          Conversations are private to the two verified members.
         </p>
         <Button
           className="mt-6 h-11 rounded-none bg-teal-500 font-black uppercase text-navy"
@@ -223,30 +345,40 @@ export function MessagesCenter() {
           <h2 className="font-black uppercase text-navy">Conversations</h2>
         </div>
         {conversations.length ? (
-          conversations.map((conversation) => (
-            <button
-              className={`w-full border-b border-slate-200 p-4 text-left hover:bg-teal-50 ${conversation.id === activeId ? 'bg-teal-50' : 'bg-white'}`}
-              key={conversation.id}
-              onClick={() => setActiveId(conversation.id)}
-              type="button"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-bold text-navy">
-                  {conversation.seller_user_id === user.id
-                    ? 'Buyer conversation'
-                    : 'Verified seller'}
+          conversations.map((conversation) => {
+            const label =
+              conversation.kind === 'listing'
+                ? conversation.seller_user_id === user.id
+                  ? 'Buyer conversation'
+                  : 'Verified seller'
+                : conversation.owner_user_id === user.id
+                  ? 'Vehicle owner response'
+                  : 'Verified buyer';
+            return (
+              <button
+                className={`w-full border-b border-slate-200 p-4 text-left hover:bg-teal-50 ${conversation.key === activeKey ? 'bg-teal-50' : 'bg-white'}`}
+                key={conversation.key}
+                onClick={() => setActiveKey(conversation.key)}
+                type="button"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-bold text-navy">{label}</p>
+                  {conversation.kind === 'wanted' ? (
+                    <Search className="size-4 shrink-0 text-amber-600" />
+                  ) : (
+                    <ShieldCheck className="size-4 shrink-0 text-teal-700" />
+                  )}
+                </div>
+                <p className="mt-2 text-sm text-slate-600">
+                  {conversationName(conversation)}
                 </p>
-                <ShieldCheck className="size-4 shrink-0 text-teal-700" />
-              </div>
-              <p className="mt-2 text-sm text-slate-600">
-                {listingName(conversation.listing)}
-              </p>
-            </button>
-          ))
+              </button>
+            );
+          })
         ) : (
           <p className="p-5 text-sm leading-6 text-slate-500">
-            No conversations yet. Buyers can start one from an approved vehicle
-            listing.
+            No conversations yet. Start one from a vehicle listing or a wanted
+            ad.
           </p>
         )}
       </aside>
@@ -255,19 +387,28 @@ export function MessagesCenter() {
         {activeConversation ? (
           <>
             <div className="flex items-center gap-3 border-b border-slate-200 p-4">
-              {activeConversation.listing?.photo_urls?.[0] && (
-                <img
-                  alt=""
-                  className="size-12 border border-navy object-cover"
-                  src={activeConversation.listing.photo_urls[0]}
-                />
-              )}
+              {activeConversation.kind === 'listing' &&
+                activeConversation.listing?.photo_urls?.[0] && (
+                  <img
+                    alt=""
+                    className="size-12 border border-navy object-cover"
+                    src={activeConversation.listing.photo_urls[0]}
+                  />
+                )}
+              {activeConversation.kind === 'wanted' ? (
+                <div className="grid size-12 shrink-0 place-items-center border border-navy bg-amber-100">
+                  <Search className="size-6 text-navy" />
+                </div>
+              ) : null}
               <div className="min-w-0 flex-1">
                 <h2 className="truncate font-bold text-navy">
-                  {listingName(activeConversation.listing)}
+                  {conversationName(activeConversation)}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Private conversation attached to this listing
+                  Private conversation attached to this{' '}
+                  {activeConversation.kind === 'listing'
+                    ? 'vehicle listing'
+                    : 'wanted ad'}
                 </p>
               </div>
               <Badge className="rounded-none bg-teal-100 text-teal-800">
@@ -303,8 +444,9 @@ export function MessagesCenter() {
                     Start the conversation
                   </h3>
                   <p className="mt-3 leading-7 text-slate-600">
-                    Ask about availability, condition, or arranging a safe
-                    public meeting.
+                    {activeConversation.kind === 'wanted'
+                      ? 'Share the vehicle you have, its condition, and where it is located.'
+                      : 'Ask about availability, condition, or arranging a safe public meeting.'}
                   </p>
                 </div>
               )}
@@ -355,8 +497,7 @@ export function MessagesCenter() {
               Your inbox is ready
             </h2>
             <p className="mt-3 leading-7 text-slate-600">
-              New buyer conversations about your published vehicles will appear
-              here.
+              Messages about your listings and wanted ads will appear here.
             </p>
           </div>
         )}
