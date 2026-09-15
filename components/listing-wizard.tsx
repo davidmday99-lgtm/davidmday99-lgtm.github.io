@@ -9,9 +9,11 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
+  BadgeCheck,
   Camera,
   CheckCircle2,
   FileCheck2,
+  RefreshCw,
   Plus,
   Trash2,
 } from 'lucide-react';
@@ -23,8 +25,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useSellerIdentityStatus } from '@/components/seller-identity-gate';
 import { CARFAX_REPORTS_URL, validateSellerCarfaxUrl } from '@/lib/carfax';
 import { engineSizeSuggestions } from '@/lib/engine-sizes';
+import { normalizeIdentityStatus } from '@/lib/identity-verification';
 import { catalogMakes, catalogModels } from '@/lib/vehicle-catalog';
 import {
   conditionQuestionCount,
@@ -46,8 +50,8 @@ const steps = [
   'Price & condition',
   'Features & story',
   'Photos',
-  'Ownership',
-  'Review',
+  'Preview',
+  'Verify & submit',
 ];
 
 const acceptedPhotoTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
@@ -146,6 +150,7 @@ const initialListingDraft: ListingDraft = {
 };
 
 export function ListingWizard() {
+  const initialIdentityStatus = useSellerIdentityStatus();
   const [step, setStep] = useState(0);
   const [vin, setVin] = useState('');
   const [listing, setListing] = useState<ListingDraft>(initialListingDraft);
@@ -166,6 +171,8 @@ export function ListingWizard() {
   const [reviewBusy, setReviewBusy] = useState(false);
   const [reviewError, setReviewError] = useState<string>();
   const [reviewId, setReviewId] = useState<string>();
+  const [identityStatus, setIdentityStatus] = useState(initialIdentityStatus);
+  const [identityBusy, setIdentityBusy] = useState(false);
   const photoUrls = useRef(new Set<string>());
   const carfaxValidation = validateSellerCarfaxUrl(carfaxUrl);
   const normalizedVin = vin.trim().toUpperCase();
@@ -222,6 +229,7 @@ export function ListingWizard() {
   );
   const conditionComplete = completedConditionCount === conditionQuestionCount;
   const canSubmitForReview = Boolean(
+    identityStatus === 'verified' &&
     validVin &&
     listingDetailsComplete &&
     conditionComplete &&
@@ -231,6 +239,10 @@ export function ListingWizard() {
     documentScreeningConsent &&
     attested,
   );
+
+  useEffect(() => {
+    setIdentityStatus(initialIdentityStatus);
+  }, [initialIdentityStatus]);
 
   useEffect(() => {
     const urls = photoUrls.current;
@@ -277,6 +289,43 @@ export function ListingWizard() {
     photoUrls.current.delete(photo.previewUrl);
     setPhotos((current) => current.filter(({ id }) => id !== photo.id));
     setPhotoError(undefined);
+  }
+
+  async function refreshIdentityStatus() {
+    if (!hasSupabaseConfig()) return;
+    setIdentityBusy(true);
+    setReviewError(undefined);
+
+    try {
+      const supabase = getSupabaseBrowserClient();
+      await supabase.auth.refreshSession();
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        throw new Error('Log in again to refresh your verification status.');
+      }
+      const verification = data.user.app_metadata?.identity_verification;
+      const status = normalizeIdentityStatus(
+        verification && typeof verification === 'object'
+          ? (verification as { status?: unknown }).status
+          : undefined,
+      );
+      setIdentityStatus(status);
+      if (status !== 'verified') {
+        setReviewError(
+          status === 'processing'
+            ? 'Stripe is still processing your identity check. Try again in a moment.'
+            : 'Identity verification is not complete yet. Finish the Stripe check, then refresh the status here.',
+        );
+      }
+    } catch (caught) {
+      setReviewError(
+        caught instanceof Error
+          ? caught.message
+          : 'Verification status could not be refreshed.',
+      );
+    } finally {
+      setIdentityBusy(false);
+    }
   }
 
   function chooseOwnershipDocument(event: ChangeEvent<HTMLInputElement>) {
@@ -398,6 +447,13 @@ export function ListingWizard() {
   }
 
   const reviewItems = [
+    {
+      label:
+        identityStatus === 'verified'
+          ? 'Identity verified through Stripe'
+          : 'Identity verification still needed',
+      ready: identityStatus === 'verified',
+    },
     {
       label: validVin
         ? `${vehicleType.identifierLabel} ready for review`
@@ -901,9 +957,73 @@ export function ListingWizard() {
         )}
 
         {step === 4 && (
+          <ListingPreview
+            listing={listing}
+            photoUrl={photos[0]?.previewUrl}
+            vehicleTypeLabel={vehicleType.label}
+          />
+        )}
+
+        {step === 5 && (
           <div>
+            <div
+              className={`mb-8 border-2 p-5 ${identityStatus === 'verified' ? 'border-teal-600 bg-teal-50' : 'border-amber-500 bg-amber-50'}`}
+            >
+              <div className="flex items-start gap-4">
+                <BadgeCheck
+                  aria-hidden="true"
+                  className={`mt-0.5 size-6 shrink-0 ${identityStatus === 'verified' ? 'text-teal-700' : 'text-amber-700'}`}
+                />
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-800">
+                    Final verification
+                  </p>
+                  <h2 className="mt-2 text-xl font-black uppercase text-navy sm:text-2xl">
+                    {identityStatus === 'verified'
+                      ? 'Your identity is verified.'
+                      : 'Verify your identity when you are ready to submit.'}
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                    {identityStatus === 'verified'
+                      ? 'Stripe identity verification is complete. Add your ownership document below to finish the private review submission.'
+                      : 'Stripe securely handles the government-ID check. Open verification in a new tab so this listing and its photo selections stay open here.'}
+                  </p>
+                  {identityStatus !== 'verified' && (
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Button
+                        className="rounded-none bg-[#16c7be] font-black uppercase text-navy shadow-[3px_3px_0_#061c2b] hover:bg-[#f6b82b]"
+                        nativeButton={false}
+                        render={
+                          <a
+                            href="/account/verification"
+                            rel="noreferrer"
+                            target="_blank"
+                          />
+                        }
+                      >
+                        Verify with Stripe <ArrowRight />
+                      </Button>
+                      <Button
+                        className="rounded-none font-black uppercase"
+                        disabled={identityBusy}
+                        onClick={() => void refreshIdentityStatus()}
+                        type="button"
+                        variant="outline"
+                      >
+                        <RefreshCw
+                          className={identityBusy ? 'animate-spin' : undefined}
+                        />
+                        {identityBusy
+                          ? 'Checking status…'
+                          : 'I finished — check status'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
             <h2 className="mt-3 text-3xl font-black uppercase tracking-tight text-navy">
-              Submit ownership proof.
+              Add ownership proof.
             </h2>
             <p className="mt-2 max-w-2xl leading-7 text-slate-600">
               Upload a current title or registration to a private,
@@ -995,7 +1115,7 @@ export function ListingWizard() {
         {step === 5 && (
           <div>
             <h2 className="mt-3 text-3xl font-black uppercase tracking-tight text-navy">
-              Review before submission.
+              Final checks before submission.
             </h2>
             <div className="mt-7 grid gap-4 sm:grid-cols-2">
               {reviewItems.map(({ label, ready }) => (
@@ -1034,7 +1154,9 @@ export function ListingWizard() {
                 ? 'Submitting securely…'
                 : reviewReady
                   ? 'Submitted for review'
-                  : 'Submit for review'}
+                  : identityStatus === 'verified'
+                    ? 'Submit for review'
+                    : 'Verify identity before submitting'}
             </Button>
 
             {reviewError && (
@@ -1103,7 +1225,6 @@ export function ListingWizard() {
           {step < 5 && (
             <Button
               className="rounded-none bg-navy"
-              disabled={step === 4 && !ownershipDocument}
               onClick={() => setStep((current) => Math.min(5, current + 1))}
             >
               Save & continue <ArrowRight />
@@ -1111,6 +1232,116 @@ export function ListingWizard() {
           )}
         </div>
       </section>
+    </div>
+  );
+}
+
+function ListingPreview({
+  listing,
+  photoUrl,
+  vehicleTypeLabel,
+}: {
+  listing: ListingDraft;
+  photoUrl?: string;
+  vehicleTypeLabel: string;
+}) {
+  const title = [listing.year, listing.make, listing.model, listing.trim]
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join(' ');
+  const price = Number(listing.price);
+  const usage = Number(listing.mileage);
+
+  return (
+    <div>
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-800">
+        Nothing has been submitted yet
+      </p>
+      <h2 className="mt-3 text-3xl font-black uppercase tracking-tight text-navy">
+        Preview your listing.
+      </h2>
+      <p className="mt-2 max-w-2xl leading-7 text-slate-600">
+        Check how buyers will see the main details. You can return to any step
+        to make changes before completing identity and ownership verification.
+      </p>
+
+      <article className="mt-7 overflow-hidden border-2 border-navy bg-white shadow-[8px_8px_0_#16c7be]">
+        <div className="grid lg:grid-cols-[1.35fr_1fr]">
+          {photoUrl ? (
+            <img
+              alt={title ? `${title} listing preview` : 'Vehicle listing preview'}
+              className="aspect-[4/3] h-full min-h-72 w-full object-cover"
+              src={photoUrl}
+            />
+          ) : (
+            <div className="grid min-h-72 place-items-center bg-slate-100 p-8 text-center">
+              <div>
+                <Camera aria-hidden="true" className="mx-auto size-10 text-slate-400" />
+                <p className="mt-3 font-black uppercase text-slate-500">
+                  Add a photo to complete the preview
+                </p>
+              </div>
+            </div>
+          )}
+          <div className="p-6 sm:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-800">
+              {vehicleTypeLabel} · private owner
+            </p>
+            <h3 className="mt-3 text-3xl font-black uppercase leading-tight text-navy">
+              {title || 'Your vehicle title will appear here'}
+            </h3>
+            <p className="mt-5 text-4xl font-black text-navy">
+              {Number.isFinite(price) && listing.price.trim()
+                ? price.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                  })
+                : 'Price not entered'}
+            </p>
+            <p className="mt-3 text-base font-bold text-slate-600">
+              {listing.location.trim() || 'City and state not entered'}
+            </p>
+            <dl className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-slate-200 pt-5 text-sm">
+              <div>
+                <dt className="font-black uppercase text-slate-500">Usage</dt>
+                <dd className="mt-1 font-bold text-navy">
+                  {Number.isFinite(usage) && listing.mileage.trim()
+                    ? usage.toLocaleString('en-US')
+                    : 'Not entered'}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-black uppercase text-slate-500">Style</dt>
+                <dd className="mt-1 font-bold text-navy">{listing.bodyStyle}</dd>
+              </div>
+              <div>
+                <dt className="font-black uppercase text-slate-500">Engine</dt>
+                <dd className="mt-1 font-bold text-navy">
+                  {listing.engineSize.trim() || 'Not entered'}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-black uppercase text-slate-500">Transmission</dt>
+                <dd className="mt-1 font-bold text-navy">{listing.transmission}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+        <div className="border-t-2 border-navy bg-slate-50 p-6 sm:p-8">
+          <h4 className="font-black uppercase text-navy">Seller description</h4>
+          <p className="mt-3 whitespace-pre-wrap leading-7 text-slate-600">
+            {listing.description.trim() ||
+              'Your description will appear here after you add the vehicle’s history, maintenance, and reason for selling.'}
+          </p>
+        </div>
+      </article>
+
+      <div className="mt-7 border-l-4 border-teal-600 bg-teal-50 p-4 text-sm leading-6 text-navy">
+        <strong>Ready for the final step?</strong> Continue to verify your
+        identity, add proof of ownership, and submit the listing for private
+        human review.
+      </div>
     </div>
   );
 }

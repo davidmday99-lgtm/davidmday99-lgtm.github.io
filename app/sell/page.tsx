@@ -14,16 +14,16 @@ export const metadata: Metadata = {
 
 const listingSteps = [
   {
-    icon: BadgeCheck,
-    title: 'Verify your identity',
+    icon: FileCheck2,
+    title: 'Build your listing',
     detail:
-      'Complete the secure government-ID check through Stripe Identity before entering vehicle details.',
+      'Add the vehicle facts, condition, story, and photos without completing verification first.',
   },
   {
-    icon: FileCheck2,
-    title: 'Document the vehicle',
+    icon: BadgeCheck,
+    title: 'Preview, then verify',
     detail:
-      'Add vehicle facts, condition disclosures, photos, and proof of ownership.',
+      'Review exactly how the listing will appear, then complete identity and ownership checks.',
   },
   {
     icon: ShieldCheck,

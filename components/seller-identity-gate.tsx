@@ -1,13 +1,13 @@
 'use client';
 
 import type { User } from '@supabase/supabase-js';
-import { BadgeCheck, ChevronDown, LoaderCircle, LockKeyhole } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { BadgeCheck, LoaderCircle, LockKeyhole } from 'lucide-react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { loginPath } from '@/lib/auth-return';
 import {
-  canStartSellerListing,
+  type IdentityStatus,
   normalizeIdentityStatus,
 } from '@/lib/identity-verification';
 import {
@@ -22,6 +22,12 @@ function identityStatusFor(user?: User | null) {
   }
 
   return normalizeIdentityStatus((verification as { status?: unknown }).status);
+}
+
+const SellerIdentityContext = createContext<IdentityStatus>('not_started');
+
+export function useSellerIdentityStatus() {
+  return useContext(SellerIdentityContext);
 }
 
 export function SellerIdentityGate({
@@ -82,35 +88,33 @@ export function SellerIdentityGate({
     );
   }
 
-  if (!canStartSellerListing(identityStatus)) {
-    const needsAttention = identityStatus === 'requires_input';
-    const processing = identityStatus === 'processing';
-
-    return (
-      <GateCard
-        body={
-          processing
-            ? 'Stripe is still reviewing your government ID. Check the current result before entering vehicle information.'
-            : needsAttention
-              ? 'Stripe needs another ID submission. Finish that secure step before entering vehicle information.'
-              : 'Posting is free. Complete the secure government-ID check through Stripe Identity before entering vehicle information or uploading ownership documents.'
-        }
-        buttonHref="/account/verification"
-        buttonLabel={
-          processing
-            ? 'Check verification status'
-            : needsAttention
-              ? 'Retry identity verification'
-              : 'Verify my identity'
-        }
-        eyebrow={processing ? 'Verification processing' : 'Required first step'}
-        icon={BadgeCheck}
-        title="Verify your identity before listing a vehicle."
-      />
-    );
-  }
-
-  return <>{children}</>;
+  return (
+    <SellerIdentityContext.Provider value={identityStatus}>
+      {identityStatus !== 'verified' && (
+        <section className="mb-7 border-2 border-teal-700 bg-teal-50 p-5 sm:p-6">
+          <div className="flex items-start gap-4">
+            <div className="grid size-11 shrink-0 place-items-center border-2 border-navy bg-[#96d9ed]">
+              <BadgeCheck aria-hidden="true" className="size-5 text-navy" />
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-800">
+                Build first · verify when ready
+              </p>
+              <h2 className="mt-2 text-xl font-black uppercase text-navy sm:text-2xl">
+                Create and preview your listing before verification.
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                Complete the vehicle details and preview how the listing will
+                look. Stripe identity verification and private ownership-document
+                review are required only when you are ready to submit it.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+      {children}
+    </SellerIdentityContext.Provider>
+  );
 }
 
 function GateCard({
@@ -142,39 +146,6 @@ function GateCard({
             {title}
           </h2>
           <p className="mt-3 leading-7 text-slate-600">{body}</p>
-          <p className="mt-3 text-sm text-slate-500">
-            Your vehicle details remain hidden until the identity requirement is
-            complete.
-          </p>
-          <details className="group mt-5 border border-slate-300 bg-slate-50">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-black uppercase tracking-wide text-navy marker:content-none">
-              How identity and ownership verification work
-              <ChevronDown
-                aria-hidden="true"
-                className="size-5 shrink-0 transition-transform group-open:rotate-180"
-              />
-            </summary>
-            <div className="border-t border-slate-300 px-4 py-4 text-sm leading-6 text-slate-600">
-              <p>
-                Stripe Identity securely handles the government-ID verification
-                step. Owner Only Cars separately reviews proof of vehicle ownership
-                before a listing can be published.
-              </p>
-              <p className="mt-3">
-                These checks help reduce fraud, but they do not guarantee a person,
-                vehicle, or transaction. Keep payments and communication secure and
-                never send sensitive documents through messages.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 font-bold">
-                <a className="text-teal-800 underline underline-offset-4" href="/trust-and-safety">
-                  Trust &amp; safety
-                </a>
-                <a className="text-teal-800 underline underline-offset-4" href="/privacy">
-                  Privacy details
-                </a>
-              </div>
-            </div>
-          </details>
           <Button
             className="mt-6 h-12 rounded-none bg-[#16c7be] px-6 font-black uppercase text-navy shadow-[4px_4px_0_#061c2b] hover:bg-[#f6b82b]"
             nativeButton={false}
