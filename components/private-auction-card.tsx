@@ -38,7 +38,7 @@ export function PrivateAuctionCard({
       <div className="p-5">
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-1.5 text-xs font-black uppercase text-[#0B6F6A]">
-            <ShieldCheck className="size-4" /> Verified owner
+            <ShieldCheck className="size-4" /> Private-owner preview
           </span>
           <span
             className={`px-2 py-1 text-[10px] font-black uppercase ${reserveClass}`}

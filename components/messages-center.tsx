@@ -325,7 +325,7 @@ export function MessagesCenter() {
           Sign in to see messages
         </h2>
         <p className="mt-3 text-slate-600">
-          Conversations are private to the two verified members.
+          Conversations are private to the two signed-in members.
         </p>
         <Button
           className="mt-6 h-11 rounded-none bg-teal-500 font-black uppercase text-navy"
@@ -350,10 +350,10 @@ export function MessagesCenter() {
               conversation.kind === 'listing'
                 ? conversation.seller_user_id === user.id
                   ? 'Buyer conversation'
-                  : 'Verified seller'
+                  : 'Seller'
                 : conversation.owner_user_id === user.id
                   ? 'Vehicle owner response'
-                  : 'Verified buyer';
+                  : 'Buyer';
             return (
               <button
                 className={`w-full border-b border-slate-200 p-4 text-left hover:bg-teal-50 ${conversation.key === activeKey ? 'bg-teal-50' : 'bg-white'}`}
@@ -412,7 +412,7 @@ export function MessagesCenter() {
                 </p>
               </div>
               <Badge className="rounded-none bg-teal-100 text-teal-800">
-                <ShieldCheck /> Verified
+                <ShieldCheck /> Signed in
               </Badge>
             </div>
 

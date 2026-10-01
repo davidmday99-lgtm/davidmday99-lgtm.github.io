@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { BadgeCheck, FileCheck2, ShieldCheck } from 'lucide-react';
+import { Camera, FileCheck2, Send } from 'lucide-react';
 
 import { AccountShell } from '@/components/account-shell';
 import { ListingWizard } from '@/components/listing-wizard';
@@ -8,7 +8,7 @@ import { SellerIdentityGate } from '@/components/seller-identity-gate';
 export const metadata: Metadata = {
   title: 'Sell Your Vehicle Privately',
   description:
-    'Create a private-owner vehicle listing on OwnerOnly Cars. Verified sellers can list cars, motorcycles, boats, RVs, ATVs, trailers, snowmobiles, and personal watercraft.',
+    'Create a free private-owner vehicle listing on Owner Only Cars. List cars, motorcycles, boats, RVs, ATVs, trailers, snowmobiles, and personal watercraft.',
   alternates: { canonical: '/sell' },
 };
 
@@ -16,20 +16,17 @@ const listingSteps = [
   {
     icon: FileCheck2,
     title: 'Build your listing',
-    detail:
-      'Add the vehicle facts, condition, story, and photos without completing verification first.',
+    detail: 'Add the vehicle facts, condition, story, and asking price.',
   },
   {
-    icon: BadgeCheck,
-    title: 'Preview, then verify',
-    detail:
-      'Review exactly how the listing will appear, then complete identity and ownership checks.',
+    icon: Camera,
+    title: 'Add photos and preview',
+    detail: 'Review exactly how the listing will appear to buyers.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Publish after review',
-    detail:
-      'Ownership documents receive a private human review before publication.',
+    icon: Send,
+    title: 'Publish for free',
+    detail: 'Confirm you are a private owner and publish immediately.',
   },
 ] as const;
 
@@ -41,13 +38,13 @@ export default function Page() {
           Cars from people, not lots
         </p>
         <h2 className="mt-3 text-3xl font-black uppercase tracking-tight text-navy">
-          Create a verified private-owner listing.
+          Create a private-owner listing for free.
         </h2>
         <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-          Posting is free. Sell your vehicle directly to buyers without dealer
-          inventory or an unnecessary dealer markup. Stripe Identity handles the
-          government-ID check, and Owner Only Cars separately reviews ownership
-          documents before publication.
+          Sell your vehicle directly to buyers without dealer inventory or an
+          unnecessary dealer markup. No ID scan or ownership-document upload is
+          required. You attest that you own the vehicle, and we remove dealer,
+          broker, and reseller listings when they are reported or identified.
         </p>
         <ol className="mt-6 grid gap-4 lg:grid-cols-3">
           {listingSteps.map(({ icon: Icon, title, detail }, index) => (

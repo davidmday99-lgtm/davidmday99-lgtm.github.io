@@ -118,7 +118,7 @@ export default function PrivateAuctionPage({
           <section className="mt-14 grid gap-10 lg:grid-cols-[1fr_.65fr]">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.2em] text-[#0B8F89]">
-                {auction.year} · verified-owner preview
+                {auction.year} · private-owner preview
               </p>
               <h1 className="mt-3 text-4xl font-black uppercase leading-none tracking-[-0.045em] sm:text-6xl">
                 {auction.name}
@@ -178,13 +178,12 @@ export default function PrivateAuctionPage({
               <div className="border-[3px] border-[#061C2B] bg-[#dff4f1] p-6">
                 <BadgeCheck className="size-8 text-[#0B8F89]" />
                 <h2 className="mt-4 text-2xl font-black uppercase">
-                  What verification means
+                  What the owner badge means
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-700">
-                  Identity review checks the seller’s identity. Ownership review
-                  separately checks that the legal name and VIN align with
-                  vehicle documents. Neither guarantees condition or a safe
-                  transaction.
+                  The seller attests that they own the vehicle and are not
+                  acting as a dealer, broker, or reseller. Owner Only Cars does
+                  not independently verify identity or ownership documents.
                 </p>
               </div>
               <div className="border-[3px] border-[#061C2B] bg-[#FFB81C] p-6">

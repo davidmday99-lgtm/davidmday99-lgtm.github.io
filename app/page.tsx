@@ -21,25 +21,25 @@ const checks = [
   {
     number: '01',
     icon: BadgeCheck,
-    title: 'Identity checked',
-    body: 'Government-ID document verification through a hosted Stripe Identity flow.',
-    limit: 'Confirms identity—not vehicle ownership.',
+    title: 'Owner attestation',
+    body: 'Every seller agrees that they own the vehicle and are not acting as a dealer, broker, or reseller.',
+    limit: 'A seller statement is not independent verification.',
     color: 'bg-[#f6b82b]',
   },
   {
     number: '02',
     icon: FileCheck2,
-    title: 'Ownership reviewed',
-    body: 'Seller legal name and vehicle identifier are compared with current ownership or registration documents.',
-    limit: 'Does not confirm mechanical condition.',
+    title: 'Community reporting',
+    body: 'Buyers can report suspicious, misleading, commercial, or prohibited listings for moderator review.',
+    limit: 'Reports are reviewed; they are not automatic proof.',
     color: 'bg-[#96d9ed]',
   },
   {
     number: '03',
     icon: ShieldCheck,
-    title: 'History available',
-    body: 'Title, odometer, brand, salvage and certain theft data from an approved provider.',
-    limit: 'Does not contain a complete repair history.',
+    title: 'Buyer due diligence',
+    body: 'Vehicle details, seller-provided disclosures, and optional history links help buyers ask better questions.',
+    limit: 'Always inspect the vehicle and original paperwork yourself.',
     color: 'bg-[#22b8ae]',
   },
 ];
@@ -47,13 +47,13 @@ const checks = [
 const trustSignals = [
   {
     icon: ShieldCheck,
-    title: 'Identity verified',
-    detail: 'Government-ID check',
+    title: 'Private owners only',
+    detail: 'No dealer inventory',
   },
   {
     icon: FileCheck2,
-    title: 'Ownership reviewed',
-    detail: 'Name and identifier compared',
+    title: 'Owner attestation',
+    detail: 'Dealer listings can be removed',
   },
   {
     icon: MessageCircle,
@@ -131,7 +131,7 @@ export default function Home() {
                   </span>
                 </h1>
                 <p className="mt-6 border-l-4 border-[#f6b82b] pl-4 text-sm font-bold text-slate-100 sm:text-base">
-                  Verified private sellers. No dealer listings.
+                  Private-owner listings. No dealer inventory.
                 </p>
               </div>
 
@@ -259,8 +259,7 @@ export default function Home() {
               </h2>
               <p className="max-w-2xl text-base font-bold leading-7 text-navy/75">
                 Browse or list cars, motorcycles, boats, ATVs and UTVs, RVs and
-                campers, and trailers—all under the same identity and ownership
-                review standards.
+                campers, and trailers—all under the same private-owner rules.
               </p>
             </div>
             <div className="mt-8">
@@ -279,16 +278,16 @@ export default function Home() {
             <div className="grid items-end gap-7 lg:grid-cols-[1.15fr_.85fr]">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.23em] text-teal-700">
-                  Three checks. Three different answers.
+                  Simple rules. Clear expectations.
                 </p>
                 <h2 className="mt-4 max-w-3xl text-4xl font-black uppercase leading-[.95] tracking-[-0.06em] text-navy sm:text-6xl">
-                  Know what each badge actually means.
+                  Open to owners. Closed to dealers.
                 </h2>
               </div>
               <p className="max-w-xl border-l-4 border-teal-500 pl-6 text-lg leading-8 text-slate-700">
-                Verification helps establish useful facts, but no badge makes a
-                marketplace scam-proof. Owner Only Cars shows the check—and its
-                limit.
+                No ID scans and no document uploads are required. Sellers attest
+                that they are private owners, buyers do their own due diligence,
+                and moderators can remove prohibited commercial activity.
               </p>
             </div>
 
@@ -341,7 +340,7 @@ export default function Home() {
               </a>
             </div>
             <p className="mt-5 text-sm text-slate-600">
-              Approved owner vehicles appear first. Fictional examples remain
+              Live owner vehicles appear first. Fictional examples remain
               clearly labeled as demo data.
             </p>
             <div className="mt-10">
@@ -356,14 +355,14 @@ export default function Home() {
               Designed for privacy
             </p>
             <h2 className="mt-4 max-w-4xl text-4xl font-black uppercase leading-[.94] tracking-[-0.06em] sm:text-6xl">
-              We store the result.{' '}
-              <span className="text-teal-300">Not your license.</span>
+              Share the listing.{' '}
+              <span className="text-teal-300">Keep private data private.</span>
             </h2>
             <div className="mt-12 border-y border-white/20">
               {[
                 [
-                  '01 / Identity',
-                  'Stripe hosts the government-ID document check. Owner Only Cars stores the provider session ID, status, timestamps, and minimum approved fields.',
+                  '01 / Documents',
+                  'Owner Only Cars does not require an ID scan, title upload, or registration upload to post a listing.',
                 ],
                 [
                   '02 / Location',
@@ -371,7 +370,7 @@ export default function Home() {
                 ],
                 [
                   '03 / Contact',
-                  'Phone numbers and email addresses stay private by default; verified users contact each other through the marketplace.',
+                  'Phone numbers and email addresses stay private by default; signed-in users contact each other through the marketplace.',
                 ],
               ].map(([label, body]) => (
                 <div

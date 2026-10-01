@@ -122,8 +122,8 @@ export function ContactForm() {
             <NativeSelectOption value="Private seller auctions">
               Private seller auctions
             </NativeSelectOption>
-            <NativeSelectOption value="Account or verification">
-              Account or verification
+            <NativeSelectOption value="Account help">
+              Account help
             </NativeSelectOption>
             <NativeSelectOption value="Safety concern">
               Safety concern

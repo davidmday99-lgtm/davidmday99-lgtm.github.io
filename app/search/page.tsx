@@ -18,13 +18,13 @@ import { vehicleTypes } from '@/lib/vehicle-types';
 const trustSignals = [
   {
     icon: ShieldCheck,
-    title: 'Identity verified',
-    detail: 'Government-ID check',
+    title: 'Private owners only',
+    detail: 'No dealer inventory',
   },
   {
     icon: FileCheck2,
-    title: 'Ownership reviewed',
-    detail: 'Name and identifier compared',
+    title: 'Owner attestation',
+    detail: 'Commercial listings can be removed',
   },
   {
     icon: MessageCircle,
@@ -85,7 +85,7 @@ export default function SearchPage() {
                   </span>
                 </h1>
                 <p className="mt-6 border-l-4 border-[#f6b82b] pl-4 text-sm font-bold text-slate-100 sm:text-base">
-                  Verified private sellers. No dealer listings.
+                  Private-owner listings. No dealer inventory.
                 </p>
               </div>
 

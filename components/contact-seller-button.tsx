@@ -2,24 +2,14 @@
 
 import type { User } from '@supabase/supabase-js';
 import { LoaderCircle, MessageSquare } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { loginPath } from '@/lib/auth-return';
-import { normalizeIdentityStatus } from '@/lib/identity-verification';
 import {
   getSupabaseBrowserClient,
   hasSupabaseConfig,
 } from '@/lib/supabase-browser';
-
-function identityStatusFor(user: User | null) {
-  const verification = user?.app_metadata?.identity_verification;
-  return normalizeIdentityStatus(
-    verification && typeof verification === 'object'
-      ? (verification as { status?: unknown }).status
-      : undefined,
-  );
-}
 
 export function ContactSellerButton({
   listingId,
@@ -56,8 +46,6 @@ export function ContactSellerButton({
   }, []);
 
   const isSeller = Boolean(user && user.id === sellerId);
-  const status = useMemo(() => identityStatusFor(user ?? null), [user]);
-
   async function contactSeller() {
     setError('');
     const returnTo = `/listing?slug=${encodeURIComponent(listingSlug)}`;
@@ -69,11 +57,6 @@ export function ContactSellerButton({
       window.location.assign('/messages');
       return;
     }
-    if (status !== 'verified') {
-      window.location.assign('/account/verification');
-      return;
-    }
-
     setBusy(true);
     const { data, error: requestError } = await getSupabaseBrowserClient().rpc(
       'start_listing_conversation',
@@ -83,10 +66,6 @@ export function ContactSellerButton({
 
     if (requestError || typeof data !== 'string') {
       const message = requestError?.message ?? '';
-      if (message.includes('identity_verification_required')) {
-        window.location.assign('/account/verification');
-        return;
-      }
       setError(
         message.includes('listing_not_available')
           ? 'This listing is no longer available.'
@@ -110,7 +89,7 @@ export function ContactSellerButton({
         ) : (
           <MessageSquare />
         )}
-        {isSeller ? 'Open seller inbox' : 'Contact verified seller'}
+        {isSeller ? 'Open seller inbox' : 'Contact seller'}
       </Button>
       {error && (
         <p className="mt-3 border-l-4 border-red-600 bg-red-50 p-3 text-sm font-bold text-red-800">
@@ -119,8 +98,8 @@ export function ContactSellerButton({
       )}
       {!isSeller && (
         <p className="mt-3 border-l-4 border-[#f6b82b] bg-amber-50 px-3 py-2 text-center text-sm font-black text-navy">
-          Users must complete identity verification to send and receive
-          messages.
+          Sign in to send and receive private messages. Never send payment or
+          sensitive documents through chat.
         </p>
       )}
     </div>

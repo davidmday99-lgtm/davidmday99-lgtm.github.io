@@ -16,7 +16,7 @@ import { SUPPORT_URL } from '@/lib/support';
 export const metadata: Metadata = {
   title: 'Our Story',
   description:
-    'Why OwnerOnly Cars is building a direct vehicle marketplace for verified private owners and buyers—without dealer inventory or dealer markups.',
+    'Why Owner Only Cars is building an open vehicle marketplace for private owners and buyers—without dealer inventory or dealer markups.',
   alternates: { canonical: '/our-story' },
 };
 
@@ -37,7 +37,7 @@ const principles = [
     icon: ShieldCheck,
     number: '03',
     title: 'Build trust honestly',
-    body: 'Identity, ownership, and vehicle-history checks answer different questions. We explain what each check means—and what it cannot guarantee.',
+    body: 'Open access works best with clear rules, honest seller attestations, buyer due diligence, community reports, and human moderation.',
   },
 ];
 
@@ -111,8 +111,8 @@ export default function OurStoryPage() {
                 <p>
                   OwnerOnly Cars is my answer: a marketplace where private
                   owners can meet buyers directly, where dealer and broker
-                  inventory is not allowed, and where useful verification
-                  signals are explained in plain language.
+                  inventory is not allowed, posting is free, and people can
+                  connect without scanning personal documents.
                 </p>
                 <p>
                   The goal is simple—help sellers keep more of the value of
@@ -134,7 +134,7 @@ export default function OurStoryPage() {
               The idea behind OwnerOnly
             </p>
             <h2 className="mt-4 max-w-4xl text-4xl font-black uppercase leading-none tracking-[-0.04em] sm:text-6xl">
-              Direct deals. Clear checks. Honest limits.
+              Direct deals. Simple rules. Honest limits.
             </h2>
             <div className="mt-12 grid gap-5 lg:grid-cols-3">
               {principles.map(({ icon: Icon, number, title, body }) => (
@@ -167,7 +167,7 @@ export default function OurStoryPage() {
               </h2>
               <ul className="mt-6 space-y-4 leading-7 text-slate-700">
                 <li>Private-owner vehicle listings—not dealer inventory.</li>
-                <li>Separate identity and vehicle-ownership reviews.</li>
+                <li>No required identity or ownership-document scans.</li>
                 <li>Private messaging without public contact details.</li>
                 <li>Clear safety guidance and human moderation.</li>
               </ul>
@@ -178,10 +178,10 @@ export default function OurStoryPage() {
                 What we will never promise
               </h2>
               <p className="mt-6 text-lg leading-8">
-                No badge can guarantee a safe transaction, a vehicle’s
-                condition, or a complete history. OwnerOnly will show what was
-                checked, explain the limit, and remind every buyer to inspect
-                the vehicle and verify its title independently.
+                No platform can guarantee a safe transaction, a vehicle’s
+                condition, or a complete history. Owner Only Cars reminds every
+                buyer to inspect the vehicle, seller, and original title
+                independently.
               </p>
             </article>
           </div>
@@ -191,7 +191,7 @@ export default function OurStoryPage() {
               We are at the beginning.
             </p>
             <p className="mt-2 text-slate-700">
-              The marketplace is now open for verified private-owner listings.
+              The marketplace is now open for private-owner listings.
               Vehicles clearly marked as demos remain fictional examples that
               show how additional marketplace features will work.
             </p>

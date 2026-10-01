@@ -56,7 +56,7 @@ export default function PublishedVehiclePage() {
       <main className="min-h-[70vh] bg-[#f8f4e9]">
         {loading ? (
           <div className="mx-auto max-w-7xl px-5 py-20 text-center font-bold sm:px-8">
-            Loading approved listing…
+            Loading listing…
           </div>
         ) : !listing ? (
           <div className="mx-auto max-w-3xl px-5 py-20 text-center sm:px-8">
@@ -64,13 +64,13 @@ export default function PublishedVehiclePage() {
               Listing not available
             </h1>
             <p className="mt-4 text-slate-600">
-              This vehicle may still be under review or may no longer be active.
+              This vehicle may have been removed or may no longer be active.
             </p>
             <a
               className="mt-6 inline-block font-black text-teal-800 underline"
               href="/search"
             >
-              Browse approved vehicles
+              Browse vehicles
             </a>
           </div>
         ) : (
@@ -105,7 +105,7 @@ export default function PublishedVehiclePage() {
               </section>
               <aside className="h-fit border-2 border-navy bg-white p-6 shadow-[8px_8px_0_#16b9ad]">
                 <Badge className="rounded-none bg-teal-100 text-teal-800">
-                  <ShieldCheck /> Identity and ownership reviewed
+                  <ShieldCheck /> Private-owner listing
                 </Badge>
                 <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-teal-800">
                   {vehicleType.label}

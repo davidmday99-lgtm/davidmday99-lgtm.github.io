@@ -10,15 +10,15 @@ import { demoPrivateAuctions } from '@/lib/private-auction-data';
 export const metadata: Metadata = {
   title: 'Private Seller Auctions | OwnerOnly Cars',
   description:
-    'Preview verified private-owner vehicle auctions with optional seller reserves and clear bidding rules.',
+    'Preview private-owner vehicle auctions with optional seller reserves and clear bidding rules.',
   alternates: { canonical: '/private-seller-auctions' },
 };
 
 const auctionChecks = [
   {
     icon: BadgeCheck,
-    title: 'Verified private sellers',
-    body: 'Identity and ownership review are required before an auction can go live.',
+    title: 'Private sellers only',
+    body: 'Dealer, broker, reseller, representative, and consignment inventory is prohibited.',
   },
   {
     icon: EyeOff,
@@ -46,7 +46,7 @@ export default function PrivateSellerAuctionsPage() {
               Coming soon
             </p>
             <p className="max-w-2xl text-base font-bold leading-7 sm:text-right">
-              Preview how verified private sellers will auction their vehicles.
+              Preview how private sellers will auction their vehicles.
               Live listings and bidding are not available yet.
             </p>
           </div>
@@ -62,8 +62,8 @@ export default function PrivateSellerAuctionsPage() {
                 <span className="block text-[#FFB81C]">vehicle auctions.</span>
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200">
-                Let verified owners auction their own vehicles directly to
-                verified buyers, with an optional reserve price and clear bid
+                Let owners auction their own vehicles directly to buyers, with
+                an optional reserve price and clear bid
                 activity—without mixing in dealer inventory.
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
@@ -145,7 +145,7 @@ export default function PrivateSellerAuctionsPage() {
               The auction path
             </p>
             <h2 className="mt-4 text-4xl font-black uppercase leading-none tracking-[-0.045em] sm:text-6xl">
-              Set it. Verify it. Bid on it.
+              Set it. List it. Bid on it.
             </h2>
             <div className="mt-10 grid border-[3px] border-[#061C2B] bg-[#FFF8EA] md:grid-cols-3">
               {[
@@ -156,12 +156,12 @@ export default function PrivateSellerAuctionsPage() {
                 ],
                 [
                   '02',
-                  'OwnerOnly reviews the vehicle',
-                  'Identity, ownership, VIN, photos, title status, and auction terms must pass review.',
+                  'Seller confirms the details',
+                  'The private owner attests that the vehicle, photos, title status, and auction terms are accurate.',
                 ],
                 [
                   '03',
-                  'Verified buyers bid',
+                  'Signed-in buyers bid',
                   'Accepted bids follow fixed increments. The highest eligible bid wins only when the auction rules are satisfied.',
                 ],
               ].map(([number, title, body], index) => (

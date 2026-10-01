@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Search, ShieldCheck } from 'lucide-react';
+import { MessageSquare, Search } from 'lucide-react';
 
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -8,7 +8,7 @@ import { WantedVehicleMarketplace } from '@/components/wanted-vehicle-marketplac
 export const metadata: Metadata = {
   title: 'Wanted Vehicles',
   description:
-    'Post or browse wanted vehicle ads from identity-verified buyers looking for cars, motorcycles, boats, RVs, ATVs, trailers, snowmobiles, and personal watercraft.',
+    'Post or browse free wanted vehicle ads for cars, motorcycles, boats, RVs, ATVs, trailers, snowmobiles, and personal watercraft.',
   alternates: { canonical: '/wanted' },
 };
 
@@ -43,10 +43,10 @@ export default function WantedVehiclesPage() {
                 </p>
               </div>
               <div className="border-2 border-teal-300 bg-white/5 p-5">
-                <ShieldCheck className="size-7 text-[#f6b82b]" />
-                <p className="mt-3 font-black uppercase">Verified posters</p>
+                <MessageSquare className="size-7 text-[#f6b82b]" />
+                <p className="mt-3 font-black uppercase">Private messages</p>
                 <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Identity verification is required before an ad goes live.
+                  Sign in to post or respond without publishing contact details.
                 </p>
               </div>
             </div>

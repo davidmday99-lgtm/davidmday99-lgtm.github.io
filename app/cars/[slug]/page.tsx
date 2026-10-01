@@ -102,7 +102,7 @@ export default function VehiclePage({ params }: { params: { slug: string } }) {
             <aside className="h-fit border-2 border-navy bg-white p-6 shadow-[8px_8px_0_#16b9ad] lg:sticky lg:top-24">
               <div className="flex items-center justify-between">
                 <Badge className="rounded-none bg-teal-100 text-teal-800">
-                  <ShieldCheck /> Owner verified
+                  <ShieldCheck /> Private-owner listing
                 </Badge>
                 <Button aria-label="Save listing" size="icon" variant="outline">
                   <Heart />
@@ -121,10 +121,10 @@ export default function VehiclePage({ params }: { params: { slug: string } }) {
                 <MapPin className="size-4" /> {listing.location}
               </p>
               <Button className="mt-7 h-12 w-full rounded-none bg-teal-500 font-black uppercase text-navy hover:bg-teal-400">
-                <MessageSquare /> Contact verified seller
+                <MessageSquare /> Contact seller
               </Button>
               <p className="mt-3 text-center text-xs text-slate-500">
-                Sign in and complete verification to message.
+                Sign in to send a private message.
               </p>
               <button className="mt-6 flex w-full items-center justify-center gap-2 border-t border-slate-200 pt-5 text-sm font-bold text-slate-600 hover:text-red-700">
                 <Flag className="size-4" /> Report listing

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { BadgeCheck, Camera, FileCheck2, UserCheck } from 'lucide-react';
+import { BadgeCheck, Camera, ShieldCheck, UserCheck } from 'lucide-react';
 
 import { AuctionSetupWizard } from '@/components/auction-setup-wizard';
 import { SiteFooter } from '@/components/site-footer';
@@ -14,13 +14,13 @@ export const metadata: Metadata = {
 const requirements = [
   [
     UserCheck,
-    'Verified account',
-    'Phone and identity verification are required before publication.',
+    'Signed-in account',
+    'A free account will be required when live auction publishing launches.',
   ],
   [
-    FileCheck2,
-    'Ownership documents',
-    'The title or registration must align with the verified legal name and VIN.',
+    ShieldCheck,
+    'Private-owner attestation',
+    'The seller must own the vehicle and must not act as a dealer, broker, or reseller.',
   ],
   [
     Camera,
@@ -55,8 +55,8 @@ export default function CreatePrivateAuctionPage() {
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700">
                 Enter the vehicle, set the auction terms, choose a reserve, add
-                current photos and ownership proof, then review everything
-                before continuing to identity verification.
+                current photos, confirm the private-owner rules, then review
+                everything in the auction preview.
               </p>
               <div className="mt-6 border-l-4 border-[#FFB81C] bg-white p-4 text-sm leading-6 text-slate-700">
                 <strong>Practice launch:</strong> every field and file selector
@@ -75,9 +75,9 @@ export default function CreatePrivateAuctionPage() {
                   Before going live
                 </h2>
                 <p className="mt-3 text-sm leading-6">
-                  Every auction must pass seller, ownership, vehicle, and
-                  content review. A badge reduces uncertainty; it does not
-                  guarantee condition or safety.
+                  No ID scan or ownership-document upload will be required.
+                  Sellers attest that they are private owners, and prohibited
+                  commercial activity may be removed.
                 </p>
               </div>
               {requirements.map(([Icon, title, body]) => (

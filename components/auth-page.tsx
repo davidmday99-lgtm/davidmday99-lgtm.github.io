@@ -96,8 +96,8 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
             </h1>
             <p className="mt-4 text-slate-600">
               {signup
-                ? 'Browse immediately. Verify before listing or messaging.'
-                : 'Access favorites, messages, listings, and verification status.'}
+                ? 'Create free listings, wanted ads, favorites, and private messages.'
+                : 'Access your listings, wanted ads, favorites, and messages.'}
             </p>
             <form
               className="chunky-panel mt-8 space-y-5 bg-white p-6"
@@ -149,16 +149,6 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
                   placeholder="you@example.com"
                 />
               </label>
-              {signup && (
-                <label className="block text-sm font-bold text-navy">
-                  Mobile phone
-                  <Input
-                    className="mt-2 h-11 rounded-none"
-                    type="tel"
-                    placeholder="(555) 555-1234"
-                  />
-                </label>
-              )}
               <label className="block text-sm font-bold text-navy">
                 Password
                 <Input
@@ -191,14 +181,14 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
           <div className="max-w-lg">
             <LockKeyhole className="size-12 text-teal-300" />
             <h2 className="mt-6 text-4xl font-black uppercase leading-none tracking-[-0.05em]">
-              Verify once. Know what every badge means.
+              One account. No document scans.
             </h2>
             <ul className="mt-8 space-y-5 text-slate-300">
               {[
                 'Google or email account sign-in',
-                'Phone and account confirmation',
-                'Hosted government-ID check',
-                'Separate ownership-document review',
+                'Free private-owner listings',
+                'No identity-verification requirement',
+                'No ownership-document upload',
                 'Approximate public location only',
               ].map((item) => (
                 <li className="flex items-center gap-3" key={item}>

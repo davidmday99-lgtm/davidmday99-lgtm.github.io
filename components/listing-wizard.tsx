@@ -1,19 +1,12 @@
 'use client';
 
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
-import {
-  FunctionsFetchError,
-  FunctionsHttpError,
-  FunctionsRelayError,
-} from '@supabase/supabase-js';
+import { FunctionsFetchError, FunctionsHttpError, FunctionsRelayError } from '@supabase/supabase-js';
 import {
   ArrowLeft,
   ArrowRight,
-  BadgeCheck,
   Camera,
   CheckCircle2,
-  FileCheck2,
-  RefreshCw,
   Plus,
   Trash2,
 } from 'lucide-react';
@@ -25,10 +18,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useSellerIdentityStatus } from '@/components/seller-identity-gate';
 import { CARFAX_REPORTS_URL, validateSellerCarfaxUrl } from '@/lib/carfax';
 import { engineSizeSuggestions } from '@/lib/engine-sizes';
-import { normalizeIdentityStatus } from '@/lib/identity-verification';
 import { catalogMakes, catalogModels } from '@/lib/vehicle-catalog';
 import {
   conditionQuestionCount,
@@ -51,34 +42,17 @@ const steps = [
   'Features & story',
   'Photos',
   'Preview',
-  'Verify & submit',
+  'Publish',
 ];
 
 const acceptedPhotoTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const maxPhotoBytes = 10 * 1024 * 1024;
 const maxPhotos = 20;
-const acceptedOwnershipTypes = new Set([
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-]);
-const acceptedOwnershipExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
-const maxOwnershipBytes = 10 * 1024 * 1024;
-
-const ownershipSubmissionErrors: Record<string, string> = {
+const listingSubmissionErrors: Record<string, string> = {
   authentication_required:
-    'Your login expired. Log in again, then return and resubmit the document.',
-  document_required:
-    'Choose a title or registration document before submitting.',
-  document_signature_mismatch:
-    'That file is not a valid PDF, JPG, PNG, or WebP document. Open it and export or download it again, then choose the new file.',
-  identity_verification_required:
-    'Identity verification is required before submitting a listing.',
-  invalid_document_size:
-    'The ownership document must be between 1 byte and 10 MB.',
+    'Your login expired. Log in again, then return and publish the listing.',
   invalid_form_data:
-    'The document upload was incomplete. Choose the file again and resubmit it.',
+    'The listing submission was incomplete. Please try again.',
   invalid_vehicle_photo:
     'One of the vehicle photos is not a valid JPG, PNG, or WebP image.',
   invalid_vehicle_photo_size:
@@ -89,15 +63,9 @@ const ownershipSubmissionErrors: Record<string, string> = {
     'The vehicle listing could not be saved. Please try again.',
   origin_not_allowed:
     'The secure upload service does not recognize this site address. Please contact support.',
-  private_upload_failed:
-    'The secure document storage service could not save the file. Please try again.',
-  review_queue_failed:
-    'The document was received but could not be added to the review queue. Please try again.',
-  screening_consent_required:
-    'Accept the automated-screening disclosure before submitting.',
   unsupported_document_type: 'Choose a valid PDF, JPG, PNG, or WebP document.',
   valid_vin_required:
-    'Enter a valid VIN, HIN, or manufacturer serial number before submitting.',
+    'Enter a valid VIN, HIN, or manufacturer serial number before publishing.',
   vehicle_photo_upload_failed:
     'The vehicle photos could not be saved. Please try again.',
   vehicle_photos_required: 'Add at least one valid vehicle photo.',
@@ -150,7 +118,6 @@ const initialListingDraft: ListingDraft = {
 };
 
 export function ListingWizard() {
-  const initialIdentityStatus = useSellerIdentityStatus();
   const [step, setStep] = useState(0);
   const [vin, setVin] = useState('');
   const [listing, setListing] = useState<ListingDraft>(initialListingDraft);
@@ -162,17 +129,11 @@ export function ListingWizard() {
   const [featuresReviewed, setFeaturesReviewed] = useState(false);
   const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
   const [photoError, setPhotoError] = useState<string>();
-  const [ownershipDocument, setOwnershipDocument] = useState<File>();
-  const [ownershipError, setOwnershipError] = useState<string>();
-  const [documentScreeningConsent, setDocumentScreeningConsent] =
-    useState(false);
   const [attested, setAttested] = useState(false);
-  const [reviewReady, setReviewReady] = useState(false);
-  const [reviewBusy, setReviewBusy] = useState(false);
-  const [reviewError, setReviewError] = useState<string>();
-  const [reviewId, setReviewId] = useState<string>();
-  const [identityStatus, setIdentityStatus] = useState(initialIdentityStatus);
-  const [identityBusy, setIdentityBusy] = useState(false);
+  const [published, setPublished] = useState(false);
+  const [publishBusy, setPublishBusy] = useState(false);
+  const [publishError, setPublishError] = useState<string>();
+  const [publishedSlug, setPublishedSlug] = useState<string>();
   const photoUrls = useRef(new Set<string>());
   const carfaxValidation = validateSellerCarfaxUrl(carfaxUrl);
   const normalizedVin = vin.trim().toUpperCase();
@@ -228,21 +189,14 @@ export function ListingWizard() {
     0,
   );
   const conditionComplete = completedConditionCount === conditionQuestionCount;
-  const canSubmitForReview = Boolean(
-    identityStatus === 'verified' &&
+  const canPublish = Boolean(
     validVin &&
     listingDetailsComplete &&
     conditionComplete &&
     featuresReviewed &&
     photos.length > 0 &&
-    ownershipDocument &&
-    documentScreeningConsent &&
     attested,
   );
-
-  useEffect(() => {
-    setIdentityStatus(initialIdentityStatus);
-  }, [initialIdentityStatus]);
 
   useEffect(() => {
     const urls = photoUrls.current;
@@ -291,91 +245,27 @@ export function ListingWizard() {
     setPhotoError(undefined);
   }
 
-  async function refreshIdentityStatus() {
-    if (!hasSupabaseConfig()) return;
-    setIdentityBusy(true);
-    setReviewError(undefined);
-
-    try {
-      const supabase = getSupabaseBrowserClient();
-      await supabase.auth.refreshSession();
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        throw new Error('Log in again to refresh your verification status.');
-      }
-      const verification = data.user.app_metadata?.identity_verification;
-      const status = normalizeIdentityStatus(
-        verification && typeof verification === 'object'
-          ? (verification as { status?: unknown }).status
-          : undefined,
-      );
-      setIdentityStatus(status);
-      if (status !== 'verified') {
-        setReviewError(
-          status === 'processing'
-            ? 'Stripe is still processing your identity check. Try again in a moment.'
-            : 'Identity verification is not complete yet. Finish the Stripe check, then refresh the status here.',
-        );
-      }
-    } catch (caught) {
-      setReviewError(
-        caught instanceof Error
-          ? caught.message
-          : 'Verification status could not be refreshed.',
-      );
-    } finally {
-      setIdentityBusy(false);
-    }
-  }
-
-  function chooseOwnershipDocument(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-
-    if (!file) return;
-
-    const normalizedName = file.name.toLowerCase();
-    const hasAcceptedExtension = acceptedOwnershipExtensions.some((extension) =>
-      normalizedName.endsWith(extension),
-    );
-
-    if (!acceptedOwnershipTypes.has(file.type) && !hasAcceptedExtension) {
-      setOwnershipError('Choose a PDF, JPG, PNG, or WebP document.');
-      return;
-    }
-
-    if (file.size > maxOwnershipBytes) {
-      setOwnershipError('The ownership document must be 10 MB or smaller.');
-      return;
-    }
-
-    setOwnershipDocument(file);
-    setOwnershipError(undefined);
-  }
-
-  async function submitForReview() {
-    if (!ownershipDocument || !canSubmitForReview) return;
-    setReviewBusy(true);
-    setReviewError(undefined);
-    setReviewReady(false);
+  async function publishListing() {
+    if (!canPublish) return;
+    setPublishBusy(true);
+    setPublishError(undefined);
+    setPublished(false);
 
     try {
       if (!hasSupabaseConfig()) {
-        throw new Error('The secure document service is not configured yet.');
+        throw new Error('The listing service is not configured yet.');
       }
       const supabase = getSupabaseBrowserClient();
       const { data: userData, error: userError } =
         await supabase.auth.getUser();
       if (userError || !userData.user) {
         throw new Error(
-          'Your login expired. Log in again, then return and resubmit the document.',
+          'Your login expired. Log in again, then return and publish the listing.',
         );
       }
 
       const form = new FormData();
-      form.set('document', ownershipDocument);
       form.set('vin', normalizedVin);
-      form.set('automatedScreeningConsent', 'true');
       form.set(
         'listing',
         JSON.stringify({
@@ -393,7 +283,8 @@ export function ListingWizard() {
       const { data: result, error: invocationError } =
         await supabase.functions.invoke<{
           error?: string;
-          reviewId?: string;
+          listingId?: string;
+          slug?: string;
         }>('submit-ownership-document', { body: form });
 
       if (invocationError) {
@@ -406,54 +297,47 @@ export function ListingWizard() {
           errorCode = errorBody.error;
         }
 
-        if (errorCode && ownershipSubmissionErrors[errorCode]) {
-          throw new Error(ownershipSubmissionErrors[errorCode]);
+        if (errorCode && listingSubmissionErrors[errorCode]) {
+          throw new Error(listingSubmissionErrors[errorCode]);
         }
         if (
           invocationError instanceof FunctionsFetchError ||
           invocationError instanceof FunctionsRelayError
         ) {
           throw new Error(
-            'The secure upload service could not be reached. Please check your connection and try again.',
+            'The listing service could not be reached. Please check your connection and try again.',
           );
         }
         throw new Error(
-          'The secure upload service rejected the request. Please log in again and retry.',
+          'The listing service rejected the request. Please log in again and retry.',
         );
       }
 
       const submission = result as {
         error?: string;
-        reviewId?: string;
+        listingId?: string;
+        slug?: string;
       };
-      if (!submission?.reviewId) {
+      if (!submission?.listingId || !submission.slug) {
         throw new Error(
-          (submission?.error && ownershipSubmissionErrors[submission.error]) ??
-            'The document could not be submitted. Please try again.',
+          (submission?.error && listingSubmissionErrors[submission.error]) ??
+            'The listing could not be published. Please try again.',
         );
       }
-
-      setReviewId(submission.reviewId);
-      setReviewReady(true);
+      setPublishedSlug(submission.slug);
+      setPublished(true);
     } catch (caught) {
-      setReviewError(
+      setPublishError(
         caught instanceof Error
           ? caught.message
-          : 'The document could not be submitted.',
+          : 'The listing could not be published.',
       );
     } finally {
-      setReviewBusy(false);
+      setPublishBusy(false);
     }
   }
 
   const reviewItems = [
-    {
-      label:
-        identityStatus === 'verified'
-          ? 'Identity verified through Stripe'
-          : 'Identity verification still needed',
-      ready: identityStatus === 'verified',
-    },
     {
       label: validVin
         ? `${vehicleType.identifierLabel} ready for review`
@@ -500,18 +384,6 @@ export function ListingWizard() {
       ready: photos.length > 0,
     },
     {
-      label: ownershipDocument
-        ? `Ownership document selected: ${ownershipDocument.name}`
-        : 'Ownership document still needed',
-      ready: Boolean(ownershipDocument),
-    },
-    {
-      label: documentScreeningConsent
-        ? 'Automated screening disclosure accepted'
-        : 'Automated screening disclosure required',
-      ready: documentScreeningConsent,
-    },
-    {
       label: attested
         ? 'Seller attestation complete'
         : 'Seller attestation required',
@@ -548,8 +420,8 @@ export function ListingWizard() {
               What are you selling?
             </h2>
             <p className="mt-2 text-slate-600">
-              Choose a category first. We will tailor the listing details and
-              ownership check to that type of vehicle.
+              Choose a category first. We will tailor the listing details to
+              that type of vehicle.
             </p>
             <label className="mt-7 block max-w-lg text-sm font-bold text-navy">
               Vehicle type
@@ -589,8 +461,8 @@ export function ListingWizard() {
               />
             </label>
             <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-500">
-              This identifier is compared with the private ownership document
-              before publication. Cars and most road vehicles use a VIN; boats
+              Buyers use this identifier to compare the vehicle with its title
+              or registration. Cars and most road vehicles use a VIN; boats
               and personal watercraft use a hull identification number (HIN).
               Some snowmobiles and trailers use a manufacturer serial number.
             </p>
@@ -859,8 +731,8 @@ export function ListingWizard() {
                 Get a report directly from CARFAX
               </a>
               <p className="mt-2 text-xs text-slate-500">
-                This is a direct, non-affiliate link. CARFAX is not an OwnerOnly
-                verification badge.
+                This is a direct, non-affiliate link. Owner Only Cars does not
+                validate seller-provided CARFAX links.
               </p>
             </div>
           </div>
@@ -966,156 +838,21 @@ export function ListingWizard() {
 
         {step === 5 && (
           <div>
-            <div
-              className={`mb-8 border-2 p-5 ${identityStatus === 'verified' ? 'border-teal-600 bg-teal-50' : 'border-amber-500 bg-amber-50'}`}
-            >
-              <div className="flex items-start gap-4">
-                <BadgeCheck
-                  aria-hidden="true"
-                  className={`mt-0.5 size-6 shrink-0 ${identityStatus === 'verified' ? 'text-teal-700' : 'text-amber-700'}`}
-                />
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-800">
-                    Final verification
-                  </p>
-                  <h2 className="mt-2 text-xl font-black uppercase text-navy sm:text-2xl">
-                    {identityStatus === 'verified'
-                      ? 'Your identity is verified.'
-                      : 'Verify your identity when you are ready to submit.'}
-                  </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                    {identityStatus === 'verified'
-                      ? 'Stripe identity verification is complete. Add your ownership document below to finish the private review submission.'
-                      : 'Stripe securely handles the government-ID check. Open verification in a new tab so this listing and its photo selections stay open here.'}
-                  </p>
-                  {identityStatus !== 'verified' && (
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      <Button
-                        className="rounded-none bg-[#16c7be] font-black uppercase text-navy shadow-[3px_3px_0_#061c2b] hover:bg-[#f6b82b]"
-                        nativeButton={false}
-                        render={
-                          <a
-                            href="/account/verification"
-                            rel="noreferrer"
-                            target="_blank"
-                          />
-                        }
-                      >
-                        Verify with Stripe <ArrowRight />
-                      </Button>
-                      <Button
-                        className="rounded-none font-black uppercase"
-                        disabled={identityBusy}
-                        onClick={() => void refreshIdentityStatus()}
-                        type="button"
-                        variant="outline"
-                      >
-                        <RefreshCw
-                          className={identityBusy ? 'animate-spin' : undefined}
-                        />
-                        {identityBusy
-                          ? 'Checking status…'
-                          : 'I finished — check status'}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
+            <div className="mb-8 border-2 border-teal-600 bg-teal-50 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-800">
+                Open marketplace
+              </p>
+              <h2 className="mt-2 text-2xl font-black uppercase text-navy">
+                Publish as soon as your listing is complete.
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                No identity check or ownership-document upload is required.
+                Owner Only Cars is for private owners only, and listings that
+                appear to come from dealers, brokers, or resellers may be removed.
+              </p>
             </div>
             <h2 className="mt-3 text-3xl font-black uppercase tracking-tight text-navy">
-              Add ownership proof.
-            </h2>
-            <p className="mt-2 max-w-2xl leading-7 text-slate-600">
-              Upload a current title or registration to a private,
-              access-controlled bucket. Review compares only the verified legal
-              name and {vehicleType.identifierLabel.toLowerCase()}. Documents
-              are automatically removed after a configurable retention period.
-            </p>
-            <input
-              accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
-              aria-describedby="ownership-document-help ownership-document-error"
-              className="sr-only"
-              id="ownership-document"
-              onChange={chooseOwnershipDocument}
-              type="file"
-            />
-            <label
-              className="mt-7 flex min-h-48 w-full max-w-xl cursor-pointer flex-col items-center justify-center border-2 border-dashed border-slate-400 bg-slate-50 p-8 text-center transition hover:border-teal-600 hover:bg-teal-50 focus-within:border-teal-700"
-              htmlFor="ownership-document"
-            >
-              <FileCheck2 className="size-10 text-teal-700" />
-              <span className="mt-4 font-black uppercase text-navy">
-                {ownershipDocument
-                  ? 'Replace ownership document'
-                  : 'Choose private document'}
-              </span>
-              <span className="mt-2 text-sm text-slate-500">
-                PDF, JPG, PNG, or WebP · maximum 10 MB
-              </span>
-            </label>
-
-            {ownershipError && (
-              <p
-                className="mt-4 max-w-xl border-l-4 border-red-600 bg-red-50 p-3 text-sm font-bold text-red-800"
-                id="ownership-document-error"
-                role="alert"
-              >
-                {ownershipError}
-              </p>
-            )}
-
-            {ownershipDocument && (
-              <div className="mt-4 flex max-w-xl items-center justify-between gap-4 border-2 border-teal-600 bg-teal-50 p-4">
-                <div className="min-w-0">
-                  <p className="font-black text-navy">Document selected</p>
-                  <p className="mt-1 truncate text-sm text-slate-600">
-                    {ownershipDocument.name} ·{' '}
-                    {(ownershipDocument.size / (1024 * 1024)).toFixed(1)} MB
-                  </p>
-                </div>
-                <Button
-                  aria-label={`Remove ${ownershipDocument.name}`}
-                  className="shrink-0 rounded-none border-red-300 text-red-700 hover:bg-red-50"
-                  onClick={() => {
-                    setOwnershipDocument(undefined);
-                    setOwnershipError(undefined);
-                  }}
-                  type="button"
-                  variant="outline"
-                >
-                  <Trash2 /> Remove
-                </Button>
-              </div>
-            )}
-
-            <p
-              className="mt-4 max-w-2xl text-xs leading-5 text-slate-500"
-              id="ownership-document-help"
-            >
-              The document is stored privately for a limited review period. It
-              never appears on a public listing.
-            </p>
-            <label className="mt-5 flex max-w-2xl items-start gap-3 border-l-4 border-amber-500 bg-amber-50 p-4 text-sm leading-6 text-navy">
-              <input
-                checked={documentScreeningConsent}
-                className="mt-1 size-4 shrink-0"
-                onChange={(event) => {
-                  setDocumentScreeningConsent(event.target.checked);
-                  setReviewReady(false);
-                }}
-                type="checkbox"
-              />
-              I understand that this ownership document may be analyzed by an
-              automated service to flag possible mismatches, poor legibility, or
-              visible alteration. A human reviewer makes the final decision.
-            </label>
-          </div>
-        )}
-
-        {step === 5 && (
-          <div>
-            <h2 className="mt-3 text-3xl font-black uppercase tracking-tight text-navy">
-              Final checks before submission.
+              Final checks before publishing.
             </h2>
             <div className="mt-7 grid gap-4 sm:grid-cols-2">
               {reviewItems.map(({ label, ready }) => (
@@ -1136,7 +873,7 @@ export function ListingWizard() {
                 className="mt-1 size-4"
                 onChange={(event) => {
                   setAttested(event.target.checked);
-                  setReviewReady(false);
+                  setPublished(false);
                 }}
                 type="checkbox"
               />
@@ -1145,40 +882,33 @@ export function ListingWizard() {
               to the best of my knowledge.
             </label>
             <Button
-              className={`mt-6 h-12 rounded-none font-black uppercase ${canSubmitForReview ? 'bg-[#16C7BE] text-navy shadow-[4px_4px_0_#061C2B] hover:bg-[#FFB81C]' : 'bg-slate-300 text-slate-600'}`}
-              disabled={!canSubmitForReview || reviewBusy || reviewReady}
-              onClick={() => void submitForReview()}
+              className={`mt-6 h-12 rounded-none font-black uppercase ${canPublish ? 'bg-[#16C7BE] text-navy shadow-[4px_4px_0_#061C2B] hover:bg-[#FFB81C]' : 'bg-slate-300 text-slate-600'}`}
+              disabled={!canPublish || publishBusy || published}
+              onClick={() => void publishListing()}
               type="button"
             >
-              {reviewBusy
-                ? 'Submitting securely…'
-                : reviewReady
-                  ? 'Submitted for review'
-                  : identityStatus === 'verified'
-                    ? 'Submit for review'
-                    : 'Verify identity before submitting'}
+              {publishBusy
+                ? 'Publishing…'
+                : published
+                  ? 'Listing published'
+                  : 'Publish listing'}
             </Button>
 
-            {reviewError && (
+            {publishError && (
               <p
                 className="mt-4 border-l-4 border-red-600 bg-red-50 p-4 text-sm font-bold text-red-800"
                 role="alert"
               >
-                {reviewError}{' '}
-                {reviewError.startsWith('Log in') && (
+                {publishError}{' '}
+                {publishError.startsWith('Log in') && (
                   <a className="underline" href="/login?next=/sell">
                     Go to login
-                  </a>
-                )}
-                {reviewError.startsWith('Identity verification') && (
-                  <a className="underline" href="/account/verification">
-                    Go to verification
                   </a>
                 )}
               </p>
             )}
 
-            {reviewReady && (
+            {published && publishedSlug && (
               <div
                 aria-live="polite"
                 className="mt-6 border-2 border-teal-600 bg-teal-50 p-5"
@@ -1187,25 +917,29 @@ export function ListingWizard() {
                   <CheckCircle2 className="mt-0.5 size-6 shrink-0 text-teal-700" />
                   <div>
                     <h3 className="font-black uppercase text-navy">
-                      Listing review is ready
+                      Your listing is live
                     </h3>
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                      Your ownership document is in the private human-review
-                      queue. Automated risk screening may add flags for the
-                      reviewer, but it cannot approve or reject the document.
+                      Buyers can now find your vehicle and contact you through
+                      Owner Only Cars. You can edit or remove it from your dashboard.
                     </p>
-                    {reviewId && (
-                      <p className="mt-2 text-xs text-slate-500">
-                        Review reference: {reviewId.slice(0, 8)}
-                      </p>
-                    )}
-                    <Button
-                      className="mt-4 rounded-none bg-navy font-black uppercase"
-                      nativeButton={false}
-                      render={<a href="/dashboard#listings" />}
-                    >
-                      View listing status <ArrowRight />
-                    </Button>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Button
+                        className="rounded-none bg-navy font-black uppercase"
+                        nativeButton={false}
+                        render={<a href={`/listing?slug=${encodeURIComponent(publishedSlug)}`} />}
+                      >
+                        View live listing <ArrowRight />
+                      </Button>
+                      <Button
+                        className="rounded-none font-black uppercase"
+                        nativeButton={false}
+                        render={<a href="/dashboard#listings" />}
+                        variant="outline"
+                      >
+                        Manage listings
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1262,7 +996,7 @@ function ListingPreview({
       </h2>
       <p className="mt-2 max-w-2xl leading-7 text-slate-600">
         Check how buyers will see the main details. You can return to any step
-        to make changes before completing identity and ownership verification.
+        to make changes before publishing it.
       </p>
 
       <article className="mt-7 overflow-hidden border-2 border-navy bg-white shadow-[8px_8px_0_#16c7be]">
@@ -1338,9 +1072,8 @@ function ListingPreview({
       </article>
 
       <div className="mt-7 border-l-4 border-teal-600 bg-teal-50 p-4 text-sm leading-6 text-navy">
-        <strong>Ready for the final step?</strong> Continue to verify your
-        identity, add proof of ownership, and submit the listing for private
-        human review.
+        <strong>Ready for the final step?</strong> Continue to confirm the
+        private-owner attestation and publish the listing.
       </div>
     </div>
   );

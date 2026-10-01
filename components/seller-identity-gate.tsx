@@ -2,33 +2,14 @@
 
 import type { User } from '@supabase/supabase-js';
 import { BadgeCheck, LoaderCircle, LockKeyhole } from 'lucide-react';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { loginPath } from '@/lib/auth-return';
 import {
-  type IdentityStatus,
-  normalizeIdentityStatus,
-} from '@/lib/identity-verification';
-import {
   getSupabaseBrowserClient,
   hasSupabaseConfig,
 } from '@/lib/supabase-browser';
-
-function identityStatusFor(user?: User | null) {
-  const verification = user?.app_metadata?.identity_verification;
-  if (!verification || typeof verification !== 'object') {
-    return normalizeIdentityStatus(undefined);
-  }
-
-  return normalizeIdentityStatus((verification as { status?: unknown }).status);
-}
-
-const SellerIdentityContext = createContext<IdentityStatus>('not_started');
-
-export function useSellerIdentityStatus() {
-  return useContext(SellerIdentityContext);
-}
 
 export function SellerIdentityGate({
   children,
@@ -61,8 +42,6 @@ export function SellerIdentityGate({
     };
   }, []);
 
-  const identityStatus = useMemo(() => identityStatusFor(user), [user]);
-
   if (user === undefined) {
     return (
       <div className="flex min-h-72 items-center justify-center border-2 border-navy bg-white">
@@ -70,7 +49,7 @@ export function SellerIdentityGate({
           aria-hidden="true"
           className="size-8 animate-spin text-teal-700"
         />
-        <span className="sr-only">Checking seller verification</span>
+        <span className="sr-only">Checking account sign-in</span>
       </div>
     );
   }
@@ -78,43 +57,17 @@ export function SellerIdentityGate({
   if (!user) {
     return (
       <GateCard
-        body="Sign in first so we can securely check whether your government ID has already been verified."
+        body="Sign in to create, publish, and manage your vehicle listing. No identity check or ownership-document upload is required."
         buttonHref={loginPath('/sell')}
         buttonLabel="Log in to continue"
-        eyebrow="Seller protection"
+        eyebrow="Free owner account"
         icon={LockKeyhole}
         title="Log in before creating a listing."
       />
     );
   }
 
-  return (
-    <SellerIdentityContext.Provider value={identityStatus}>
-      {identityStatus !== 'verified' && (
-        <section className="mb-7 border-2 border-teal-700 bg-teal-50 p-5 sm:p-6">
-          <div className="flex items-start gap-4">
-            <div className="grid size-11 shrink-0 place-items-center border-2 border-navy bg-[#96d9ed]">
-              <BadgeCheck aria-hidden="true" className="size-5 text-navy" />
-            </div>
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-800">
-                Build first · verify when ready
-              </p>
-              <h2 className="mt-2 text-xl font-black uppercase text-navy sm:text-2xl">
-                Create and preview your listing before verification.
-              </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                Complete the vehicle details and preview how the listing will
-                look. Stripe identity verification and private ownership-document
-                review are required only when you are ready to submit it.
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
-      {children}
-    </SellerIdentityContext.Provider>
-  );
+  return <>{children}</>;
 }
 
 function GateCard({

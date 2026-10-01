@@ -408,13 +408,12 @@ export function MyListings() {
               {editingId === listing.id && draft && (
                 <div className="mt-6 border-t-2 border-navy pt-6">
                   <div className="border-l-4 border-amber-500 bg-amber-50 p-4 text-sm text-navy">
-                    <strong className="block uppercase">
-                      Protected ownership details
-                    </strong>
+                    <strong className="block uppercase">Listing identifier</strong>
                     Category: {getVehicleType(listing.vehicle_type).label} ·{' '}
                     {getVehicleType(listing.vehicle_type).identifierLabel}:
-                    ••••••{listing.vin.slice(-6)}. These stay locked because
-                    they were used for ownership review.
+                    ••••••{listing.vin.slice(-6)}. The vehicle category and
+                    identifier stay locked to avoid changing the identity of a
+                    published listing; create a new listing if they are wrong.
                   </div>
                   <h4 className="mt-7 text-xl font-black uppercase text-navy">
                     Vehicle and pricing

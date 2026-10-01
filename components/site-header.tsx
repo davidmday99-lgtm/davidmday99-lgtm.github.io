@@ -2,7 +2,6 @@
 
 import type { User } from '@supabase/supabase-js';
 import {
-  BadgeCheck,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -128,14 +127,6 @@ function AccountMenu({ user }: { user: User }) {
           >
             <LayoutDashboard className="size-4" />
             Dashboard
-          </a>
-          <a
-            className="flex items-center gap-2 px-2 py-2 text-sm font-bold hover:bg-[#16C7BE] focus:bg-[#16C7BE] focus:outline-none"
-            href="/account/verification"
-            role="menuitem"
-          >
-            <BadgeCheck className="size-4" />
-            Verification
           </a>
           <a
             className="flex items-center gap-2 px-2 py-2 text-sm font-bold hover:bg-[#16C7BE] focus:bg-[#16C7BE] focus:outline-none"

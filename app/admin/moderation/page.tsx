@@ -22,7 +22,7 @@ export default function Page() {
               Trust & moderation center
             </h1>
             <p className="mt-3 max-w-3xl leading-7 text-navy/75">
-              Review ownership documents, investigate automated risk flags, and
+              Review users and activity, remove suspected dealer inventory, and
               suspend accounts with a permanent audit record.
             </p>
           </div>
@@ -32,4 +32,3 @@ export default function Page() {
     </>
   );
 }
-

@@ -1,5 +1,4 @@
 import {
-  BadgeCheck,
   CarFront,
   Heart,
   LayoutDashboard,
@@ -13,7 +12,6 @@ import { SiteHeader } from '@/components/site-header';
 
 const links = [
   ['Dashboard', '/dashboard', LayoutDashboard],
-  ['Verification', '/account/verification', BadgeCheck],
   ['My listings', '/dashboard#listings', CarFront],
   ['My wanted ads', '/wanted#my-wanted-ads', Search],
   ['Favorites', '/favorites', Heart],

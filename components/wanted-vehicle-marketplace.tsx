@@ -22,7 +22,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { loginPath } from '@/lib/auth-return';
-import { normalizeIdentityStatus } from '@/lib/identity-verification';
 import {
   getSupabaseBrowserClient,
   hasSupabaseConfig,
@@ -42,15 +41,6 @@ import {
 const wantedAdColumns =
   'id,user_id,vehicle_type,make,model,year_min,year_max,max_budget,location_public,search_distance,description,status,expires_at,created_at';
 
-function identityStatusFor(user?: User | null) {
-  const verification = user?.app_metadata?.identity_verification;
-  return normalizeIdentityStatus(
-    verification && typeof verification === 'object'
-      ? (verification as { status?: unknown }).status
-      : undefined,
-  );
-}
-
 function WantedFormGate({
   user,
   children,
@@ -62,7 +52,7 @@ function WantedFormGate({
     return (
       <div className="grid min-h-64 place-items-center border-2 border-navy bg-white">
         <LoaderCircle
-          aria-label="Checking account verification"
+          aria-label="Checking account sign-in"
           className="size-8 animate-spin text-teal-700"
         />
       </div>
@@ -76,17 +66,6 @@ function WantedFormGate({
         href={loginPath('/wanted')}
         label="Log in to post"
         title="Sign in before posting a wanted ad."
-      />
-    );
-  }
-
-  if (identityStatusFor(user) !== 'verified') {
-    return (
-      <WantedGateCard
-        body="Wanted ads are limited to verified people so owners know the request came from a real buyer."
-        href="/account/verification"
-        label="Complete verification"
-        title="Verify once before posting."
       />
     );
   }
@@ -252,10 +231,6 @@ export function WantedVehicleMarketplace() {
       window.location.assign(loginPath('/wanted'));
       return;
     }
-    if (identityStatusFor(user) !== 'verified') {
-      window.location.assign('/account/verification');
-      return;
-    }
     if (!safeAttestation) {
       setSubmitError(
         'Confirm that the ad does not include private contact information.',
@@ -294,10 +269,6 @@ export function WantedVehicleMarketplace() {
 
     if (error) {
       const message = error.message ?? '';
-      if (message.includes('identity_verification_required')) {
-        window.location.assign('/account/verification');
-        return;
-      }
       setSubmitError(
         message.includes('active_ad_limit_reached')
           ? 'You already have 10 active wanted ads. Pause or delete one before posting another.'
@@ -396,10 +367,6 @@ export function WantedVehicleMarketplace() {
   async function contactBuyer(ad: WantedVehicleAdRow) {
     if (!user) {
       window.location.assign(loginPath('/wanted'));
-      return;
-    }
-    if (identityStatusFor(user) !== 'verified') {
-      window.location.assign('/account/verification');
       return;
     }
     setContactingId(ad.id);
@@ -817,8 +784,8 @@ export function WantedVehicleMarketplace() {
               </h2>
             </div>
             <p className="max-w-lg text-sm leading-6 text-slate-300">
-              Public ads show only an approximate search area. Every poster was
-              identity verified when the ad was created.
+              Public ads show only an approximate search area. Contact details
+              stay private inside the marketplace.
             </p>
           </div>
 
@@ -843,8 +810,8 @@ export function WantedVehicleMarketplace() {
                 No wanted ads yet
               </h3>
               <p className="mx-auto mt-3 max-w-xl leading-7 text-slate-300">
-                Be the first verified buyer to tell private owners what you are
-                looking for.
+                Be the first buyer to tell private owners what you are looking
+                for.
               </p>
               <a
                 className="mt-5 inline-block font-black uppercase text-[#f6b82b] underline underline-offset-4"
@@ -867,8 +834,8 @@ export function WantedVehicleMarketplace() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span className="bg-teal-100 px-3 py-1 text-xs font-black uppercase text-teal-900">
-                        <BadgeCheck className="mr-1 inline size-4" /> Verified
-                        buyer
+                        <BadgeCheck className="mr-1 inline size-4" /> Buyer
+                        request
                       </span>
                       <span className="text-xs font-bold uppercase text-slate-500">
                         {vehicleType.label}

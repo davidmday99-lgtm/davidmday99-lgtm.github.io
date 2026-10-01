@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: '%s | Owner Only Cars',
   },
   description:
-    'A marketplace for buying and selling cars directly with verified private owners—without dealer markups.',
+    'A marketplace for buying and selling vehicles directly with private owners—without dealer inventory or dealer markups.',
   icons: {
     icon: [
       {

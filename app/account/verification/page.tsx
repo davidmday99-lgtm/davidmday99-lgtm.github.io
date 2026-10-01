@@ -1,10 +1,5 @@
-import { AccountShell } from '@/components/account-shell';
-import { VerificationCenter } from '@/components/verification-center';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return (
-    <AccountShell eyebrow="Trust center" title="Verification status">
-      <VerificationCenter />
-    </AccountShell>
-  );
+  redirect('/dashboard');
 }

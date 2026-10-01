@@ -8,7 +8,7 @@ import { SiteHeader } from '@/components/site-header';
 export const metadata: Metadata = {
   title: 'Contact Owner Only Cars',
   description:
-    'Contact Owner Only Cars about buying, selling, private seller auctions, account verification, or safety concerns.',
+    'Contact Owner Only Cars about buying, selling, private seller auctions, account access, or safety concerns.',
 };
 
 export default function ContactPage() {

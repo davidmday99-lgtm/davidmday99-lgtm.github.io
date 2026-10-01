@@ -3,7 +3,7 @@ import { MessagesCenter } from '@/components/messages-center';
 
 export default function Page() {
   return (
-    <AccountShell eyebrow="Verified conversations" title="Messages">
+    <AccountShell eyebrow="Private conversations" title="Messages">
       <MessagesCenter />
     </AccountShell>
   );

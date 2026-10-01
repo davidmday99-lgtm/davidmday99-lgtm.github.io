@@ -14,8 +14,8 @@ export function SiteFooter() {
             Owner Only Cars
           </div>
           <p className="mt-4 max-w-xs text-sm leading-6">
-            A private-owner marketplace built to make the signals around
-            identity, ownership, and vehicle history easier to understand.
+            A free marketplace for buying and selling vehicles directly with
+            private owners—not dealer inventory.
           </p>
         </div>
         <FooterGroup
@@ -55,7 +55,7 @@ export function SiteFooter() {
       <div className="mx-auto mt-12 flex max-w-7xl flex-col gap-3 border-t border-white/10 pt-6 text-xs sm:flex-row sm:justify-between">
         <p>© 2026 Owner Only Cars. Demonstration marketplace.</p>
         <p>
-          Verification reduces risk; it does not guarantee a safe transaction.
+          Seller information is not independently verified. Inspect before you buy.
         </p>
       </div>
     </footer>

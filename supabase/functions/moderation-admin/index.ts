@@ -442,6 +442,21 @@ Deno.serve(async (request) => {
     if (updateError)
       return jsonResponse({ error: 'account_update_failed' }, 502, origin);
 
+    if (blocked) {
+      await Promise.all([
+        admin
+          .from('vehicle_listings')
+          .update({ status: 'removed' })
+          .eq('user_id', targetUserId)
+          .neq('status', 'removed'),
+        admin
+          .from('wanted_vehicle_ads')
+          .update({ status: 'removed' })
+          .eq('user_id', targetUserId)
+          .neq('status', 'removed'),
+      ]);
+    }
+
     await admin.from('moderation_actions').insert({
       actor_user_id: user.id,
       target_user_id: targetUserId,

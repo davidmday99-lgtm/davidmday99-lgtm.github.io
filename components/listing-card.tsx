@@ -19,7 +19,7 @@ export function ListingCard({ listing }: { listing: DemoListing }) {
           />
         </a>
         <Badge className="absolute left-3 top-3 rounded-none border border-navy bg-white text-navy shadow-sm">
-          <ShieldCheck /> Owner verified
+          <ShieldCheck /> Private-owner listing
         </Badge>
         <Badge className="absolute bottom-3 right-3 rounded-none border border-navy bg-[#f6b82b] text-navy">
           {vehicleType.label}

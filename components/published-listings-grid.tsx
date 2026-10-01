@@ -128,8 +128,8 @@ export function PublishedListingsGrid({
                 listed {searchArea} right now.
               </DialogDescription>
               <p className="mt-4 border-l-4 border-teal-500 pl-4 text-sm font-bold leading-6 text-navy">
-                New private-owner listings appear as sellers complete identity
-                verification and ownership review.
+                New private-owner listings appear as sellers join and publish
+                their vehicles.
               </p>
             </div>
             <DialogFooter className="m-0 flex-col rounded-none border-t-2 border-navy bg-white p-5 sm:flex-col sm:items-stretch">

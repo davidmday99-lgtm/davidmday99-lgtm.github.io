@@ -38,8 +38,9 @@ export default function Page() {
       <div className="mt-8 flex gap-3 border-l-4 border-teal-500 bg-teal-50 p-5">
         <CheckCircle2 className="size-5 shrink-0 text-teal-700" />
         <p className="text-sm leading-6 text-slate-700">
-          Publishing stays locked until phone, identity, ownership-document,
-          attestation, and listing review requirements are complete.
+          Listings publish after the required vehicle details, photos, and
+          private-owner attestation are complete. Suspected dealer inventory may
+          be removed by an administrator.
         </p>
       </div>
     </AccountShell>

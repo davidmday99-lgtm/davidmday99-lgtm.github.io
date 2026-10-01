@@ -9,16 +9,12 @@ export default function Page() {
       intro="This placeholder describes the intended data-minimization approach and must be replaced with counsel-reviewed disclosures before launch."
       sections={[
         {
-          title: 'Identity data',
-          body: 'Stripe hosts government-document verification. OwnerOnly Cars intends to store only the verification session ID, outcome, timestamps, failure category, and minimum approved fields—not raw ID images.',
-        },
-        {
-          title: 'Ownership documents',
-          body: 'Title or registration images are stored in a private, access-controlled area for review. If you give consent during upload, the document may be sent to OpenAI for automated risk screening. The screening returns limited signals such as document type, legibility, a VIN-last-six comparison, name-match status, and possible visible alteration; a human makes every final decision. Documents are not shown on public listings and are marked for removal under a configurable retention policy.',
+          title: 'No verification-document collection',
+          body: 'Owner Only Cars does not require an ID scan, title image, or registration image to publish a listing. Do not send these documents through listings, messages, or the general contact form.',
         },
         {
           title: 'Public listing data',
-          body: 'Public pages exclude exact addresses, legal names, emails, phone numbers, private document URLs, device information, and raw risk signals.',
+          body: 'Public pages exclude exact addresses, account emails, phone numbers, device information, and private messages.',
         },
         {
           title: 'Contact messages',

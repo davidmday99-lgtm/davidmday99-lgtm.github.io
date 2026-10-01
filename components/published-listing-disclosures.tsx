@@ -133,13 +133,14 @@ export function PublishedListingDisclosures({
           <ShieldCheck className="mt-0.5 size-6 shrink-0 text-teal-800" />
           <div>
             <h2 className="text-xl font-black uppercase text-navy">
-              Identity and ownership reviewed
+              Seller-provided information
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              OwnerOnly reviewed the seller’s identity and ownership document
-              before publication. Buyers must still inspect the vehicle, verify
-              the vehicle identifier, and review the original ownership document
-              before completing a sale.
+              The seller attested that they own the vehicle and are not acting
+              as a dealer, broker, or reseller. Owner Only Cars does not verify
+              identity or ownership documents. Buyers must inspect the vehicle,
+              compare its identifier with the original paperwork, and use their
+              own judgment before completing a sale.
             </p>
           </div>
         </div>

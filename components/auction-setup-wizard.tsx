@@ -15,7 +15,6 @@ import {
   Camera,
   CheckCircle2,
   EyeOff,
-  FileCheck2,
   Gavel,
   Plus,
   ShieldCheck,
@@ -32,7 +31,6 @@ import {
   emptyPrivateAuctionDraft,
   formatAuctionMoney,
   normalizeVin,
-  validateAuctionOwnership,
   validateAuctionReserve,
   validateAuctionStory,
   validateAuctionTerms,
@@ -118,7 +116,7 @@ export function AuctionSetupWizard() {
         return storyErrors;
       }
       case 4:
-        return validateAuctionOwnership(Boolean(ownershipDocument));
+        return {};
       default:
         return {};
     }
@@ -216,7 +214,6 @@ export function AuctionSetupWizard() {
     ...validateAuctionTerms(draft),
     ...validateAuctionReserve(draft),
     ...validateAuctionStory(draft, photos.length),
-    ...validateAuctionOwnership(Boolean(ownershipDocument)),
     ...(!carfaxValidation.valid ? { carfaxUrl: carfaxValidation.message } : {}),
   };
   const canSubmit = Object.keys(allErrors).length === 0 && attested;
@@ -246,22 +243,14 @@ export function AuctionSetupWizard() {
           All six steps complete
         </p>
         <h2 className="mt-3 text-3xl font-black uppercase">
-          Auction package ready for verification.
+          Auction preview is ready.
         </h2>
         <p className="mt-4 max-w-2xl leading-7 text-slate-700">
-          Your vehicle details, auction terms, reserve choice, photos, ownership
-          document, and seller attestation passed the form checks. Identity and
-          ownership review must still be completed before an auction can be
-          approved for publication.
+          Your vehicle details, auction terms, reserve choice, photos, and
+          private-owner attestation passed the form checks. This remains a
+          preview until live auction publishing and bidding launch.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button
-            className="rounded-none bg-[#061C2B] font-black uppercase text-white"
-            nativeButton={false}
-            render={<a href="/account/verification" />}
-          >
-            Continue to verification <ArrowRight />
-          </Button>
           <Button
             className="rounded-none border-2 border-[#061C2B] font-black uppercase"
             onClick={resetAuction}
@@ -395,8 +384,8 @@ export function AuctionSetupWizard() {
           ) : null}
         </div>
         <p className="mt-4 text-center text-xs font-bold text-slate-500">
-          Required fields are validated at every step. Nothing is published
-          without identity, ownership, and moderator review.
+          Required fields are validated at every step. Live auction publishing
+          and bidding are not available yet.
         </p>
       </div>
     </div>
@@ -455,8 +444,8 @@ function VehicleStep({
         />
       </div>
       <Notice>
-        The VIN will be decoded through NHTSA and compared with the private
-        ownership document during moderator review.
+        Buyers should compare the VIN on the vehicle with the original title or
+        registration before completing a transaction.
       </Notice>
     </StepFrame>
   );
@@ -748,11 +737,11 @@ function StoryStep({
 }
 
 function OwnershipStep({
-  chooseOwnershipDocument,
-  document,
-  error,
-  message,
-  removeDocument,
+  chooseOwnershipDocument: _chooseOwnershipDocument,
+  document: _document,
+  error: _error,
+  message: _message,
+  removeDocument: _removeDocument,
 }: {
   chooseOwnershipDocument: (event: ChangeEvent<HTMLInputElement>) => void;
   document?: File;
@@ -761,57 +750,15 @@ function OwnershipStep({
   removeDocument: () => void;
 }) {
   return (
-    <StepFrame eyebrow="Step 5 of 6" title="Prove you own the vehicle.">
+    <StepFrame eyebrow="Step 5 of 6" title="Confirm the private-owner rules.">
       <p className="max-w-2xl leading-7 text-slate-600">
-        Select a current title or registration. Review compares only the legal
-        name and VIN. The document must never appear on the public auction.
+        No identity scan or ownership-document upload is required. Dealers,
+        brokers, resellers, representatives, and consignment inventory are not
+        allowed on Owner Only Cars.
       </p>
-      <div className="mt-7 flex min-h-52 max-w-2xl flex-col items-center justify-center border-2 border-dashed border-[#061C2B] bg-slate-50 p-8 text-center">
-        <FileCheck2 className="size-10 text-[#0B8F89]" />
-        <label
-          className="mt-4 font-black uppercase"
-          htmlFor="auction-ownership-document"
-        >
-          {document ? 'Replace private document' : 'Choose private document'}
-        </label>
-        <span className="mt-2 text-sm text-slate-600">
-          PDF, JPG, PNG, or WebP · 10 MB maximum
-        </span>
-        <Input
-          accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
-          className="mt-4 h-auto cursor-pointer rounded-none border-2 border-[#061C2B] bg-white py-2 file:mr-4 file:border-0 file:bg-[#16C7BE] file:px-4 file:py-2 file:font-black file:uppercase"
-          id="auction-ownership-document"
-          onChange={chooseOwnershipDocument}
-          type="file"
-        />
-      </div>
-      <FieldError message={error} />
-      {message ? (
-        <p className="mt-3 text-sm font-bold text-red-700" role="alert">
-          {message}
-        </p>
-      ) : null}
-      {document ? (
-        <div className="mt-5 flex max-w-2xl items-center justify-between gap-4 border-2 border-[#0B8F89] bg-teal-50 p-4">
-          <div className="min-w-0">
-            <p className="font-black uppercase">Private document selected</p>
-            <p className="mt-1 truncate text-sm text-slate-600">
-              {document.name} · {(document.size / (1024 * 1024)).toFixed(1)} MB
-            </p>
-          </div>
-          <Button
-            className="shrink-0 rounded-none border-red-300 text-red-700 hover:bg-red-50"
-            onClick={removeDocument}
-            variant="outline"
-          >
-            <Trash2 /> Remove
-          </Button>
-        </div>
-      ) : null}
       <Notice>
-        Practice mode keeps the selected file only in this browser tab. The
-        production launch will use private, access-controlled storage with
-        automatic retention deletion.
+        Sellers must still have the legal right to sell the vehicle. Buyers
+        should inspect the original title or registration independently.
       </Notice>
     </StepFrame>
   );
@@ -821,7 +768,7 @@ function ReviewStep({
   attested,
   canSubmit,
   draft,
-  document,
+  document: _document,
   onAttestedChange,
   onSubmit,
   photoCount,
@@ -847,12 +794,12 @@ function ReviewStep({
     ['Title / lien', `${draft.titleStatus} · ${draft.lienStatus}`],
     [
       'Seller materials',
-      `${photoCount} photos · ${document?.name ?? 'No ownership document'}`,
+      `${photoCount} photos · no document upload required`,
     ],
   ];
 
   return (
-    <StepFrame eyebrow="Step 6 of 6" title="Review before verification.">
+    <StepFrame eyebrow="Step 6 of 6" title="Review your auction preview.">
       <div className="grid gap-4 sm:grid-cols-2">
         {items.map(([label, value]) => (
           <div
@@ -869,8 +816,9 @@ function ReviewStep({
       <div className="mt-6 flex gap-3 border-2 border-[#16C7BE] bg-[#dff4f1] p-5">
         <ShieldCheck className="mt-0.5 size-6 shrink-0 text-[#0B8F89]" />
         <p className="text-sm leading-6">
-          Identity verification is separate from ownership review. Neither check
-          guarantees the vehicle’s mechanical condition or a safe transaction.
+          Owner Only Cars does not verify seller identity or ownership
+          documents. Buyers must independently inspect the vehicle, paperwork,
+          and seller before completing any transaction.
         </p>
       </div>
       <label className="mt-6 flex items-start gap-3 text-sm leading-6">
@@ -891,7 +839,7 @@ function ReviewStep({
         disabled={!canSubmit}
         onClick={onSubmit}
       >
-        <Gavel /> Prepare for verification
+        <Gavel /> Finish auction preview
       </Button>
       {!attested ? (
         <p className="mt-3 text-sm font-bold text-amber-800">

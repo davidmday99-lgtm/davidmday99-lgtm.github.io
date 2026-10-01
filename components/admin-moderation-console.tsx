@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  AlertTriangle,
   BadgeCheck,
   Ban,
   CheckCircle2,
@@ -106,7 +105,7 @@ function humanizeFlag(flag: string) {
 
 export function AdminModerationConsole() {
   const [data, setData] = useState<DashboardData>();
-  const [tab, setTab] = useState<Tab>('documents');
+  const [tab, setTab] = useState<Tab>('accounts');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState<string>();
@@ -185,17 +184,6 @@ export function AdminModerationConsole() {
     queueMicrotask(() => void loadDashboard());
   }, [loadDashboard]);
 
-  const queue = useMemo(
-    () =>
-      data?.reviews.filter(
-        (review) =>
-          review.status === 'human_review' ||
-          review.status === 'queued' ||
-          review.status === 'ai_reviewing',
-      ) ?? [],
-    [data],
-  );
-  const highRisk = queue.filter((review) => review.riskLevel === 'high').length;
   const blockedUsers = data?.users.filter(isBlocked).length ?? 0;
   const visibleUsers = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -323,18 +311,8 @@ export function AdminModerationConsole() {
   return (
     <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
       <div className="grid gap-4 md:grid-cols-3">
-        <Metric
-          icon={FileSearch}
-          label="Waiting for review"
-          value={queue.length}
-          tone="teal"
-        />
-        <Metric
-          icon={AlertTriangle}
-          label="High-risk flags"
-          value={highRisk}
-          tone="amber"
-        />
+        <Metric icon={Users} label="Accounts" value={data?.users.length ?? 0} tone="teal" />
+        <Metric icon={History} label="Audit events" value={data?.actions.length ?? 0} tone="amber" />
         <Metric
           icon={Ban}
           label="Blocked accounts"
@@ -349,12 +327,6 @@ export function AdminModerationConsole() {
           role="tablist"
           aria-label="Moderation sections"
         >
-          <TabButton
-            active={tab === 'documents'}
-            onClick={() => setTab('documents')}
-          >
-            <FileSearch /> Documents
-          </TabButton>
           <TabButton
             active={tab === 'accounts'}
             onClick={() => setTab('accounts')}
@@ -630,8 +602,7 @@ export function AdminModerationConsole() {
                         {marketplaceUser.email}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
-                        Joined {formatDate(marketplaceUser.createdAt)} · ID:{' '}
-                        {marketplaceUser.identityStatus.replaceAll('_', ' ')}
+                        Joined {formatDate(marketplaceUser.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -669,7 +640,7 @@ export function AdminModerationConsole() {
                       </>
                     ) : (
                       <>
-                        <Ban /> Block account
+                        <Ban /> Block & remove listings
                       </>
                     )}
                   </Button>
